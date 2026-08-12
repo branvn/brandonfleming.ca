@@ -1,0 +1,30 @@
+# Hugo build output and caches
+/public/
+/resources/_gen/
+/.hugo_build.lock
+hugo_stats.json
+
+# Archived pre-Hugo site — delete once you're confident you don't need it
+/_archive/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# Node (only if you later add tooling)
+node_modules/
+
+# Python (tracker script)
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Local design preview (not part of the Hugo site)
+/_preview/
+
+# Python bytecode
+scripts/__pycache__/

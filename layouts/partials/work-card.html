@@ -1,0 +1,25 @@
+<article class="card">
+  {{ with .Params.thumb }}
+    <a class="card-thumb" href="{{ $.RelPermalink }}" tabindex="-1" aria-hidden="true">
+      <img src="{{ . | relURL }}" alt="" loading="lazy" decoding="async" width="900" height="675">
+    </a>
+  {{ end }}
+
+  <div class="card-body">
+    <p class="card-meta">
+      {{ with .Params.year }}<span>{{ . }}</span>{{ end }}
+      {{ with .Params.kind }}<span>{{ . }}</span>{{ end }}
+      {{ if eq .Params.status "in-progress" }}<span class="tag-wip">In progress</span>{{ end }}
+    </p>
+
+    <h3><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+
+    <p class="card-summary">{{ .Params.summary | default (.Summary | plainify) }}</p>
+
+    {{ with .Params.tools }}
+      <p class="card-tools">{{ delimit . " · " }}</p>
+    {{ end }}
+
+    <p class="card-link"><a href="{{ .RelPermalink }}">Read more →</a></p>
+  </div>
+</article>

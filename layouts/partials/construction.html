@@ -1,0 +1,16 @@
+{{/* Holding page. Controlled by `underConstruction` in hugo.toml — never by
+     editing CSS. Note there is deliberately no date promised here: a public
+     banner announcing a deadline you then miss is worse than no banner. */}}
+<div class="holding" role="dialog" aria-modal="true" aria-labelledby="holding-title">
+  <div class="holding-card">
+    <h1 id="holding-title">{{ site.Params.fullName }}</h1>
+    <p class="holding-role">{{ site.Params.tagline }}</p>
+    <hr>
+    <p>Portfolio in progress. In the meantime you can reach me directly.</p>
+    <p class="holding-links">
+      <a href="mailto:{{ site.Params.email }}">{{ site.Params.email }}</a> ·
+      <a href="{{ site.Params.linkedin }}" rel="noopener">LinkedIn</a> ·
+      <a href="{{ site.Params.resume }}">Résumé</a>
+    </p>
+  </div>
+</div>

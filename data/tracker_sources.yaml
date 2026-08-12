@@ -1,0 +1,72 @@
+# Sources for the Bill 44 tracker.
+#
+# Each source is polled by scripts/track_bill44.py. Anything matching the
+# keyword list below becomes an UNREVIEWED candidate in data/tracker.json.
+# Nothing appears on the site until you write a `note` for it by hand.
+#
+# mode: "rss"  — a real feed. Reliable, cheap, preferred.
+# mode: "html" — scrape links off a page. Fragile; municipal sites are
+#                redesigned without warning. Check these occasionally.
+#
+# IMPORTANT: only headline, link, and date are ever stored. Never store article
+# body text — that's someone else's copyright.
+
+keywords:
+  - "bill 44"
+  - "ssmuh"
+  - "small-scale multi-unit"
+  - "small scale multi unit"
+  - "small-scale multi unit"
+  - "housing statutes amendment"
+  - "upzoning"
+  - "upzone"
+  - "multiplex"
+  - "fourplex"
+  - "sixplex"
+  - "transit-oriented area"
+
+sources:
+  # --- Regional and provincial news (RSS) ---------------------------------
+  - name: "Business in Vancouver"
+    jurisdiction: "Metro Vancouver"
+    type: "news"
+    mode: "rss"
+    url: "https://www.biv.com/rss"
+
+  - name: "Daily Hive Urbanized"
+    jurisdiction: "Metro Vancouver"
+    type: "news"
+    mode: "rss"
+    url: "https://dailyhive.com/feed/urbanized"
+
+  - name: "CBC British Columbia"
+    jurisdiction: "British Columbia"
+    type: "news"
+    mode: "rss"
+    url: "https://www.cbc.ca/webfeed/rss/rss-canada-britishcolumbia"
+
+  - name: "BC Government News — Housing"
+    jurisdiction: "British Columbia"
+    type: "provincial"
+    mode: "rss"
+    url: "https://news.gov.bc.ca/ministries/housing.rss"
+
+  # --- Municipal council agendas ------------------------------------------
+  # This is the part nobody else aggregates, and the reason the tracker is
+  # worth building. Verify each selector once, then leave it alone.
+  #
+  # Uncomment and adjust as you confirm each municipality's agenda page.
+  #
+  # - name: "City of Surrey — Council Agendas"
+  #   jurisdiction: "Surrey"
+  #   type: "council"
+  #   mode: "html"
+  #   url: "https://www.surrey.ca/city-government/councils-committees/city-council/agendas-minutes"
+  #   link_contains: "agenda"
+  #
+  # - name: "City of New Westminster — Council Agendas"
+  #   jurisdiction: "New Westminster"
+  #   type: "council"
+  #   mode: "html"
+  #   url: "https://www.newwestcity.ca/council-agendas-minutes"
+  #   link_contains: "agenda"

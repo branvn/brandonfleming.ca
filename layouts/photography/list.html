@@ -1,0 +1,43 @@
+{{ define "bodyclass" }}gallery-page{{ end }}
+
+{{ define "main" }}
+  <header class="page-head">
+    <h1>{{ .Title }}</h1>
+    {{ with .Content }}<div class="page-intro">{{ . }}</div>{{ end }}
+  </header>
+
+  {{/* Photos live as page resources in content/photography/ — just drop the
+       JPEGs in that folder. Hugo generates the thumbnails at build time and
+       caches them in resources/_gen, so the originals are only processed once.
+
+       Keep originals under ~3000px on the long edge before committing; git
+       stores every version of a binary forever. */}}
+  {{ $photos := .Resources.ByType "image" }}
+
+  {{ if $photos }}
+    <div class="gallery">
+      {{ range $photos }}
+        {{ $thumb := .Fill "700x700 Smart q82" }}
+        {{ $full  := cond (gt .Width 2000) (.Resize "2000x q86") . }}
+        {{ $meta  := false }}
+        {{ with $.Params.captions }}{{ $meta = index . $.Name }}{{ end }}
+        <figure class="shot">
+          <a href="{{ $full.RelPermalink }}">
+            <img src="{{ $thumb.RelPermalink }}"
+                 width="{{ $thumb.Width }}" height="{{ $thumb.Height }}"
+                 alt="{{ with $meta }}{{ .alt | default .caption }}{{ end }}"
+                 loading="lazy" decoding="async">
+          </a>
+          {{ with $meta }}
+            <figcaption>
+              {{ with .caption }}<span class="shot-caption">{{ . }}</span>{{ end }}
+              {{ with .place }}<span class="shot-place">{{ . }}</span>{{ end }}
+            </figcaption>
+          {{ end }}
+        </figure>
+      {{ end }}
+    </div>
+  {{ else }}
+    <p class="empty">No photographs published yet.</p>
+  {{ end }}
+{{ end }}

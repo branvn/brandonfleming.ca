@@ -1,0 +1,12 @@
+{{ define "main" }}
+  <header class="page-head">
+    <h1>{{ .Title }}</h1>
+    {{ with .Content }}<div class="page-intro">{{ . }}</div>{{ end }}
+  </header>
+
+  <div class="cards">
+    {{ range .Pages.ByParam "weight" }}
+      {{ partial "work-card.html" . }}
+    {{ end }}
+  </div>
+{{ end }}

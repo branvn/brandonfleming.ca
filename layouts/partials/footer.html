@@ -1,0 +1,22 @@
+<footer class="site-foot">
+  <div class="foot-col">
+    <h2>Based in</h2>
+    <p>{{ site.Params.location }}</p>
+  </div>
+
+  <div class="foot-col">
+    <h2>Focus</h2>
+    <p>Housing policy, agricultural land use, and spatial analysis</p>
+  </div>
+
+  <div class="foot-col">
+    <h2>Contact</h2>
+    <p>
+      <a href="mailto:{{ site.Params.email }}">{{ site.Params.email }}</a><br>
+      <a href="{{ site.Params.linkedin }}" rel="me noopener">LinkedIn</a> ·
+      <a href="{{ site.Params.resume }}">Résumé (PDF)</a>
+    </p>
+  </div>
+
+  <p class="foot-legal">© {{ now.Year }} {{ site.Params.fullName }}</p>
+</footer>

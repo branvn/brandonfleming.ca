@@ -1,0 +1,24 @@
+<header class="site-head">
+  <a class="brand" href="{{ "/" | relURL }}">
+    <span class="brand-name">{{ site.Params.fullName }}</span>
+    <span class="brand-role">{{ site.Params.tagline }}</span>
+  </a>
+
+  <nav class="site-nav" aria-label="Primary">
+    {{ $current := . }}
+    {{ range site.Menus.main }}
+      {{ $active := or ($current.IsMenuCurrent "main" .) ($current.HasMenuCurrent "main" .) }}
+      <a href="{{ .URL }}"{{ if $active }} class="is-active" aria-current="page"{{ end }}>{{ .Name }}</a>
+    {{ end }}
+    {{ if site.Params.showTracker }}
+      <a href="{{ "/tracker/" | relURL }}"{{ if hasPrefix .RelPermalink "/tracker" }} class="is-active" aria-current="page"{{ end }}>Bill 44 Tracker</a>
+    {{ end }}
+  </nav>
+
+  {{/* Map marginalia. Surrey City Hall — a civic landmark, not a home address. */}}
+  <div class="coords" aria-hidden="true">
+    <span>LAT {{ site.Params.lat }}</span>
+    <span>LNG {{ site.Params.lng }}</span>
+    <span>ELEV {{ site.Params.elev }}</span>
+  </div>
+</header>

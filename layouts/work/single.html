@@ -1,0 +1,50 @@
+{{ define "bodyclass" }}reading{{ end }}
+
+{{ define "main" }}
+<article class="project">
+
+  <p class="breadcrumb"><a href="{{ "/work/" | relURL }}">← Work</a></p>
+
+  <header class="project-head">
+    <h1>{{ .Title }}</h1>
+    {{ with .Params.summary }}<p class="lede">{{ . }}</p>{{ end }}
+  </header>
+
+  {{/* Field-notes block: the facts an employer scans for before reading. */}}
+  <dl class="fieldnotes">
+    {{ with .Params.year }}<div><dt>Year</dt><dd>{{ . }}</dd></div>{{ end }}
+    {{ with .Params.context }}<div><dt>Context</dt><dd>{{ . }}</dd></div>{{ end }}
+    {{ with .Params.role }}<div><dt>Role</dt><dd>{{ . }}</dd></div>{{ end }}
+    {{ with .Params.tools }}<div><dt>Tools</dt><dd>{{ delimit . ", " }}</dd></div>{{ end }}
+    {{ if eq .Params.status "in-progress" }}<div><dt>Status</dt><dd>In progress</dd></div>{{ end }}
+  </dl>
+
+  {{ with .Params.hero }}
+    <figure class="project-hero">
+      <a href="{{ $.Params.heroFull | default . | relURL }}">
+        <img src="{{ . | relURL }}" alt="{{ $.Params.heroAlt }}" loading="lazy" decoding="async">
+      </a>
+      {{ with $.Params.heroCaption }}<figcaption>{{ . | markdownify }}</figcaption>{{ end }}
+    </figure>
+  {{ end }}
+
+  <div class="prose">
+    {{ .Content }}
+  </div>
+
+  {{ with .Params.download }}
+    <p class="download">
+      <a class="btn" href="{{ .url | relURL }}">{{ .label | default "Download PDF" }}</a>
+      {{ with .note }}<span class="download-note">{{ . }}</span>{{ end }}
+    </p>
+  {{ end }}
+
+  {{ with .Params.sources }}
+    <section class="sources">
+      <h2>Data &amp; sources</h2>
+      <ul>{{ range . }}<li>{{ . | markdownify }}</li>{{ end }}</ul>
+    </section>
+  {{ end }}
+
+</article>
+{{ end }}

@@ -1,0 +1,44 @@
+{{ define "bodyclass" }}reading{{ end }}
+
+{{ define "main" }}
+  <header class="page-head">
+    <h1>{{ .Title }}</h1>
+    {{ with .Content }}<div class="page-intro">{{ . }}</div>{{ end }}
+  </header>
+
+  {{/* Entries come from data/tracker.json, written by scripts/track_bill44.py
+       and committed by the GitHub Action. The `note` field is written by hand —
+       that annotation is the point of the tracker; the automation only
+       surfaces candidates. Entries without a note are treated as unreviewed
+       and are not published. */}}
+  {{ $entries := slice }}
+  {{ with site.Data.tracker }}
+    {{ with .entries }}
+      {{ $entries = sort (where . "note" "!=" "") "date" "desc" }}
+    {{ end }}
+  {{ end }}
+
+  {{ if $entries }}
+    <p class="tracker-updated">
+      {{ len $entries }} reviewed item{{ if ne (len $entries) 1 }}s{{ end }}.
+      {{ with site.Data.tracker.updated }}Last checked {{ dateFormat "2 January 2006" . }}.{{ end }}
+    </p>
+
+    <ol class="tracker">
+      {{ range $entries }}
+        <li class="tracker-item">
+          <p class="tracker-meta">
+            <time datetime="{{ .date }}">{{ dateFormat "2 Jan 2006" .date }}</time>
+            {{ with .jurisdiction }}<span class="pill">{{ . }}</span>{{ end }}
+            {{ with .type }}<span class="pill pill-type">{{ . }}</span>{{ end }}
+          </p>
+          <h2><a href="{{ .url }}" rel="noopener">{{ .title }}</a></h2>
+          {{ with .source }}<p class="tracker-source">{{ . }}</p>{{ end }}
+          <p class="tracker-note">{{ .note | markdownify }}</p>
+        </li>
+      {{ end }}
+    </ol>
+  {{ else }}
+    <p class="empty">No reviewed entries yet.</p>
+  {{ end }}
+{{ end }}

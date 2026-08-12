@@ -1,0 +1,14 @@
+# Normalise line endings so Windows (CRLF) and Linux (LF) don't fight.
+# Everything is stored LF in the repo; Git checks out whatever your OS wants.
+* text=auto eol=lf
+
+# Never touch binaries
+*.pdf  binary
+*.jpg  binary
+*.jpeg binary
+*.png  binary
+*.webp binary
+*.gif  binary
+*.ico  binary
+*.woff binary
+*.woff2 binary

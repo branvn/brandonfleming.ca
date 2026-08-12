@@ -1,0 +1,78 @@
+baseURL = "https://brandonfleming.ca/"
+languageCode = "en-ca"
+title = "Brandon Fleming"
+enableRobotsTXT = true
+enableGitInfo = false
+
+# Drafts are hidden in production builds. Use `hugo server -D` to preview them.
+buildDrafts = false
+buildFuture  = false
+
+summaryLength = 30
+
+[params]
+  # --- Identity -------------------------------------------------------------
+  fullName = "Brandon Fleming"
+  tagline  = "Urban Studies Graduate Student | GIS & Policy Analysis"
+  location = "Surrey, British Columbia"
+  email    = "contact@brandonfleming.ca"
+  phone    = "778-228-0051"
+  linkedin = "https://www.linkedin.com/in/brandon-fleming"
+  resume   = "/documents/brandon-fleming-resume.pdf"
+
+  # Shown in the header corner. Surrey City Hall — a public civic landmark,
+  # deliberately NOT a residential address.
+  lat  = "49.1913° N"
+  lng  = "122.8490° W"
+  elev = "76 m"
+
+  # --- SEO ------------------------------------------------------------------
+  description = "Urban studies graduate researcher and GIS analyst in Metro Vancouver. Spatial analysis of housing policy, agricultural land use, and BC's Bill 44."
+  ogImage = "/images/og-default.png"
+
+  # --- Feature switches -----------------------------------------------------
+  # Flip to true to put the whole site behind a holding page.
+  underConstruction = false
+  # Flip to true once the Bill 44 tracker has real entries in it.
+  showTracker = false
+
+[menu]
+  [[menu.main]]
+    name = "Work"
+    pageRef = "/work"
+    weight = 10
+  [[menu.main]]
+    name = "Writing"
+    pageRef = "/writing"
+    weight = 20
+  [[menu.main]]
+    name = "Photography"
+    pageRef = "/photography"
+    weight = 30
+  [[menu.main]]
+    name = "About"
+    pageRef = "/about"
+    weight = 40
+
+[markup]
+  [markup.goldmark.renderer]
+    unsafe = true          # allows raw HTML (iframes for ArcGIS StoryMaps)
+  [markup.tableOfContents]
+    startLevel = 2
+    endLevel   = 3
+
+[taxonomies]
+  tag = "tags"
+
+[imaging]
+  quality = 84
+  resampleFilter = "Lanczos"
+
+[minify]
+  minifyOutput = true
+
+[permalinks]
+  writing = "/writing/:slug/"
+
+[outputs]
+  home = ["HTML", "RSS"]

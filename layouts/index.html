@@ -1,0 +1,46 @@
+{{ define "bodyclass" }}home{{ end }}
+
+{{ define "main" }}
+
+  <section class="hero">
+    <h1>{{ with .Params.heroLead }}{{ . }}{{ end }}
+      <span class="hero-accent">{{ with .Params.heroAccent }}{{ . }}{{ end }}</span>
+    </h1>
+    {{ with .Content }}<div class="hero-body">{{ . }}</div>{{ end }}
+  </section>
+
+  {{ $work := where site.RegularPages "Section" "work" }}
+  {{ $work = $work.ByParam "weight" }}
+
+  <section class="work-grid" aria-labelledby="work-heading">
+    <h2 id="work-heading" class="section-label">Selected work</h2>
+
+    <div class="cards">
+      {{ range first 4 $work }}
+        {{ partial "work-card.html" . }}
+      {{ end }}
+    </div>
+
+    {{ if gt (len $work) 4 }}
+      <p class="more"><a href="{{ "/work/" | relURL }}">All work →</a></p>
+    {{ end }}
+  </section>
+
+  {{ with site.GetPage "/writing" }}
+    {{ $posts := where site.RegularPages "Section" "writing" }}
+    {{ if $posts }}
+      <section class="recent" aria-labelledby="recent-heading">
+        <h2 id="recent-heading" class="section-label">Recent writing</h2>
+        <ul class="post-list">
+          {{ range first 3 ($posts.ByDate.Reverse) }}
+            <li>
+              <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+              <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2006" }}</time>
+            </li>
+          {{ end }}
+        </ul>
+      </section>
+    {{ end }}
+  {{ end }}
+
+{{ end }}

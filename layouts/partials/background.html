@@ -1,0 +1,12 @@
+{{/* Static topographic contour field.
+
+     Replaces the old animated blobs + mousemove handler: no JavaScript, no
+     compositing cost, ~2.4 KB over the wire. The SVG is generated from a
+     synthetic fractal terrain — to swap in real terrain, regenerate it from a
+     Metro Vancouver DEM and drop the result at assets/img/contours.svg. */}}
+<div class="topo" aria-hidden="true">
+  {{ with resources.Get "img/contours.svg" }}
+    {{ .Content | safeHTML }}
+  {{ end }}
+</div>
+<div class="grain" aria-hidden="true"></div>

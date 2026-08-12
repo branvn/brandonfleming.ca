@@ -1,0 +1,61 @@
+{{- $title := cond .IsHome (printf "%s — %s" site.Params.fullName site.Params.tagline) (printf "%s | %s" .Title site.Params.fullName) -}}
+{{- $desc := or .Description .Params.summary (.Summary | plainify | truncate 155) site.Params.description -}}
+{{- $desc = $desc | plainify | chomp -}}
+{{- $ogimg := absURL (or .Params.image site.Params.ogImage) -}}
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ $title }}</title>
+<meta name="description" content="{{ $desc }}">
+<link rel="canonical" href="{{ .Permalink }}">
+<meta name="author" content="{{ site.Params.fullName }}">
+{{ if .Params.noindex }}<meta name="robots" content="noindex, nofollow">{{ end }}
+
+{{/* Open Graph — controls the preview card when the link is pasted into
+     LinkedIn, Slack, or an email client. */}}
+<meta property="og:type" content="{{ cond .IsPage "article" "website" }}">
+<meta property="og:site_name" content="{{ site.Params.fullName }}">
+<meta property="og:title" content="{{ $title }}">
+<meta property="og:description" content="{{ $desc }}">
+<meta property="og:url" content="{{ .Permalink }}">
+<meta property="og:image" content="{{ $ogimg }}">
+<meta property="og:locale" content="en_CA">
+{{ with .Date }}<meta property="article:published_time" content="{{ .Format "2006-01-02" }}">{{ end }}
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ $title }}">
+<meta name="twitter:description" content="{{ $desc }}">
+<meta name="twitter:image" content="{{ $ogimg }}">
+
+{{ with .OutputFormats.Get "rss" }}
+  <link rel="alternate" type="application/rss+xml" href="{{ .Permalink }}" title="{{ site.Title }}">
+{{ end }}
+
+{{/* Stylesheet: minified + fingerprinted so browsers cache it forever but
+     still pick up changes the moment you rebuild. */}}
+{{ $css := resources.Get "css/main.css" | minify | fingerprint }}
+<link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#051014">
+
+{{/* Structured data — helps Google show your name, role and links correctly. */}}
+{{ if .IsHome }}
+<script type="application/ld+json">
+{{ dict
+  "@context" "https://schema.org"
+  "@type" "Person"
+  "name" site.Params.fullName
+  "url" site.BaseURL
+  "email" (printf "mailto:%s" site.Params.email)
+  "jobTitle" "Urban Studies Graduate Researcher"
+  "address" (dict "@type" "PostalAddress" "addressLocality" "Surrey" "addressRegion" "BC" "addressCountry" "CA")
+  "alumniOf" (slice
+      (dict "@type" "CollegeOrUniversity" "name" "Simon Fraser University")
+      (dict "@type" "CollegeOrUniversity" "name" "British Columbia Institute of Technology")
+      (dict "@type" "CollegeOrUniversity" "name" "Kwantlen Polytechnic University"))
+  "sameAs" (slice site.Params.linkedin)
+  | jsonify (dict "indent" "  ")
+  | safeJS }}
+</script>
+{{ end }}
