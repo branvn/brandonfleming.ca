@@ -1,12 +1,14 @@
-{{/* Static topographic contour field.
+{{/* Contour plate of the Lower Mainland.
 
-     Replaces the old animated blobs + mousemove handler: no JavaScript, no
-     compositing cost, ~2.4 KB over the wire. The SVG is generated from a
-     synthetic fractal terrain — to swap in real terrain, regenerate it from a
-     Metro Vancouver DEM and drop the result at assets/img/contours.svg. */}}
+     Inlined rather than linked so it paints with the first response — it's
+     ~72 KB gzipped and there's no second round trip. Each contour band is a
+     group that assets/js/terrain.js can light; with JS off it's simply a map.
+
+     Regenerate after changing the source layers or the framing:
+         python scripts/make_plate.py --contours <contours.shp> \
+                --land <land.shp> --water <rivers.shp> <lakes.shp>      */}}
+
 <div class="topo" aria-hidden="true">
-  {{ with resources.Get "img/contours.svg" }}
-    {{ .Content | safeHTML }}
-  {{ end }}
+  {{ with resources.Get "img/plate.svg" }}{{ .Content | safeHTML }}{{ end }}
 </div>
 <div class="grain" aria-hidden="true"></div>

@@ -2,12 +2,16 @@
 
 {{ define "main" }}
 
-  <section class="hero">
-    <h1>{{ with .Params.heroLead }}{{ . }}{{ end }}
-      <span class="hero-accent">{{ with .Params.heroAccent }}{{ . }}{{ end }}</span>
-    </h1>
-    {{ with .Content }}<div class="hero-body">{{ . }}</div>{{ end }}
-  </section>
+  <div class="hero-wrap">
+    <section class="hero">
+      <h1>{{ with .Params.heroLead }}{{ . }}{{ end }}
+        <span class="hero-accent">{{ with .Params.heroAccent }}{{ . }}{{ end }}</span>
+      </h1>
+      {{ with .Content }}<div class="hero-body">{{ . }}</div>{{ end }}
+    </section>
+
+    {{ partial "tracker-rail.html" . }}
+  </div>
 
   {{ $work := where site.RegularPages "Section" "work" }}
   {{ $work = $work.ByParam "weight" }}

@@ -1,11 +1,44 @@
 /* ==========================================================================
    brandonfleming.ca
-   Hand-written. No framework, no build step beyond Hugo Pipes, no JavaScript.
+   Hand-written. No framework, no build step beyond Hugo Pipes.
+
+   Type is Jost* (Futura revival) with Michroma (after Eurostile) on the hero.
+
+   The only JavaScript on the site is assets/js/terrain.js, which lights the
+   contour bands below the pointer's elevation. Everything works without it.
 
    Palette is the cartography set from the original design — deep trench,
-   shallow water, vegetation, topographic sand. Muted text has been raised
-   from 50% to 72% opacity so body copy clears WCAG AA.
+   shallow water, vegetation, topographic sand. Muted text sits at 72% rather
+   than 50% opacity: the original passed AA at 4.75:1, but body copy is far
+   more comfortable at 8.9:1.
    ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Type — the 1986 pairing.
+
+   Jost*      Owen Earl / indestructible type*, SIL OFL 1.1 — a Futura revival.
+              Variable 100–900 in one 25 KB file. Carries the whole interface.
+   Michroma   Vernon Adams, SIL OFL 1.1 — after Eurostile/Microgramma, 1952.
+              Squared, wide, single weight. The hero and nothing else.
+
+   Served from static/fonts/ at /fonts/. Basteleur's files are still in there,
+   unreferenced, if you ever want it back.
+   -------------------------------------------------------------------------- */
+
+@font-face {
+  font-family: "Jost";
+  src: url("/fonts/Jost.woff2") format("woff2");
+  font-weight: 100 900;          /* variable wght axis */
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Michroma";
+  src: url("/fonts/Michroma.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 
 :root {
   /* Surfaces */
@@ -34,9 +67,15 @@
   --ink-dim:    #48544f;
   --ink-link:   #0d5b58;
 
-  /* Type */
-  --font-ui:   ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-               "Helvetica Neue", Arial, sans-serif;
+  /* Type
+     --font-hero    Michroma. The home page headline only. One weight, very
+                    wide, no small-size behaviour worth having.
+     --font-display Jost. Page and article h1, card titles, the brand mark.
+     --font-ui      Jost. Everything else on the interface. */
+  --font-hero:    "Michroma", "Jost", var(--font-ui);
+  --font-display: "Jost", ui-sans-serif, system-ui, sans-serif;
+  --font-ui:   "Jost", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+               Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-read: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia,
                "Times New Roman", serif;
   --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", "Segoe UI Mono",
@@ -66,7 +105,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-ui);
-  font-size: clamp(1rem, .96rem + .2vw, 1.0625rem);
+  font-size: clamp(1.0625rem, 1rem + .25vw, 1.1875rem);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
@@ -95,18 +134,59 @@ a:hover { color: var(--sand-hi); }
 .skip-link:focus { left: 0; top: 0; }
 
 /* --------------------------------------------------------------------------
-   Background — static topographic contours. No JS, no animation, no blur.
+   Background — contour plate of the Lower Mainland, built from a 25 m DEM.
+   Inline SVG; the pointer lights every band below its elevation.
    -------------------------------------------------------------------------- */
 
 .topo {
   position: fixed; inset: 0; z-index: -2;
   pointer-events: none;
-  background:
-    radial-gradient(140% 90% at 15% 0%,  rgba(7,87,91,.42),  transparent 62%),
-    radial-gradient(120% 80% at 95% 100%, rgba(42,111,65,.24), transparent 58%),
-    var(--bg);
+  background: var(--bg);
+  overflow: hidden;
+
+  /* Feather the plate into the background so the DEM's own clip edges and the
+     limit of Metro Vancouver's coverage dissolve instead of terminating in a
+     straight line. Softer than a vignette — the plate now fills the viewport,
+     so this only has to dissolve the outermost few percent. */
+  -webkit-mask-image: radial-gradient(ellipse 102% 102% at 50% 46%, #000 70%, transparent 100%);
+          mask-image: radial-gradient(ellipse 102% 102% at 50% 46%, #000 70%, transparent 100%);
 }
+
+/* The SVG carries preserveAspectRatio="xMidYMid slice", so this fills the
+   viewport and crops rather than letterboxing on a wide monitor. */
 .topo svg { width: 100%; height: 100%; display: block; }
+
+/* Line weights. vector-effect keeps hairlines hairline at any viewport, which
+   is the whole reason this is SVG and not a raster. */
+.topo path {
+  fill: none;
+  stroke: #7fd4c1;
+  vector-effect: non-scaling-stroke;
+}
+
+.topo #coast path {
+  stroke-width: 1.25;
+  stroke-opacity: .52;
+}
+
+.topo g.b path {
+  stroke-width: .65;
+  stroke-opacity: .22;
+  transition: stroke-opacity .45s ease, stroke .45s ease, stroke-width .45s ease;
+}
+
+/* Bands at or below the pointer's elevation threshold. Each band carries its
+   own --c from the hypsometric ramp in scripts/make_plate.py: green at sea
+   level through sand and orange to near-white on the summits. */
+.topo g.b.lit path {
+  stroke: var(--c, var(--sand));
+  stroke-opacity: .62;
+  stroke-width: .85;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .topo g.b path { transition: none; }
+}
 
 .grain {
   position: fixed; inset: 0; z-index: -1;
@@ -127,7 +207,7 @@ a:hover { color: var(--sand-hi); }
   padding: 2rem var(--gutter) 0;
 }
 
-main { flex: 1 0 auto; padding-block: clamp(2rem, 6vw, 5rem); }
+main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw, 5rem); }
 
 /* --------------------------------------------------------------------------
    Header
@@ -145,12 +225,13 @@ main { flex: 1 0 auto; padding-block: clamp(2rem, 6vw, 5rem); }
 .brand { text-decoration: none; color: inherit; display: block; }
 .brand-name {
   display: block;
-  font-size: .8125rem; font-weight: 700;
-  letter-spacing: .13em; text-transform: uppercase;
+  font-family: var(--font-display);
+  font-size: .8125rem; font-weight: 500;
+  letter-spacing: .17em; text-transform: uppercase;
 }
 .brand-role {
   display: block; margin-top: .3rem;
-  font-size: .75rem; color: var(--text-dim);
+  font-size: .8125rem; color: var(--text-dim);
   letter-spacing: .02em;
 }
 .brand:hover .brand-name { color: var(--sand); }
@@ -161,8 +242,8 @@ main { flex: 1 0 auto; padding-block: clamp(2rem, 6vw, 5rem); }
 }
 .site-nav a {
   color: var(--text); text-decoration: none;
-  font-size: .75rem; font-weight: 600;
-  letter-spacing: .11em; text-transform: uppercase;
+  font-size: .8125rem; font-weight: 500;
+  letter-spacing: .15em; text-transform: uppercase;
   padding-bottom: .25rem;
   border-bottom: 1.5px solid transparent;
 }
@@ -173,7 +254,7 @@ main { flex: 1 0 auto; padding-block: clamp(2rem, 6vw, 5rem); }
   display: flex; flex-direction: column; gap: .3rem;
   text-align: right;
   font-family: var(--font-mono);
-  font-size: .6875rem; color: var(--text-faint);
+  font-size: .75rem; color: var(--text-faint);
   letter-spacing: .04em;
 }
 
@@ -181,12 +262,21 @@ main { flex: 1 0 auto; padding-block: clamp(2rem, 6vw, 5rem); }
    Home
    -------------------------------------------------------------------------- */
 
-.hero { padding-block: clamp(2rem, 9vw, 7rem) clamp(2rem, 5vw, 4rem); max-width: 46rem; }
+.hero { padding-block: clamp(.5rem, 2vw, 1.75rem) clamp(2rem, 5vw, 4rem); max-width: 54rem; }
 
+/* Big, tight, low-contrast weight. The scale is doing the work here, not the
+   boldness — heavy weights at this size read as shouting. */
 .hero h1 {
-  font-size: clamp(2.25rem, 6.2vw, 4.5rem);
-  font-weight: 500; letter-spacing: -.022em; line-height: 1.08;
+  font-family: var(--font-hero);
+  /* Michroma sets about 1.6x the width of a grotesque at the same size, so the
+     scale drops and the tracking goes to zero — squared faces fall apart when
+     you tighten them. */
+  font-size: clamp(1.9rem, 5.2vw, 4rem);
+  font-weight: 400;
+  letter-spacing: -.005em;
+  line-height: 1.16;
   margin: 0;
+  text-wrap: balance;
 }
 .hero-accent {
   display: block;
@@ -197,9 +287,74 @@ main { flex: 1 0 auto; padding-block: clamp(2rem, 6vw, 5rem); }
 .hero-body { margin-top: 1.75rem; max-width: var(--measure); color: var(--text-dim); }
 .hero-body p:last-child { margin-bottom: 0; }
 
+/* --------------------------------------------------------------------------
+   Tracker rail — fills the space beside the hero on wide screens.
+   Deliberately quiet: no card, no background, hairline rules only. It should
+   read as marginalia, not as a second headline competing with the hero.
+   -------------------------------------------------------------------------- */
+
+.hero-wrap {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3rem;
+  align-items: start;
+}
+
+@media (min-width: 1100px) {
+  .hero-wrap {
+    grid-template-columns: minmax(0, 1fr) 17rem;
+    gap: clamp(2rem, 5vw, 5rem);
+  }
+  .hero { padding-block: clamp(.5rem, 2vw, 1.75rem) clamp(2rem, 5vw, 4rem); }
+  .rail { padding-top: clamp(1rem, 3vw, 2.5rem); }
+}
+
+.rail { display: none; }
+@media (min-width: 1100px) { .rail { display: block; } }
+
+.rail-head {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
+  font-size: .75rem; font-weight: 600;
+  letter-spacing: .2em; text-transform: uppercase;
+  color: var(--text-faint);
+  margin: 0 0 1.25rem;
+  padding-bottom: .6rem;
+  border-bottom: 1px solid var(--line);
+}
+.rail-head time {
+  font-family: var(--font-mono); letter-spacing: .04em;
+  text-transform: none; font-weight: 400;
+}
+
+.rail-list { list-style: none; margin: 0; padding: 0; }
+.rail-list li { padding: 0 0 1.1rem; margin-bottom: 1.1rem; border-bottom: 1px solid var(--line); }
+.rail-list li:last-child { border-bottom: 0; }
+
+.rail-meta {
+  display: flex; flex-wrap: wrap; gap: .55rem; align-items: baseline;
+  margin: 0 0 .3rem;
+  font-family: var(--font-mono);
+  font-size: .6875rem; letter-spacing: .06em;
+  color: var(--text-faint); text-transform: uppercase;
+}
+
+.rail-list a {
+  color: var(--text-dim); text-decoration: none;
+  font-size: .9375rem; line-height: 1.45;
+  display: block;
+}
+.rail-list a:hover { color: var(--sand); }
+
+.rail-more { margin: 0; }
+.rail-more a {
+  font-size: .75rem; font-weight: 600;
+  letter-spacing: .12em; text-transform: uppercase;
+  text-decoration: none;
+}
+
 .section-label {
-  font-size: .6875rem; font-weight: 700;
-  letter-spacing: .16em; text-transform: uppercase;
+  font-size: .75rem; font-weight: 600;
+  letter-spacing: .2em; text-transform: uppercase;
   color: var(--text-faint);
   margin: 0 0 1.5rem;
   padding-bottom: .6rem;
@@ -242,7 +397,7 @@ main { flex: 1 0 auto; padding-block: clamp(2rem, 6vw, 5rem); }
   display: flex; flex-wrap: wrap; gap: .5rem;
   margin: 0 0 .7rem;
   font-family: var(--font-mono);
-  font-size: .6875rem; letter-spacing: .05em;
+  font-size: .75rem; letter-spacing: .05em;
   color: var(--text-faint); text-transform: uppercase;
 }
 .tag-wip {
@@ -251,21 +406,22 @@ main { flex: 1 0 auto; padding-block: clamp(2rem, 6vw, 5rem); }
   border-radius: 999px; padding: 0 .5rem;
 }
 
-.card h3 { font-size: 1.2rem; margin: 0 0 .6rem; }
+.card h3 { font-family: var(--font-display); font-size: 1.45rem; font-weight: 600;
+           letter-spacing: -.018em; line-height: 1.15; margin: 0 0 .6rem; }
 .card h3 a { color: var(--text); text-decoration: none; }
 .card:hover h3 a { color: var(--sand); }
 
-.card-summary { color: var(--text-dim); font-size: .9375rem; margin-bottom: 1rem; }
+.card-summary { color: var(--text-dim); font-size: 1.0625rem; margin-bottom: 1rem; }
 
 .card-tools {
   margin-top: auto; margin-bottom: .9rem;
-  font-family: var(--font-mono); font-size: .75rem;
+  font-family: var(--font-mono); font-size: .8125rem;
   color: var(--text-faint);
 }
 
 .card-link { margin: 0; }
 .card-link a {
-  font-size: .75rem; font-weight: 600;
+  font-size: .8125rem; font-weight: 600;
   letter-spacing: .1em; text-transform: uppercase;
   text-decoration: none;
 }
@@ -277,7 +433,8 @@ main { flex: 1 0 auto; padding-block: clamp(2rem, 6vw, 5rem); }
    -------------------------------------------------------------------------- */
 
 .page-head { margin-bottom: 2.5rem; max-width: var(--measure); }
-.page-head h1 { font-size: clamp(2rem, 4.5vw, 3rem); font-weight: 500; letter-spacing: -.02em; }
+.page-head h1 { font-family: var(--font-display); font-size: clamp(2.25rem, 5.5vw, 4rem);
+                 font-weight: 500; letter-spacing: -.032em; line-height: 1.02; }
 .page-intro { color: var(--text-dim); }
 
 .post-list { list-style: none; padding: 0; margin: 0; }
@@ -287,10 +444,11 @@ main { flex: 1 0 auto; padding-block: clamp(2rem, 6vw, 5rem); }
 }
 .post-list a { color: var(--text); text-decoration: none; font-weight: 500; }
 .post-list a:hover { color: var(--sand); }
-.post-list time { font-family: var(--font-mono); font-size: .75rem; color: var(--text-faint); white-space: nowrap; }
+.post-list time { font-family: var(--font-mono); font-size: .8125rem; color: var(--text-faint); white-space: nowrap; }
 
 .post-list-full li { display: block; padding: 1.5rem 0; }
-.post-list-full h2 { font-size: 1.35rem; margin-bottom: .25rem; }
+.post-list-full h2 { font-family: var(--font-display); font-size: 1.5rem;
+                     letter-spacing: -.02em; margin-bottom: .25rem; }
 .post-list-full p { color: var(--text-dim); margin: .5rem 0 0; max-width: var(--measure); }
 
 .empty { color: var(--text-faint); font-style: italic; }
@@ -316,9 +474,9 @@ main { flex: 1 0 auto; padding-block: clamp(2rem, 6vw, 5rem); }
 
 .doc-head h1, .project-head h1 {
   font-family: var(--font-read);
-  font-size: clamp(1.9rem, 4.4vw, 2.9rem);
-  font-weight: 600; letter-spacing: -.015em;
-  color: var(--ink);
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  font-weight: 600; letter-spacing: -.022em; line-height: 1.06;
+  color: var(--ink); text-wrap: balance;
 }
 
 .lede {
@@ -413,23 +571,50 @@ main { flex: 1 0 auto; padding-block: clamp(2rem, 6vw, 5rem); }
    Photography — neutral surround so the palette doesn't tint the images
    -------------------------------------------------------------------------- */
 
-.gallery-page .shell { max-width: 96rem; }
+.gallery-page .shell { max-width: 92rem; }
 
+/* Camera line under a gallery heading. */
+.gear {
+  font-family: var(--font-mono);
+  font-size: .8125rem; letter-spacing: .04em;
+  color: var(--text-faint);
+  margin: -.35rem 0 1rem;
+}
+
+/* Masonry via CSS columns. Film frames are 3:2 and 2:3; a square grid would
+   crop half the composition out of every one of them. */
 .gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
-  gap: 1.25rem;
-}
-.shot { margin: 0; }
-.shot a { display: block; background: #0b0b0c; border-radius: 4px; overflow: hidden; }
-.shot img { width: 100%; transition: opacity .25s ease; }
-.shot a:hover img { opacity: .82; }
-.shot figcaption {
+  columns: 3;
+  column-gap: 1.5rem;
   margin-top: .5rem;
-  display: flex; justify-content: space-between; gap: 1rem;
-  font-size: .75rem; color: var(--text-faint);
 }
-.shot-place { font-family: var(--font-mono); white-space: nowrap; }
+@media (max-width: 1000px) { .gallery { columns: 2; } }
+@media (max-width: 620px)  { .gallery { columns: 1; } }
+
+.shot {
+  margin: 0 0 1.5rem;
+  break-inside: avoid;          /* never split a photo across columns */
+  -webkit-column-break-inside: avoid;
+}
+.shot a {
+  display: block;
+  background: #0b0b0c;          /* neutral, so the teal palette can't tint a B&W print */
+  border-radius: 4px;
+  overflow: hidden;
+}
+.shot img { width: 100%; height: auto; transition: opacity .3s ease; }
+.shot a:hover img { opacity: .82; }
+
+.shot figcaption {
+  margin-top: .55rem;
+  display: flex; justify-content: space-between; align-items: baseline;
+  gap: 1rem;
+  font-size: .8125rem; color: var(--text-faint);
+}
+.shot-place {
+  font-family: var(--font-mono); font-size: .75rem;
+  white-space: nowrap; letter-spacing: .03em;
+}
 
 /* --------------------------------------------------------------------------
    Bill 44 tracker
@@ -470,6 +655,7 @@ main { flex: 1 0 auto; padding-block: clamp(2rem, 6vw, 5rem); }
    -------------------------------------------------------------------------- */
 
 .site-foot {
+  font-size: .9375rem;
   margin-top: auto;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
@@ -479,7 +665,7 @@ main { flex: 1 0 auto; padding-block: clamp(2rem, 6vw, 5rem); }
   font-size: .875rem;
 }
 .site-foot h2 {
-  font-size: .6875rem; font-weight: 700;
+  font-size: .75rem; font-weight: 600;
   letter-spacing: .13em; text-transform: uppercase;
   color: var(--text); margin-bottom: .5rem;
 }

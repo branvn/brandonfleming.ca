@@ -20,11 +20,12 @@ summaryLength = 30
   linkedin = "https://www.linkedin.com/in/brandon-fleming"
   resume   = "/documents/brandon-fleming-resume.pdf"
 
-  # Shown in the header corner. Surrey City Hall — a public civic landmark,
-  # deliberately NOT a residential address.
-  lat  = "49.1913° N"
-  lng  = "122.8490° W"
-  elev = "76 m"
+  # Shown in the header corner. A public civic landmark in Surrey — deliberately
+  # NOT a residential address. Same point as the decimal form 49.1913 / -122.8490,
+  # written in degrees-minutes-seconds because that's how a survey mark reads.
+  lat  = "49°11'28.7\" N"
+  lng  = "122°50'56.4\" W"
+  elev = "0 m"
 
   # --- SEO ------------------------------------------------------------------
   description = "Urban studies graduate researcher and GIS analyst in Metro Vancouver. Spatial analysis of housing policy, agricultural land use, and BC's Bill 44."

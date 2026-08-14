@@ -1,2 +1,11 @@
+# Bill 44 tracker — scripts/track_bill44.py
 requests>=2.31
 PyYAML>=6.0
+
+# Contour plate — scripts/make_plate.py
+# Only needed when regenerating assets/img/plate.svg, which is committed.
+# No rasterio, scipy or matplotlib: the plate is built from vector layers.
+numpy>=1.24
+pyshp>=2.3
+pyproj>=3.6
+shapely>=2.0

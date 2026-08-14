@@ -16,16 +16,19 @@ hero    = "/images/alc-land-loss-poster.jpg"
 heroAlt = "Research poster titled Land Lost to ALC Applications in Greater Vancouver, showing a kernel density heatmap and an application-type map of the Agricultural Land Reserve across Metro Vancouver."
 heroCaption = "Conference poster, December 2023. Click to view full size."
 
-[download]
-  url   = "/documents/alc-land-loss-poster.pdf"
-  label = "Download the poster (PDF)"
-  note  = "Print resolution"
-
+# NOTE: every bare key must come BEFORE the [download] table. In TOML a table
+# header captures everything after it, so `sources` placed below [download]
+# silently becomes download.sources and the template never sees it.
 sources = [
   "[ALC Application Portal](https://a100.gov.bc.ca/pub/oatsp/list?execution=e2s1) — Agricultural Land Commission",
   "[ParcelMap BC Parcel Fabric](https://catalogue.data.gov.bc.ca/dataset/parcelmap-bc-parcel-fabric) — Government of British Columbia",
   "[Agricultural Land Reserve Maps](https://www.alc.gov.bc.ca/alr-maps/) — Provincial Agricultural Land Commission",
 ]
+
+[download]
+  url   = "/documents/alc-land-loss-poster.pdf"
+  label = "Download the poster (PDF)"
+  note  = "Print resolution"
 +++
 
 ## The question

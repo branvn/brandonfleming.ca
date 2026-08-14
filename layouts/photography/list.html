@@ -2,42 +2,81 @@
 
 {{ define "main" }}
   <header class="page-head">
+    {{ if .Parent.IsSection }}
+      <p class="breadcrumb"><a href="{{ .Parent.RelPermalink }}">← {{ .Parent.Title }}</a></p>
+    {{ end }}
     <h1>{{ .Title }}</h1>
+    {{ with .Params.gear }}<p class="gear">{{ . }}</p>{{ end }}
     {{ with .Content }}<div class="page-intro">{{ . }}</div>{{ end }}
   </header>
 
-  {{/* Photos live as page resources in content/photography/ — just drop the
-       JPEGs in that folder. Hugo generates the thumbnails at build time and
-       caches them in resources/_gen, so the originals are only processed once.
+  {{ $subs := .Sections }}
 
-       Keep originals under ~3000px on the long edge before committing; git
-       stores every version of a binary forever. */}}
-  {{ $photos := .Resources.ByType "image" }}
-
-  {{ if $photos }}
-    <div class="gallery">
-      {{ range $photos }}
-        {{ $thumb := .Fill "700x700 Smart q82" }}
-        {{ $full  := cond (gt .Width 2000) (.Resize "2000x q86") . }}
-        {{ $meta  := false }}
-        {{ with $.Params.captions }}{{ $meta = index . $.Name }}{{ end }}
-        <figure class="shot">
-          <a href="{{ $full.RelPermalink }}">
-            <img src="{{ $thumb.RelPermalink }}"
-                 width="{{ $thumb.Width }}" height="{{ $thumb.Height }}"
-                 alt="{{ with $meta }}{{ .alt | default .caption }}{{ end }}"
-                 loading="lazy" decoding="async">
-          </a>
-          {{ with $meta }}
-            <figcaption>
-              {{ with .caption }}<span class="shot-caption">{{ . }}</span>{{ end }}
-              {{ with .place }}<span class="shot-place">{{ . }}</span>{{ end }}
-            </figcaption>
+  {{ if $subs }}
+    {{/* Parent page: index the galleries rather than showing photos. Each card
+         uses the first image in that gallery as its cover, unless the section's
+         front matter names one. */}}
+    <div class="cards">
+      {{ range $subs.ByWeight }}
+        {{ $imgs := .Resources.ByType "image" }}
+        {{/* Cover: the one named in front matter, else the first image, else
+             none — a section with no photos yet must not error. */}}
+        {{ $cover := false }}
+        {{ with .Params.cover }}{{ $cover = $imgs.GetMatch . }}{{ end }}
+        {{ if and (not $cover) $imgs }}{{ $cover = index $imgs 0 }}{{ end }}
+        {{ $link := .RelPermalink }}
+        <article class="card">
+          {{ with $cover }}
+            {{ $t := .Fill "900x600 Smart q80" }}
+            <a class="card-thumb" href="{{ $link }}" tabindex="-1" aria-hidden="true">
+              <img src="{{ $t.RelPermalink }}" alt="" loading="lazy" decoding="async"
+                   width="{{ $t.Width }}" height="{{ $t.Height }}">
+            </a>
           {{ end }}
-        </figure>
+          <div class="card-body">
+            <p class="card-meta"><span>{{ len $imgs }} photo{{ if ne (len $imgs) 1 }}s{{ end }}</span></p>
+            <h3><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+            <p class="card-summary">{{ .Params.summary }}</p>
+            {{ with .Params.gear }}<p class="card-tools">{{ . }}</p>{{ end }}
+            <p class="card-link"><a href="{{ .RelPermalink }}">View →</a></p>
+          </div>
+        </article>
       {{ end }}
     </div>
+
   {{ else }}
-    <p class="empty">No photographs published yet.</p>
+    {{/* Leaf gallery. Photos are page resources — drop .jpg files straight into
+         this folder. Aspect ratios are preserved rather than square-cropped;
+         these are 3:2 and 2:3 frames and cropping them square throws away the
+         composition. The CSS lays them out in masonry columns.
+
+         Resize the long edge to ~2200px before committing. */}}
+    {{ $photos := .Resources.ByType "image" }}
+    {{ if $photos }}
+      <div class="gallery">
+        {{ range $photos }}
+          {{ $view := .Resize "1000x q82" }}
+          {{ $full := cond (gt .Width 2000) (.Resize "2000x q84") . }}
+          {{ $meta := false }}
+          {{ with $.Params.captions }}{{ $meta = index . $.Name }}{{ end }}
+          <figure class="shot">
+            <a href="{{ $full.RelPermalink }}">
+              <img src="{{ $view.RelPermalink }}"
+                   width="{{ $view.Width }}" height="{{ $view.Height }}"
+                   alt="{{ with $meta }}{{ .alt | default .caption }}{{ end }}"
+                   loading="lazy" decoding="async">
+            </a>
+            {{ with $meta }}
+              <figcaption>
+                {{ with .caption }}<span class="shot-caption">{{ . }}</span>{{ end }}
+                {{ with .place }}<span class="shot-place">{{ . }}</span>{{ end }}
+              </figcaption>
+            {{ end }}
+          </figure>
+        {{ end }}
+      </div>
+    {{ else }}
+      <p class="empty">Nothing here yet.</p>
+    {{ end }}
   {{ end }}
 {{ end }}

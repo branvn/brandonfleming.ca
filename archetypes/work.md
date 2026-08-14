@@ -18,12 +18,15 @@ status  = ""          # "in-progress" to show the WIP tag, otherwise leave blank
 # heroAlt = ""
 # heroCaption = ""
 
+# sources = [
+#   "[Dataset name](https://example.gov.bc.ca)",
+# ]
+
+# ⚠ Keep [download] LAST. In TOML a table header swallows every bare key that
+# follows it, so anything you add below this line becomes download.whatever and
+# the templates won't see it.
 # [download]
 #   url   = "/documents/example.pdf"
 #   label = "Download the full paper (PDF)"
 #   note  = "34 pages"
-
-# sources = [
-#   "[Dataset name](https://example.gov.bc.ca)",
-# ]
 +++

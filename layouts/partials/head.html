@@ -31,6 +31,12 @@
   <link rel="alternate" type="application/rss+xml" href="{{ .Permalink }}" title="{{ site.Title }}">
 {{ end }}
 
+{{/* Preload both faces. Jost sets the entire interface and Michroma the hero,
+     so they're needed for the first paint — worth two early requests to avoid a
+     visible swap. 42 KB between them. */}}
+<link rel="preload" href="/fonts/Jost.woff2" as="font" type="font/woff2" crossorigin>
+{{ if .IsHome }}<link rel="preload" href="/fonts/Michroma.woff2" as="font" type="font/woff2" crossorigin>{{ end }}
+
 {{/* Stylesheet: minified + fingerprinted so browsers cache it forever but
      still pick up changes the moment you rebuild. */}}
 {{ $css := resources.Get "css/main.css" | minify | fingerprint }}

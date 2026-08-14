@@ -23,5 +23,12 @@
     {{ partial "footer.html" . }}
   </div>
 
+  {{/* Deferred so it never blocks first paint. The site is fully usable, and
+       the terrain fully visible, if this never loads. */}}
+  {{ with resources.Get "js/terrain.js" }}
+    {{ $js := . | minify | fingerprint }}
+    <script src="{{ $js.RelPermalink }}" integrity="{{ $js.Data.Integrity }}" defer></script>
+  {{ end }}
+
 </body>
 </html>

@@ -1,0 +1,40 @@
+{{/* Bill 44 tracker rail — fills the space beside the hero on wide screens.
+
+     Renders nothing at all when there are no reviewed entries, so an empty
+     tracker never shows as an empty box. Entries come from data/tracker.json;
+     only ones you've written a `note` for are published (see
+     layouts/tracker/list.html for the same rule).
+
+     Hidden below 1100px, where the hero needs the full width anyway. */}}
+
+{{ $entries := slice }}
+{{ with site.Data.tracker }}
+  {{ with .entries }}
+    {{ $entries = sort (where . "note" "!=" "") "date" "desc" }}
+  {{ end }}
+{{ end }}
+
+{{ with first 4 $entries }}
+  <aside class="rail" aria-labelledby="rail-heading">
+    <h2 id="rail-heading" class="rail-head">
+      <span>Bill 44 tracker</span>
+      {{ with site.Data.tracker.updated }}
+        <time datetime="{{ . }}">{{ dateFormat "2 Jan" . }}</time>
+      {{ end }}
+    </h2>
+
+    <ol class="rail-list">
+      {{ range . }}
+        <li>
+          <p class="rail-meta">
+            <time datetime="{{ .date }}">{{ dateFormat "2 Jan" .date }}</time>
+            {{ with .jurisdiction }}<span>{{ . }}</span>{{ end }}
+          </p>
+          <a href="{{ .url }}" rel="noopener">{{ .title }}</a>
+        </li>
+      {{ end }}
+    </ol>
+
+    <p class="rail-more"><a href="{{ "/tracker/" | relURL }}">All entries →</a></p>
+  </aside>
+{{ end }}
