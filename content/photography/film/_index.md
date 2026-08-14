@@ -20,7 +20,7 @@ cover = "science-world.jpg"
     alt     = "Looking up at night between two recently built residential towers with curved stacked balconies, their undersides lit orange against a black sky"
 
   [captions."science-world.jpg"]
-    caption = "Expo 86's geodesic sphere, with a crescent moon"
+    caption = "Science World as seen from the Expo Line"
     place   = "False Creek"
     alt     = "The geodesic dome of Science World against a grey sky, a thin crescent moon above it"
 
