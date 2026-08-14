@@ -277,6 +277,10 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
   line-height: 1.16;
   margin: 0;
   text-wrap: balance;
+  /* Last resort on a very narrow screen. "Vancouver," in Michroma at the
+     minimum size still fits a 360px phone, but a future headline with a longer
+     word shouldn't be able to break the layout. */
+  overflow-wrap: break-word;
 }
 .hero-accent {
   display: block;
@@ -295,7 +299,13 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
 
 .hero-wrap {
   display: grid;
-  grid-template-columns: 1fr;
+  /* minmax(0, 1fr), not 1fr. A grid item defaults to min-width: auto, so a
+     plain 1fr column refuses to shrink below its content's longest unbreakable
+     word — and the hero is set in Michroma, which is very wide. On a narrow
+     screen that pushes the whole grid past the viewport, and because body
+     carries overflow-x: hidden the result is silently clipped text rather than
+     a scrollbar. The 1100px rule below already does this for its first column. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 3rem;
   align-items: start;
 }
@@ -608,9 +618,13 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
 .shot figcaption {
   margin-top: .55rem;
   display: flex; justify-content: space-between; align-items: baseline;
-  gap: 1rem;
+  /* The place is nowrap, so on a narrow column the two halves have to be able
+     to stack instead of forcing the figure wider than its column. */
+  flex-wrap: wrap;
+  gap: .15rem 1rem;
   font-size: .8125rem; color: var(--text-faint);
 }
+.shot-caption { min-width: 0; }   /* flex items default to min-width: auto */
 .shot-place {
   font-family: var(--font-mono); font-size: .75rem;
   white-space: nowrap; letter-spacing: .03em;
@@ -713,8 +727,10 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
 
 @media (max-width: 520px) {
   .cards { grid-template-columns: 1fr; }
-  .gallery { grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); gap: .75rem; }
   .site-nav { gap: .5rem 1.1rem; }
+  /* .gallery is CSS columns, not grid — it drops to one column at 620px above.
+     A grid-template-columns rule here was left over from an earlier grid
+     implementation and did nothing. */
 }
 
 /* --------------------------------------------------------------------------
