@@ -9,6 +9,16 @@ cover = "science-world.jpg"
 # Captions are keyed by filename. Add a block when you add a photo — the alt
 # text matters for accessibility and for search.
 [captions]
+  [captions."white-rock-poles.jpg"]
+    caption = "Coast Salish house post and Haida pole, above the pier"
+    place   = "White Rock"
+    alt     = "Two tall carved poles standing either side of a pair of stone interpretive plaques, with the sea and a long pier behind them"
+
+  [captions."balconies-at-night.jpg"]
+    caption = "Curved balconies, lit from underneath"
+    place   = ""
+    alt     = "Looking up at night between two towers with curved stacked balconies, their undersides lit orange against a black sky"
+
   [captions."science-world.jpg"]
     caption = "Expo 86's geodesic sphere, with a crescent moon"
     place   = "False Creek"
