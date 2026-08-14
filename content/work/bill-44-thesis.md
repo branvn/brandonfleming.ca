@@ -16,14 +16,13 @@ status  = "in-progress"
 +++
 
 <!-- ---------------------------------------------------------------------
-     TODO (Brandon): replace everything below with your thesis summary.
+     A "What I'm finding" section belongs between Method and Why it matters.
+     It is the part a planner actually reads, and the thing that separates this
+     page from every other student research page.
 
-     Aim for 500–700 words in four parts, matching the headings already here.
-     Write it for a planner who has 90 seconds, not for your committee.
-
-     The single most useful thing you can add is a *preliminary finding* —
-     even a hedged one. "Early results suggest X" is far stronger than
-     "this research will examine X," which is what every student site says.
+     Even one hedged sentence does the work: "early results suggest X" is far
+     stronger than "this research will examine X". Add it when you have it —
+     it does not need to be a conclusion, and it does not need to be final.
      --------------------------------------------------------------------- -->
 
 ## The question
@@ -45,11 +44,6 @@ Three strands, deliberately chosen to check each other:
    and whether that activity clusters in newly upzoned areas.
 3. **Semi-structured interviews** with developers and municipal planning staff,
    to explain what the numbers and the maps can't.
-
-## What I'm finding
-
-*(Replace this section with your preliminary findings — this is the part a
-hiring manager will actually read.)*
 
 ## Why it matters
 
