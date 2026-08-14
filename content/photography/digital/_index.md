@@ -15,9 +15,9 @@ cover = "crescent-beach-mooring.jpg"
     alt     = "A yellow sailboat moored on flat water at dusk, with a beach, trees and the low sheds of a sailing club behind it"
 
   [captions."white-rock-sea-tours.jpg"]
-    caption = "Tour boat running the bay, towers behind"
+    caption = "Metrotown on the horizon, twenty kilometres off"
     place   = "Boundary Bay"
-    alt     = "A small red tour boat crossing calm water at dusk, with a wooded spit and a distant hazy skyline of towers behind it"
+    alt     = "A small red tour boat crossing calm water at dusk, with a wooded spit in front of the distant tower cluster of Metrotown, hazy on the horizon"
 +++
 
 Shot on a Nikon D750 with a 24–85mm zoom — the successor to the FE, and the
