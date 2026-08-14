@@ -727,7 +727,11 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
 
 @media (max-width: 520px) {
   .cards { grid-template-columns: 1fr; }
-  .site-nav { gap: .5rem 1.1rem; }
+  /* Tightened from 1.1rem so all four items hold one line on a ~390px screen.
+     At 1.1rem the row overflowed by a few pixels and orphaned "About". The gap
+     is the thing to adjust here, not the letter-spacing — the tracking on these
+     is shared with the brand mark above and shouldn't drift away from it. */
+  .site-nav { gap: .5rem .8rem; }
   /* .gallery is CSS columns, not grid — it drops to one column at 620px above.
      A grid-template-columns rule here was left over from an earlier grid
      implementation and did nothing. */
