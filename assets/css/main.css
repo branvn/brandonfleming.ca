@@ -69,13 +69,16 @@
      lowering it again; the eye is a bad judge of this on a dark ground. */
   --text-faint: rgba(232, 241, 242, .66);
 
-  /* Structural small caps: "Selected work", the year on a card. These are
-     wayfinding, not decoration, and they were the thing that kept reading as
-     invisible over the plate. Small text at wide tracking looks lighter than
-     body copy at the same value — the strokes are thin and there is a lot of
-     air between them — so it needs to sit ABOVE body copy numerically to look
-     equal to it. .88 is roughly 13:1 on the plate. */
-  --text-label: rgba(232, 241, 242, .88);
+  /* Structural small caps: "Selected work", the year on a card. Wayfinding,
+     not decoration.
+
+     This was .48, then .66, then .88, and still read as faint on a real screen
+     at each step. The measured contrast was fine every time, which is the
+     lesson: 13px at .18em tracking in a 600 weight has very little ink per
+     glyph, and over a contour plate the eye needs far more separation than a
+     ratio predicts. Full strength, same as a heading. Do not walk this back
+     toward the body copy value without looking at it on a monitor. */
+  --text-label: var(--text);
 
   /* Paper — long-form reading surface */
   --paper:      #f5f2ea;
