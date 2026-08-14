@@ -15,9 +15,9 @@ cover = "science-world.jpg"
     alt     = "Two tall carved poles standing either side of a pair of stone interpretive plaques, with the sea and a long pier behind them"
 
   [captions."balconies-at-night.jpg"]
-    caption = "Curved balconies, lit from underneath"
-    place   = ""
-    alt     = "Looking up at night between two towers with curved stacked balconies, their undersides lit orange against a black sky"
+    caption = "Two new towers, uptown between Martin and Foster"
+    place   = "White Rock"
+    alt     = "Looking up at night between two recently built residential towers with curved stacked balconies, their undersides lit orange against a black sky"
 
   [captions."science-world.jpg"]
     caption = "Expo 86's geodesic sphere, with a crescent moon"
