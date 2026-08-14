@@ -44,7 +44,11 @@
   /* Surfaces */
   --bg:        #051014;   /* deep trench */
   --bg-raised: #0a1c21;
-  --surface:   rgba(255, 255, 255, .035);
+  /* Tinted and fairly opaque, not a wash of white. The contour plate sits
+     directly behind the cards, and at rgba(255,255,255,.035) every contour line
+     read straight through the card and competed with the small text on it.
+     Measured contrast barely moved — the problem was visual noise, not ratio. */
+  --surface:   rgba(11, 30, 36, .82);
   --line:      rgba(232, 241, 242, .12);
   --line-firm: rgba(232, 241, 242, .22);
 
@@ -58,7 +62,12 @@
   /* Ink on dark */
   --text:       #e8f1f2;
   --text-dim:   rgba(232, 241, 242, .72);  /* body copy — AA compliant */
-  --text-faint: rgba(232, 241, 242, .48);  /* decorative labels ONLY */
+  /* Small labels: section headings, card dates, tool lists, captions. At .48
+     this measured 4.46:1 on a card and 4.49:1 on the bare background — both
+     just under the 4.5:1 AA floor, at 12px, over a busy plate. .66 brings it to
+     about 7.3:1 while still reading as secondary. Check the ratio before
+     lowering it again; the eye is a bad judge of this on a dark ground. */
+  --text-faint: rgba(232, 241, 242, .66);
 
   /* Paper — long-form reading surface */
   --paper:      #f5f2ea;
@@ -394,7 +403,7 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
 .card:hover {
   transform: translateY(-4px);
   border-color: rgba(221, 161, 94, .55);
-  background: rgba(255, 255, 255, .06);
+  background: rgba(17, 42, 49, .88);
 }
 
 .card-thumb { display: block; background: var(--bg-raised); }
