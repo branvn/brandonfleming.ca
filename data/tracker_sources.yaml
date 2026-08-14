@@ -1,16 +1,10 @@
-﻿# Sources for the Bill 44 tracker.
-#
-# mode: "rss" : a real feed. Reliable, cheap, preferred.
-# mode: "html" : scrape links off a page. Fragile; verify occasionally.
-#
-# IMPORTANT: only headline, link, and date are ever stored. Never store article
-# body text: that is someone else's copyright.
-
+﻿# Global default keywords (used when a source omits its own keyword block)
 keywords:
   - "bill 44"
   - "ssmuh"
   - "small-scale multi-unit"
   - "small scale multi unit"
+  - "small-scale multi unit"
   - "housing statutes amendment"
   - "bill 25"
   - "upzoning"
@@ -18,47 +12,71 @@ keywords:
   - "multiplex"
   - "fourplex"
   - "sixplex"
-  - "restricted zone"
-  - "infill housing"
+  - "missing middle"
   - "transit-oriented area"
-  - "official community plan"
-  - "zoning bylaw amendment"
+  - "transit oriented area"
 
 sources:
-  # --- Municipal council agendas ------------------------------------------
-  - name: "City of Surrey: Corporate Reports"
-    jurisdiction: "Surrey"
-    type: "council"
-    mode: "html"
-    url: "https://www.surrey.ca/city-government/council-meetings/corporate-reports"
-
+  # --- Municipal Staff & Planning Reports (Document-level matching) --------
   - name: "City of Surrey: Planning Reports"
     jurisdiction: "Surrey"
     type: "council"
-    mode: "html"
+    mode: "drupal"
+    match: "document"
     url: "https://www.surrey.ca/city-government/council-meetings/planning-reports"
+    keywords:
+      - "ssmuh"
+      - "small-scale multi-unit"
+      - "small scale multi unit"
+      - "houseplex"
+      - "garden suite"
+      - "coach house"
+      - "bill 44"
+      - "transit-oriented area"
+      - "transit oriented area"
+      - "inclusionary"
 
-  # --- Regional and provincial news (RSS) ---------------------------------
+  - name: "City of Surrey: Corporate Reports"
+    jurisdiction: "Surrey"
+    type: "council"
+    mode: "drupal"
+    match: "document"
+    url: "https://www.surrey.ca/city-government/council-meetings/corporate-reports"
+    keywords:
+      - "ssmuh"
+      - "small-scale multi-unit"
+      - "houseplex"
+      - "bill 44"
+      - "bill 25"
+      - "transit-oriented area"
+      - "transit oriented area"
+      - "inclusionary"
+
+  # --- Regional News & Provincial Feeds (Title-level matching) -------------
   - name: "Business in Vancouver"
     jurisdiction: "Metro Vancouver"
     type: "news"
     mode: "rss"
+    match: "title"
     url: "https://www.biv.com/rss"
 
   - name: "Daily Hive Urbanized"
     jurisdiction: "Metro Vancouver"
     type: "news"
     mode: "rss"
+    match: "title"
     url: "https://dailyhive.com/feed/urbanized"
 
   - name: "CBC British Columbia"
     jurisdiction: "British Columbia"
     type: "news"
     mode: "rss"
+    match: "title"
     url: "https://www.cbc.ca/cmlink/rss-canada-britishcolumbia"
 
   - name: "BC Government News: Housing and Municipal Affairs"
     jurisdiction: "British Columbia"
     type: "provincial"
     mode: "rss"
+    match: "title"
     url: "https://news.gov.bc.ca/ministries/housing-and-municipal-affairs/feed"

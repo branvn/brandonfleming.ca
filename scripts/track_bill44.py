@@ -2,33 +2,34 @@
 """
 Bill 44 tracker: candidate collector.
 
-Polls the sources in data/tracker_sources.yaml, keeps anything whose headline
-matches the keyword list, and merges new items into data/tracker.json as
-UNREVIEWED candidates (note = "").
+Polls the sources in data/tracker_sources.yaml, tests either titles or linked
+PDF documents against targeted keywords, and merges new items into
+data/tracker.json as UNREVIEWED candidates (note = "").
 
 Nothing reaches the website until you open data/tracker.json and write a `note`
-for the entry. That annotation is the whole point of the tracker: an unreviewed
-feed is noise, and noise on a portfolio reads as a robot nobody is watching.
+for the entry.
 
-Only headline, URL, and date are stored; never article body text.
+Only headline/title, URL, date, hit counts, and matched query terms are stored;
+never article or document body text.
 
 Usage
 -----
-python scripts/track_bill44.py            # poll and merge
-python scripts/track_bill44.py --dry-run  # show what would be added
-python scripts/track_bill44.py --review   # list entries awaiting a note
-
-Runs on a schedule via .github/workflows/track-bill44.yml, but works fine
-locally too.
+python scripts/track_bill44.py                       # poll and merge
+python scripts/track_bill44.py --dry-run             # show what would be added
+python scripts/track_bill44.py --dry-run --limit 5   # test first 5 documents per source
+python scripts/track_bill44.py --recheck             # ignore seen-cache for this run
+python scripts/track_bill44.py --review              # list entries awaiting a note
 """
 
 from __future__ import annotations
 
 import argparse
 import hashlib
+import io
 import json
 import re
 import sys
+import time
 from datetime import datetime, timezone
 from html import unescape
 from pathlib import Path
@@ -36,16 +37,19 @@ from urllib.parse import urljoin
 
 import requests
 import yaml
+from pypdf import PdfReader
 
 ROOT = Path(__file__).resolve().parent.parent
 SOURCES_FILE = ROOT / "data" / "tracker_sources.yaml"
 DATA_FILE = ROOT / "data" / "tracker.json"
+CACHE_FILE = ROOT / "data" / "tracker_cache.json"
 
 TIMEOUT = 25
 USER_AGENT = (
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-    "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 brandonfleming.ca-tracker"
+    "brandonfleming.ca Bill 44 tracker "
+    "(+https://brandonfleming.ca/tracker/; contact@brandonfleming.ca)"
 )
+MAX_DOC_CHARS = 250_000
 
 
 # ---------------------------------------------------------------- utilities
@@ -61,11 +65,6 @@ def clean(text: str) -> str:
     text = re.sub(r"<!\[CDATA\[(.*?)\]\]>", r"\1", text, flags=re.DOTALL)
     text = unescape(re.sub(r"<[^>]+>", " ", text))
     return re.sub(r"\s+", " ", text).strip()
-
-
-def matches(text: str, keywords: list[str]) -> bool:
-    low = text.lower()
-    return any(k.lower() in low for k in keywords)
 
 
 def parse_date(raw: str) -> str:
@@ -89,20 +88,25 @@ def parse_date(raw: str) -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
 
-def fetch(url: str) -> str | None:
-    """GET a URL, retrying once on a timeout or dropped connection."""
+def compute_keywords_hash(config: dict) -> str:
+    """Compute a stable hash of all active keywords across global and source scopes."""
+    all_kw = set(config.get("keywords", []))
+    for src in config.get("sources", []):
+        all_kw.update(src.get("keywords", []))
+    normalized = sorted(k.strip().lower() for k in all_kw if k.strip())
+    return hashlib.sha1(json.dumps(normalized).encode()).hexdigest()[:12]
+
+
+def fetch_text(url: str) -> str | None:
+    """GET a text URL with retry on transient network errors."""
     for attempt in (1, 2):
         try:
-            r = requests.get(
-                url,
-                timeout=TIMEOUT * attempt,
-                headers={"User-Agent": USER_AGENT},
-            )
+            r = requests.get(url, timeout=TIMEOUT * attempt, headers={"User-Agent": USER_AGENT})
             r.raise_for_status()
             return r.text
         except (requests.Timeout, requests.ConnectionError) as exc:
             if attempt == 1:
-                print(f"    ... {type(exc).__name__}, retrying once")
+                time.sleep(1)
                 continue
             print(f"    ! unreachable: {exc}", file=sys.stderr)
         except requests.RequestException as exc:
@@ -111,19 +115,65 @@ def fetch(url: str) -> str | None:
     return None
 
 
+def fetch_pdf_text(url: str) -> str:
+    """Fetch PDF into memory and extract text across readable pages."""
+    extracted = []
+    try:
+        time.sleep(0.5)  # Rate limit requests to municipal servers
+        r = requests.get(url, timeout=TIMEOUT, headers={"User-Agent": USER_AGENT})
+        r.raise_for_status()
+
+        reader = PdfReader(io.BytesIO(r.content), strict=False)
+        char_count = 0
+
+        try:
+            for page in reader.pages:
+                try:
+                    t = page.extract_text()
+                    if t:
+                        extracted.append(t)
+                        char_count += len(t)
+                        if char_count >= MAX_DOC_CHARS:
+                            break
+                except Exception:
+                    continue
+        except Exception:
+            # Captures decompression limit or corrupted stream during page iteration
+            pass
+
+        return " ".join(extracted).lower()
+    except Exception as exc:
+        print(f"    ! failed reading PDF {url}: {exc}", file=sys.stderr)
+        return " ".join(extracted).lower()
+
+
+def score_text(text: str, keywords: list[str]) -> tuple[int, list[str]]:
+    """Return (total hit count, matched keywords list)."""
+    low = text.lower()
+    matched = [k for k in keywords if k.lower() in low]
+    hits = sum(low.count(k.lower()) for k in matched)
+    return hits, matched
+
+
 # ------------------------------------------------------------------ sources
 
-def from_rss(xml: str, keywords: list[str]) -> list[dict]:
-    """Minimal RSS/Atom reader. Avoids a feedparser dependency."""
+def from_rss(xml: str, keywords: list[str], limit: int | None = None) -> list[dict]:
     found = []
     items = re.findall(r"<(?:item|entry)\b.*?</(?:item|entry)>", xml, re.S | re.I)
+    if limit is not None:
+        items = items[:limit]
+
     for item in items:
         def tag(name: str) -> str:
             m = re.search(rf"<{name}\b[^>]*>(.*?)</{name}>", item, re.S | re.I)
             return clean(m.group(1)) if m else ""
 
         title = tag("title")
-        if not title or not matches(title, keywords):
+        if not title:
+            continue
+
+        hits, matched = score_text(title, keywords)
+        if hits == 0:
             continue
 
         link = tag("link")
@@ -137,93 +187,120 @@ def from_rss(xml: str, keywords: list[str]) -> list[dict]:
             "title": title,
             "url": link,
             "date": parse_date(tag("pubDate") or tag("published") or tag("updated")),
+            "hits": hits,
+            "matched": matched,
         })
     return found
 
 
+def from_drupal(html: str, base_url: str, keywords: list[str],
+                match_target: str, seen_ids: set[str],
+                new_seen_ids: set[str], limit: int | None = None) -> list[dict]:
+    found = []
+    blocks = re.split(r'<div\b[^>]*class=["\'][^"\']*views-row[^"\']*["\'][^>]*>', html, flags=re.I)
+    eval_count = 0
+
+    for b in blocks[1:]:
+        if limit is not None and eval_count >= limit:
+            break
+
+        link_m = re.search(r'href=["\']([^"\']+\.pdf[^"\']*)["\']', b, re.I)
+        if not link_m:
+            continue
+        pdf_url = urljoin(base_url, link_m.group(1))
+        item_id = entry_id(pdf_url)
+
+        if item_id in seen_ids:
+            continue
+
+        eval_count += 1
+        new_seen_ids.add(item_id)
+
+        date_m = re.search(r'<time\b[^>]*datetime=["\']([^"T\s]+)', b, re.I)
+        item_date = parse_date(date_m.group(1)) if date_m else datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+        b_clean = re.sub(r'<div\b[^>]*class=["\'][^"\']*listing-view__item-link[^"\']*["\'].*?</div>', " ", b, flags=re.S | re.I)
+        raw_title = clean(b_clean)
+        raw_title = re.split(r"\bPagination\b", raw_title, flags=re.I)[0].strip()
+        display_title = raw_title if len(raw_title) <= 160 else raw_title[:157] + "..."
+
+        if match_target == "document":
+            doc_text = fetch_pdf_text(pdf_url)
+            hits, matched = score_text(doc_text, keywords)
+        else:
+            hits, matched = score_text(raw_title, keywords)
+
+        if hits > 0:
+            found.append({
+                "id": item_id,
+                "title": display_title,
+                "url": pdf_url,
+                "date": item_date,
+                "hits": hits,
+                "matched": matched,
+            })
+    return found
+
+
 def from_html(html: str, base_url: str, keywords: list[str],
-              link_contains: str | None) -> list[dict]:
-    """Scrape anchor text off a page."""
+              link_contains: str | None, limit: int | None = None) -> list[dict]:
     found = []
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    for href, inner in re.findall(r'<a\b[^>]*href="([^"]+)"[^>]*>(.*?)</a>', html, re.S | re.I):
+    anchors = re.findall(r'<a\b[^>]*href="([^"]+)"[^>]*>(.*?)</a>', html, re.S | re.I)
+    eval_count = 0
+
+    for href, inner in anchors:
+        if limit is not None and eval_count >= limit:
+            break
+
         text = clean(inner)
         if not text or len(text) < 12:
             continue
         if link_contains and link_contains.lower() not in href.lower():
             continue
-        if not matches(text, keywords):
-            continue
-        found.append({"title": text, "url": urljoin(base_url, href), "date": today})
-    return found
 
-
-def from_escribe(portal_url: str, keywords: list[str], max_meetings: int = 5) -> list[dict]:
-    """Poll meeting agenda pages from an Escribe portal."""
-    found = []
-    cal_html = fetch(f"{portal_url.rstrip('/')}/MeetingsCalendarView.aspx?FillWidth=1")
-    if not cal_html:
-        return found
-
-    meeting_ids = list(dict.fromkeys(
-        re.findall(r"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})", cal_html, re.I)
-    ))
-
-    for uid in meeting_ids[:max_meetings]:
-        agenda_url = f"{portal_url.rstrip('/')}/Meeting.aspx?Id={uid}&Agenda=Agenda&lang=English"
-        m_html = fetch(agenda_url)
-        if not m_html or "Runtime Error" in m_html:
+        eval_count += 1
+        hits, matched = score_text(text, keywords)
+        if hits == 0:
             continue
 
-        # Extract meeting date
-        date_match = re.search(r"class=[\"'][^\"']*MeetingDate[^\"']*[\"'][^>]*>(.*?)<", m_html, re.I)
-        if not date_match:
-            date_match = re.search(r"([A-Za-z]+ \d{1,2}, \d{4})", m_html)
-        meeting_date = parse_date(date_match.group(1)) if date_match else datetime.now(timezone.utc).strftime("%Y-%m-%d")
-
-        # Extract meeting title
-        title_match = re.search(r"<title\b[^>]*>(.*?)</title>", m_html, re.I | re.S)
-        meeting_title = clean(title_match.group(1)) if title_match else "Council Meeting"
-
-        # Parse text into agenda item statements
-        clean_text = clean(m_html)
-        items = re.findall(r"(\d+\.(?:\d+\.?)?\s+[^.]{10,140})", clean_text)
-        
-        seen_items = set()
-        for it in items:
-            it_clean = clean(it)
-            if it_clean in seen_items or len(it_clean) < 15:
-                continue
-            seen_items.add(it_clean)
-
-            if matches(it_clean, keywords):
-                found.append({
-                    "title": f"{meeting_title}: {it_clean}",
-                    "url": agenda_url,
-                    "date": meeting_date,
-                })
+        found.append({
+            "title": text,
+            "url": urljoin(base_url, href),
+            "date": today,
+            "hits": hits,
+            "matched": matched,
+        })
     return found
 
 
 # --------------------------------------------------------------------- main
 
-def collect(sources: list[dict], keywords: list[str]) -> list[dict]:
+def collect(sources: list[dict], default_keywords: list[str],
+            seen_ids: set[str], new_seen_ids: set[str],
+            limit: int | None = None) -> list[dict]:
     results = []
     for src in sources:
         print(f"  -> {src['name']}")
+        keywords = src.get("keywords") or default_keywords
+        match_target = src.get("match", "title")
         mode = src.get("mode")
-        if mode == "escribe":
-            hits = from_escribe(src["url"], keywords)
+
+        html = fetch_text(src["url"])
+        if not html:
+            continue
+
+        if mode == "drupal":
+            hits = from_drupal(html, src["url"], keywords, match_target, seen_ids, new_seen_ids, limit=limit)
         elif mode == "html":
-            html = fetch(src["url"])
-            hits = from_html(html, src["url"], keywords, src.get("link_contains")) if html else []
+            hits = from_html(html, src["url"], keywords, src.get("link_contains"), limit=limit)
         else:
-            html = fetch(src["url"])
-            hits = from_rss(html, keywords) if html else []
+            hits = from_rss(html, keywords, limit=limit)
 
         for hit in hits:
+            if "id" not in hit:
+                hit["id"] = entry_id(hit["url"])
             hit.update({
-                "id": entry_id(hit["url"] + hit["title"]),
                 "source": src["name"],
                 "jurisdiction": src.get("jurisdiction", ""),
                 "type": src.get("type", ""),
@@ -234,10 +311,39 @@ def collect(sources: list[dict], keywords: list[str]) -> list[dict]:
     return results
 
 
+def load_cache(current_hash: str, recheck: bool = False) -> set[str]:
+    if recheck:
+        print("  ! --recheck flag active: bypassing seen-cache.")
+        return set()
+    if CACHE_FILE.exists():
+        try:
+            data = json.loads(CACHE_FILE.read_text(encoding="utf-8"))
+            cached_hash = data.get("keywords_hash", "")
+            if cached_hash != current_hash:
+                print("  ! Keywords updated: invalidating seen-cache to re-evaluate sources.")
+                return set()
+            return set(data.get("seen", []))
+        except Exception:
+            return set()
+    return set()
+
+
+def save_cache(current_hash: str, seen_ids: set[str]) -> None:
+    CACHE_FILE.write_text(
+        json.dumps({
+            "keywords_hash": current_hash,
+            "seen": sorted(seen_ids)
+        }, indent=2) + "\n",
+        encoding="utf-8"
+    )
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--dry-run", action="store_true", help="don't write tracker.json")
+    ap.add_argument("--dry-run", action="store_true", help="don't write tracker.json or update cache")
     ap.add_argument("--review", action="store_true", help="list entries awaiting a note")
+    ap.add_argument("--recheck", action="store_true", help="bypass seen-cache for this run")
+    ap.add_argument("--limit", "-n", type=int, default=None, help="limit documents evaluated per source")
     args = ap.parse_args()
 
     store = json.loads(DATA_FILE.read_text(encoding="utf-8"))
@@ -250,22 +356,28 @@ def main() -> int:
             return 0
         print(f"{len(pending)} entr{'y' if len(pending) == 1 else 'ies'} awaiting a note:\n")
         for e in sorted(pending, key=lambda x: x["date"], reverse=True):
-            print(f"  [{e['date']}] {e['title']}\n      {e['url']}\n")
+            hits_info = f" (hits: {e.get('hits', 0)}, matched: {', '.join(e.get('matched', []))})" if e.get("hits") else ""
+            print(f"  [{e['date']}] {e['title']}{hits_info}\n      {e['url']}\n")
         return 0
 
     config = yaml.safe_load(SOURCES_FILE.read_text(encoding="utf-8"))
-    keywords = config.get("keywords", [])
+    default_keywords = config.get("keywords", [])
     sources = [s for s in config.get("sources", []) if s.get("url")]
+    current_hash = compute_keywords_hash(config)
 
-    print(f"Polling {len(sources)} source(s) for {len(keywords)} keyword(s)...")
-    candidates = collect(sources, keywords)
+    print(f"Polling {len(sources)} source(s) [keywords hash: {current_hash}]...")
+    cached_ids = load_cache(current_hash, recheck=args.recheck)
+    seen_ids = set(existing.keys()).union(cached_ids)
+    new_seen_ids: set[str] = set()
 
+    candidates = collect(sources, default_keywords, seen_ids, new_seen_ids, limit=args.limit)
     new = [c for c in candidates if c["id"] not in existing]
     print(f"\n{len(new)} new candidate(s).")
 
     if args.dry_run:
-        for c in new:
-            print(f"  [{c['date']}] {c['title']}  ({c['source']})")
+        for c in sorted(new, key=lambda x: x.get("hits", 0), reverse=True):
+            hits_str = f" [hits: {c.get('hits', 0)} | {', '.join(c.get('matched', []))}]"
+            print(f"  [{c['date']}]{hits_str} {c['title']} ({c['source']})")
         return 0
 
     if new:
@@ -274,8 +386,9 @@ def main() -> int:
         )
 
     store["updated"] = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    DATA_FILE.write_text(json.dumps(store, indent=2, ensure_ascii=False) + "\n",
-                         encoding="utf-8")
+    DATA_FILE.write_text(json.dumps(store, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    save_cache(current_hash, seen_ids.union(new_seen_ids))
+
     pending = sum(1 for e in store["entries"] if not e.get("note"))
     print(f"Wrote {DATA_FILE.relative_to(ROOT)}: {pending} awaiting your note.")
     return 0
