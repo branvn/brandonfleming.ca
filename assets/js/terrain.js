@@ -48,8 +48,14 @@
     // Bottom of the viewport is sea level; top is the highest contour. Eased
     // so the first few metres — where the delta actually lives — get a usable
     // share of the travel instead of being crossed instantly.
+    //
+    // The exponent is tied to the contour levels. At 1.7 and a 1150 m top band,
+    // every band below 80 m lit inside the bottom fifth of the travel, which is
+    // 57% of the ink on the plate gone in one flick. 2.6 gives the delta about a
+    // third of the sweep. Raise it if the level list ever gains a 2 m or 5 m
+    // line; lower it if the top of the range moves down.
     var f = 1 - Math.min(Math.max(targetY, 0), 1);
-    var threshold = Math.pow(f, 1.7) * maxE * 1.05;
+    var threshold = Math.pow(f, 2.6) * maxE * 1.05;
 
     var n = 0;
     while (n < bands.length && bands[n].__e <= threshold) n++;
