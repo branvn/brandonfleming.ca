@@ -40,7 +40,8 @@ I can put provincial housing policy and GIS to work on real applications.
 **Research** — Housing policy and Bill 44, agricultural land use and the ALR,
 transportation and land use sequencing.
 
-**Technical** — ArcGIS Pro, QGIS, ArcGIS StoryMaps, FME Workbench, Excel.
+**Technical** — ArcGIS Pro, ArcGIS StoryMaps, FME Workbench, Excel. Some working
+familiarity with QGIS.
 
 **Credentials** — Canadian Institute of Planners Student Member. Class 5 BC
 driver's licence.
