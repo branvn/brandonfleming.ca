@@ -1,6 +1,11 @@
-# Bill 44 tracker — scripts/track_bill44.py
+# Bill 44 tracker: scripts/track_bill44.py
 requests>=2.31
 PyYAML>=6.0
+# pypdf reads council report PDFs so keywords can be tested against the
+# document text. Council report titles are just application numbers, so
+# title matching alone finds nothing. Required, not optional: the script
+# hard-fails without it rather than silently matching zero.
+pypdf>=4.0
 
 # Contour plate — scripts/make_plate.py
 # Only needed when regenerating assets/img/plate.svg, which is committed.

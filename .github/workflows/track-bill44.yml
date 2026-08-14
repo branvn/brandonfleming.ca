@@ -32,14 +32,18 @@ jobs:
       - name: Poll sources
         run: python scripts/track_bill44.py
 
+      # tracker_cache.json records every document already fetched, including
+      # the ones that matched nothing. It has to be committed too, or the
+      # runner throws it away and every weekly run re-downloads every Surrey
+      # PDF from scratch.
       - name: Commit any new candidates
         run: |
-          if git diff --quiet -- data/tracker.json; then
+          if git diff --quiet -- data/tracker.json data/tracker_cache.json; then
             echo "No changes."
             exit 0
           fi
           git config user.name  "bill44-tracker"
           git config user.email "actions@github.com"
-          git add data/tracker.json
+          git add data/tracker.json data/tracker_cache.json
           git commit -m "tracker: new candidates $(date -u +%Y-%m-%d)"
           git push
