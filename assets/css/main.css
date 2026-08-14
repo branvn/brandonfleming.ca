@@ -69,6 +69,14 @@
      lowering it again; the eye is a bad judge of this on a dark ground. */
   --text-faint: rgba(232, 241, 242, .66);
 
+  /* Structural small caps: "Selected work", the year on a card. These are
+     wayfinding, not decoration, and they were the thing that kept reading as
+     invisible over the plate. Small text at wide tracking looks lighter than
+     body copy at the same value — the strokes are thin and there is a lot of
+     air between them — so it needs to sit ABOVE body copy numerically to look
+     equal to it. .88 is roughly 13:1 on the plate. */
+  --text-label: rgba(232, 241, 242, .88);
+
   /* Paper — long-form reading surface */
   --paper:      #f5f2ea;
   --paper-edge: #e2dcce;
@@ -406,12 +414,12 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
 }
 
 .section-label {
-  font-size: .75rem; font-weight: 600;
-  letter-spacing: .2em; text-transform: uppercase;
-  color: var(--text-faint);
+  font-size: .8125rem; font-weight: 600;
+  letter-spacing: .18em; text-transform: uppercase;
+  color: var(--text-label);
   margin: 0 0 1.5rem;
   padding-bottom: .6rem;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--line-firm);
 }
 
 /* --------------------------------------------------------------------------
@@ -450,8 +458,8 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
   display: flex; flex-wrap: wrap; gap: .5rem;
   margin: 0 0 .7rem;
   font-family: var(--font-mono);
-  font-size: .75rem; letter-spacing: .05em;
-  color: var(--text-faint); text-transform: uppercase;
+  font-size: .8125rem; letter-spacing: .05em;
+  color: var(--text-label); text-transform: uppercase;
 }
 .tag-wip {
   color: var(--sand);
