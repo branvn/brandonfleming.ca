@@ -14,7 +14,8 @@ what it claims to do.
 
 Right now that means a Master of Urban Studies at **Simon Fraser University**, an
 Advanced Certificate in GIS at **BCIT**, and a thesis asking whether small-scale
-upzoning under BC's Bill 44 actually produces affordable housing in Surrey. I hold
+upzoning under BC's Bill 44 produces rental housing that local renters in Surrey
+can afford. I hold
 a BA in Policy Studies with a minor in Geography from **Kwantlen Polytechnic
 University**.
 

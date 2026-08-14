@@ -5,10 +5,10 @@ heroAccent = "read through the data it leaves behind."
 +++
 
 I'm a Master of Urban Studies student at Simon Fraser University, working toward
-an Advanced Certificate in GIS at BCIT. My research looks at whether small-scale
-upzoning under BC's Bill 44 actually produces affordable housing — using pro
-forma modelling, spatial analysis of corporate land assembly, and interviews with
-developers and planning staff.
+an Advanced Certificate in GIS at BCIT. My research asks whether small-scale
+upzoning under BC's Bill 44 produces rental housing that local renters in Surrey
+can actually afford — using pro forma modelling, a difference-in-differences
+analysis of land values, and interviews with developers and planning staff.
 
 Before that I spent a term at the Agricultural Land Commission auditing land-use
 applications and mapping where farmland is quietly disappearing.
