@@ -22,7 +22,8 @@ programmer; he built the first version with an LLM. He *is* strong at GIS
 
 ## State: what's done
 
-The site is complete and building. `hugo server` works.
+**Live at https://brandonfleming.ca**, built by Cloudflare Pages from
+`github.com/branvn/brandonfleming.ca` on push to `main`.
 
 - **Home** — hero, four work cards, Bill 44 tracker rail (hidden below 1100px)
 - **Work** — 4 project pages, 3 fully written
@@ -36,12 +37,11 @@ The site is complete and building. `hugo server` works.
    a literal `*(Replace this section with your preliminary findings)*`. This is
    the most important page on the site and only Brandon can write it. Do not
    write it for him — he asked explicitly to do it himself.
-2. **Not deployed.** `DEPLOY.md` walks the whole path assuming no Git knowledge.
-   A remote exists (`github.com/branvn/brandonfleming.ca`) and there is one
-   commit, `b467199 Initial Hugo site`. Nothing has been pushed.
-3. **Email forwarding for `contact@brandonfleming.ca` was set up at Porkbun** and
+2. **Email forwarding for `contact@brandonfleming.ca` was set up at Porkbun** and
    may or may not have been moved to Cloudflare. Confirm before switching
    nameservers — that address is already on job applications.
+3. **Bill 44 tracker is still inert.** `showTracker = false`, `tracker.json`
+   empty. The dry run polls four sources cleanly but has matched nothing yet.
 
 ---
 
@@ -249,8 +249,10 @@ sample data injected by `_preview/build.py` only.
   re-implements enough of the templates to review design without Hugo; it drifts.
   It was written because the sandbox couldn't install Hugo (its binaries download
   from GitHub releases, which was blocked).
-- **Set `HUGO_VERSION` = `0.140.2`** as a Cloudflare Pages environment variable
-  or the build fails with confusing template errors.
+- **Set `HUGO_VERSION` = `0.147.7`** as a Cloudflare Pages environment variable
+  or the build fails with confusing template errors. This is what the live site
+  is built with — confirm against `hugo version` locally before changing it, and
+  change both together.
 - **Check where email forwarding lives** before moving nameservers. If
   `contact@brandonfleming.ca` is forwarded at Porkbun, switching to Cloudflare
   nameservers breaks it — and that address is already on job applications.
@@ -273,6 +275,16 @@ sample data injected by `_preview/build.py` only.
   a render before checking it.
 - Built a font comparison page with seven near-identical grotesques and called it
   a range. Brandon correctly said they all looked the same.
+- Shipped photo captions that never rendered. The template looked up
+  `captions[pageName]` instead of `captions[filename]`, so the figcaption and the
+  alt text were both silently skipped. It survived from the very first commit
+  because `_preview/build.py` re-implements the templates and happened to get it
+  right — so the design reviews all showed captions the real site never had.
+  Anything verified only in `_preview/` is not verified.
+- Told Brandon his broken mobile layout was probably a browser setting. It was a
+  grid blowout in the CSS, which he'd already suspected by sending the screenshot
+  in the first place. The live HTML looked correct, so I reasoned from the markup
+  instead of loading the page at a phone width.
 - On the vector rewrite, cut administrative edges on length alone. It removed the
   boundaries and also shredded every dyked riverbank in Richmond and Delta —
   which is to say most of the coastline that matters here. The map looked plainly

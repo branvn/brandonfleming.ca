@@ -119,7 +119,7 @@ your files are there.
 
    | Variable | Value |
    |---|---|
-   | `HUGO_VERSION` | `0.140.2` |
+   | `HUGO_VERSION` | `0.147.7` |
 
    This matters. Without it Cloudflare uses an ancient default Hugo and the
    build fails with confusing template errors.
