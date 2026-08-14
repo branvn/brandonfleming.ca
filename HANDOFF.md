@@ -26,20 +26,22 @@ programmer; he built the first version with an LLM. He *is* strong at GIS
 `github.com/branvn/brandonfleming.ca` on push to `main`.
 
 - **Home** — hero, four work cards, Bill 44 tracker rail (hidden below 1100px)
-- **Work** — 4 project pages, 3 fully written
-- **Photography** — split into Film (11 photos) and Digital (empty, new D750)
+- **Work** — 4 project pages, all written
+- **Photography** — Film (13 photos) and Digital (2), all captioned
 - **About**, **404**, RSS, sitemap, JSON-LD, Open Graph
 - **Bill 44 tracker** — scaffolded, switched off (`showTracker = false`)
+- **Email** — `contact@brandonfleming.ca` forwarding confirmed working. Settled.
 
 ## State: what's outstanding
 
-1. **`content/work/bill-44-thesis.md` still contains placeholder text**, including
-   a literal `*(Replace this section with your preliminary findings)*`. This is
-   the most important page on the site and only Brandon can write it. Do not
-   write it for him — he asked explicitly to do it himself.
-2. **Email forwarding for `contact@brandonfleming.ca` was set up at Porkbun** and
-   may or may not have been moved to Cloudflare. Confirm before switching
-   nameservers — that address is already on job applications.
+1. **`content/work/bill-44-thesis.md` has no "What I'm finding" section.** The
+   page runs question, method, why it matters, and is accurate to thesis
+   proposal 2.1 — but the preliminary findings are the part a planner actually
+   reads, and they are missing. Only Brandon can write them. Do not write them
+   for him; he asked explicitly to do it himself, twice. An HTML comment sits in
+   the file where the section belongs.
+
+   **He set himself a deadline of 28 August 2026** for getting this up.
 3. **Bill 44 tracker is still inert.** `showTracker = false`, `tracker.json`
    empty. The dry run polls four sources cleanly but has matched nothing yet.
 
