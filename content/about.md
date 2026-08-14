@@ -51,4 +51,4 @@ I read a lot of council agendas, take photographs around the Lower Mainland, and
 am always happy to talk about why Grandview Heights has townhouses but no bus.
 
 You can reach me at [contact@brandonfleming.ca](mailto:contact@brandonfleming.ca)
-or on [LinkedIn](https://www.linkedin.com/in/brandon-fleming).
+or on [LinkedIn](https://www.linkedin.com/in/brandon-fleming-/).
