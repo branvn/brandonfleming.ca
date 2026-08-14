@@ -371,6 +371,40 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
   text-decoration: none;
 }
 
+/* --------------------------------------------------------------------------
+   Label halo
+
+   Small text that sits directly on the contour plate, with nothing between it
+   and the map. Raising the colour got the contrast ratio comfortably past AA,
+   but a ratio is measured against a flat backdrop and the plate is not flat —
+   contour lines run straight through 12px letterforms and break them up.
+
+   The fix is the one cartographers have used on map labels for a century: a
+   halo in the background colour, knocking a small clear zone out around each
+   glyph. Contrast against that zone is fixed regardless of what the plate is
+   doing underneath.
+
+   Deliberately NOT the band green. A halo works by luminance difference, and
+   the green sits too close to the text to separate it — it fuzzes the edge
+   instead of cutting it, and reads as a glow rather than a knockout.
+
+   Not applied to text on cards or on the paper panels: those surfaces are
+   opaque enough already, and a halo there is cost without benefit.
+   -------------------------------------------------------------------------- */
+
+.section-label,
+.coords,
+.gear,
+.more,
+.empty,
+.tracker-updated,
+.rail,
+.site-foot,
+.post-list time,
+.shot figcaption {
+  text-shadow: 0 0 4px var(--bg), 0 0 4px var(--bg), 0 0 8px var(--bg);
+}
+
 .section-label {
   font-size: .75rem; font-weight: 600;
   letter-spacing: .2em; text-transform: uppercase;
@@ -752,6 +786,8 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
 
 @media print {
   .topo, .grain, .site-nav, .coords, .breadcrumb, .skip-link { display: none !important; }
+  /* The halo exists to lift type off the plate, and the plate isn't printed. */
+  * { text-shadow: none !important; }
   body { background: #fff; color: #000; }
   .shell { max-width: none; padding: 0; }
   .doc, .project { box-shadow: none; border: 0; background: #fff; max-width: none; padding: 0; }

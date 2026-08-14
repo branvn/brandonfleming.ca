@@ -42,7 +42,13 @@
 {{ $css := resources.Get "css/main.css" | minify | fingerprint }}
 <link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
 
+{{/* SVG first for browsers that take it, .ico as the fallback. Order matters:
+     a browser picks the last type it understands, so the .ico must come after
+     the SVG or Chrome will use it and lose the sharper mark. Safari and older
+     Windows browsers, and anything reading /favicon.ico by convention, get the
+     .ico. Both live in static/ and are served as-is. */}}
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
 <meta name="theme-color" content="#051014">
 
 {{/* Structured data — helps Google show your name, role and links correctly. */}}
