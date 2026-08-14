@@ -42,7 +42,7 @@ programmer; he built the first version with an LLM. He *is* strong at GIS
    the file where the section belongs.
 
    **He set himself a deadline of 28 August 2026** for getting this up.
-3. **Bill 44 tracker is still inert.** `showTracker = false`, `tracker.json`
+2. **Bill 44 tracker is still inert.** `showTracker = false`, `tracker.json`
    empty. The dry run polls four sources cleanly but has matched nothing yet.
 
 ---
