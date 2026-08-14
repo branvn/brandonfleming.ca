@@ -1,4 +1,4 @@
-{{- $title := cond .IsHome (printf "%s — %s" site.Params.fullName site.Params.tagline) (printf "%s | %s" .Title site.Params.fullName) -}}
+{{- $title := cond .IsHome (printf "%s · %s" site.Params.fullName site.Params.tagline) (printf "%s | %s" .Title site.Params.fullName) -}}
 {{- $desc := or .Description .Params.summary (.Summary | plainify | truncate 155) site.Params.description -}}
 {{- $desc = $desc | plainify | chomp -}}
 {{- $ogimg := absURL (or .Params.image site.Params.ogImage) -}}

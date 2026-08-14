@@ -4,7 +4,7 @@ date = 2026-01-15
 weight = 10
 draft = false
 
-summary = "Under what financial and regulatory conditions does small-scale upzoning under Bill 44 produce rental housing affordable to local renters in Surrey — and do those conditions currently exist?"
+summary = "Under what financial and regulatory conditions does small-scale upzoning under Bill 44 produce rental housing affordable to local renters in Surrey, and do those conditions currently exist?"
 
 year    = "2025 – present"
 context = "MA thesis, Master of Urban Studies, Simon Fraser University"
@@ -21,8 +21,8 @@ status  = "in-progress"
      page from every other student research page.
 
      Even one hedged sentence does the work: "early results suggest X" is far
-     stronger than "this research will examine X". Add it when you have it —
-     it does not need to be a conclusion, and it does not need to be final.
+     stronger than "this research will examine X". Add it when you have it.
+     It does not need to be a conclusion, and it does not need to be final.
      --------------------------------------------------------------------- -->
 
 ## The question
@@ -34,7 +34,7 @@ those conditions currently exist?**
 Bill 44 requires BC municipalities to permit small-scale multi-unit housing
 (SSMUH) across lots that were previously zoned single-family. The policy rests on
 a supply-side axiom: remove the barriers and prices will fall. That leaves out
-the financialization of housing — the process by which real estate is absorbed
+the financialization of housing: the process by which real estate is absorbed
 into global circuits of capital, and housing comes to be held as an investment
 rather than as somewhere to live.
 
@@ -51,7 +51,7 @@ area with a transit-speculation one.
 
 ## Method
 
-A mixed-methods design across two Surrey neighbourhoods — **Newton**, lower
+A mixed-methods design across two Surrey neighbourhoods: **Newton**, lower
 income with higher renter vulnerability, and **Fleetwood**, higher income and
 subject to SkyTrain-driven land speculation. Each stream maps onto one of the
 three conditions above.
@@ -83,7 +83,7 @@ three conditions above.
    profiles apply the waivers and reductions non-market housing is eligible for.
    The resulting minimum viable rent is measured against 2021 Census renter
    median household income at the dissemination-area level for each
-   neighbourhood — that difference is the affordability gap.
+   neighbourhood. That difference is the affordability gap.
 
 3. **Semi-structured interviews.** Six, across three cohorts: two City of Surrey
    development planning staff, two private mid-sized builders, and two non-profit

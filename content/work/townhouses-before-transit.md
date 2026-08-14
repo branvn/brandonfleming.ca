@@ -7,7 +7,7 @@ draft = false
 summary = "An op-ed on South Surrey's Grandview Heights, where two decades of townhouse construction arrived without the transit to serve it."
 
 year    = "2025"
-context = "Written for URB 650, Urban Governance — Simon Fraser University"
+context = "Written for URB 650, Urban Governance, Simon Fraser University"
 role    = "Author"
 tools   = ["Census of Canada", "TransLink performance data", "Surrey neighbourhood plans"]
 +++
@@ -63,7 +63,7 @@ fails that test.
 Cars are choking the region out. Having lived in the South Surrey area for over 20
 years, I can confidently say the traffic has never been worse. The road capacity
 of the major collector roads has mostly stayed the same, but the population of
-South Surrey has grown by 47% from 2006 to 2021 — almost 30,000 more people in 15
+South Surrey has grown by 47% from 2006 to 2021, almost 30,000 more people in 15
 years, and thousands more cars. The transit system is basically the same, with
 only a few extra stops added.
 
@@ -76,7 +76,7 @@ into car dependency.
 ## Counterarguments
 
 Admittedly, there are vague mentions of future increased public transport from
-TransLink in their 2050 executive summary — but these supposed improvements aren't
+TransLink in their 2050 executive summary, but these supposed improvements aren't
 coming fast enough. TransLink's 10-year priorities have no mention of increased
 bus service in the Grandview Heights area.
 
@@ -84,7 +84,7 @@ One could argue there isn't demand for public transit because only 4% of South
 Surrey residents use transit to get to work. But I argue there is always demand
 for safe, efficient, and fast transportation; people just don't currently have any
 other options. According to the 2024 TransLink performance review, everything
-south of the Fraser River — including South Surrey — saw nearly 8 million new
+south of the Fraser River, including South Surrey, saw nearly 8 million new
 public transport users, far more than any other region in Metro Vancouver.
 
 ## Final thoughts

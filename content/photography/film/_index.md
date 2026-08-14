@@ -6,7 +6,7 @@ summary = "35mm black and white and colour negative, shot on a Nikon FE."
 gear = "Nikon FE · 50mm f/1.8 · 28mm f/2.8"
 cover = "science-world.jpg"
 
-# Captions are keyed by filename. Add a block when you add a photo — the alt
+# Captions are keyed by filename. Add a block when you add a photo. The alt
 # text matters for accessibility and for search.
 [captions]
   [captions."white-rock-poles.jpg"]

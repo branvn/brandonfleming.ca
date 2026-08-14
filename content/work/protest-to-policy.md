@@ -5,10 +5,10 @@ date = 2025-08-01
 weight = 40
 draft = false
 
-summary = "How child safety concerns catalyzed sustainable mobility in the Netherlands — and what made the shift stick."
+summary = "How child safety concerns catalyzed sustainable mobility in the Netherlands, and what made the shift stick."
 
 year    = "2025"
-context = "URB 660, Transportation & Urban Development — Simon Fraser University"
+context = "URB 660, Transportation & Urban Development, Simon Fraser University"
 role    = "Author"
 tools   = ["Archival research", "Policy analysis"]
 
