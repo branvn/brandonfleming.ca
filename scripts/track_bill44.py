@@ -83,13 +83,30 @@ def parse_date(raw: str) -> str:
 
 
 def fetch(url: str) -> str | None:
-    try:
-        r = requests.get(url, timeout=TIMEOUT, headers={"User-Agent": USER_AGENT})
-        r.raise_for_status()
-        return r.text
-    except requests.RequestException as exc:
-        print(f"    ! unreachable: {exc}", file=sys.stderr)
-        return None
+    """GET a URL, retrying once on a timeout or dropped connection.
+
+    Worth the retry because this runs unattended in a GitHub Action every week.
+    A news site that is briefly slow would otherwise drop out of that week's
+    poll with nothing to show for it but a line in a log nobody reads.
+
+    A 404 is not retried — that means the feed moved, and only a human fixing
+    tracker_sources.yaml will bring it back.
+    """
+    for attempt in (1, 2):
+        try:
+            r = requests.get(url, timeout=TIMEOUT * attempt,
+                             headers={"User-Agent": USER_AGENT})
+            r.raise_for_status()
+            return r.text
+        except (requests.Timeout, requests.ConnectionError) as exc:
+            if attempt == 1:
+                print(f"    … {type(exc).__name__}, retrying once")
+                continue
+            print(f"    ! unreachable: {exc}", file=sys.stderr)
+        except requests.RequestException as exc:
+            print(f"    ! unreachable: {exc}", file=sys.stderr)
+            break
+    return None
 
 
 # ------------------------------------------------------------------ sources

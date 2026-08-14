@@ -45,11 +45,15 @@ sources:
     mode: "rss"
     url: "https://www.cbc.ca/webfeed/rss/rss-canada-britishcolumbia"
 
-  - name: "BC Government News — Housing"
+  # The ministry was renamed to Housing and Municipal Affairs, and BC Gov News
+  # builds its feed URL from the ministry slug — so the old `housing.rss` now
+  # 404s rather than redirecting. If this breaks again, open news.gov.bc.ca,
+  # find the ministry under "By Ministry", and append .rss to its URL.
+  - name: "BC Government News — Housing and Municipal Affairs"
     jurisdiction: "British Columbia"
     type: "provincial"
     mode: "rss"
-    url: "https://news.gov.bc.ca/ministries/housing.rss"
+    url: "https://news.gov.bc.ca/ministries/housing-and-municipal-affairs.rss"
 
   # --- Municipal council agendas ------------------------------------------
   # This is the part nobody else aggregates, and the reason the tracker is

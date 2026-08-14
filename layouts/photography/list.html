@@ -57,8 +57,14 @@
         {{ range $photos }}
           {{ $view := .Resize "1000x q82" }}
           {{ $full := cond (gt .Width 2000) (.Resize "2000x q84") . }}
+          {{/* Captions are keyed by filename in the section's front matter.
+               Hold the resource's own name in a variable first: inside the
+               `with` below the dot rebinds to the captions map, so a bare
+               `.Name` would be the map's and `$.Name` is the page's — neither
+               is the photo's, and the lookup silently returns nothing. */}}
+          {{ $name := .Name }}
           {{ $meta := false }}
-          {{ with $.Params.captions }}{{ $meta = index . $.Name }}{{ end }}
+          {{ with $.Params.captions }}{{ $meta = index . $name }}{{ end }}
           <figure class="shot">
             <a href="{{ $full.RelPermalink }}">
               <img src="{{ $view.RelPermalink }}"
