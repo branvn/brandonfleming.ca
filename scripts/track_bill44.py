@@ -1,6 +1,6 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
-Bill 44 tracker — candidate collector.
+Bill 44 tracker: candidate collector.
 
 Polls the sources in data/tracker_sources.yaml, keeps anything whose headline
 matches the keyword list, and merges new items into data/tracker.json as
@@ -10,13 +10,13 @@ Nothing reaches the website until you open data/tracker.json and write a `note`
 for the entry. That annotation is the whole point of the tracker: an unreviewed
 feed is noise, and noise on a portfolio reads as a robot nobody is watching.
 
-Only headline, URL, and date are stored — never article body text.
+Only headline, URL, and date are stored; never article body text.
 
 Usage
 -----
-    python scripts/track_bill44.py            # poll and merge
-    python scripts/track_bill44.py --dry-run  # show what would be added
-    python scripts/track_bill44.py --review   # list entries awaiting a note
+python scripts/track_bill44.py            # poll and merge
+python scripts/track_bill44.py --dry-run  # show what would be added
+python scripts/track_bill44.py --review   # list entries awaiting a note
 
 Runs on a schedule via .github/workflows/track-bill44.yml, but works fine
 locally too.
@@ -43,13 +43,12 @@ DATA_FILE = ROOT / "data" / "tracker.json"
 
 TIMEOUT = 25
 USER_AGENT = (
-    "brandonfleming.ca Bill 44 tracker "
-    "(+https://brandonfleming.ca/tracker/; contact@brandonfleming.ca)"
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 brandonfleming.ca-tracker"
 )
 
 
 # ---------------------------------------------------------------- utilities
-
 
 def entry_id(url: str) -> str:
     """Stable id so re-running never duplicates an item."""
@@ -57,7 +56,10 @@ def entry_id(url: str) -> str:
 
 
 def clean(text: str) -> str:
-    text = unescape(re.sub(r"<[^>]+>", " ", text or ""))
+    if not text:
+        return ""
+    text = re.sub(r"<!\[CDATA\[(.*?)\]\]>", r"\1", text, flags=re.DOTALL)
+    text = unescape(re.sub(r"<[^>]+>", " ", text))
     return re.sub(r"\s+", " ", text).strip()
 
 
@@ -70,9 +72,14 @@ def parse_date(raw: str) -> str:
     """Best-effort date parse -> YYYY-MM-DD. Falls back to today."""
     raw = (raw or "").strip()
     formats = (
-        "%a, %d %b %Y %H:%M:%S %z", "%a, %d %b %Y %H:%M:%S %Z",
-        "%Y-%m-%dT%H:%M:%S%z", "%Y-%m-%dT%H:%M:%SZ",
-        "%Y-%m-%d %H:%M:%S", "%Y-%m-%d",
+        "%a, %d %b %Y %H:%M:%S %z",
+        "%a, %d %b %Y %H:%M:%S %Z",
+        "%Y-%m-%dT%H:%M:%S%z",
+        "%Y-%m-%dT%H:%M:%SZ",
+        "%B %d, %Y",
+        "%b %d, %Y",
+        "%Y-%m-%d %H:%M:%S",
+        "%Y-%m-%d",
     )
     for fmt in formats:
         try:
@@ -83,24 +90,19 @@ def parse_date(raw: str) -> str:
 
 
 def fetch(url: str) -> str | None:
-    """GET a URL, retrying once on a timeout or dropped connection.
-
-    Worth the retry because this runs unattended in a GitHub Action every week.
-    A news site that is briefly slow would otherwise drop out of that week's
-    poll with nothing to show for it but a line in a log nobody reads.
-
-    A 404 is not retried — that means the feed moved, and only a human fixing
-    tracker_sources.yaml will bring it back.
-    """
+    """GET a URL, retrying once on a timeout or dropped connection."""
     for attempt in (1, 2):
         try:
-            r = requests.get(url, timeout=TIMEOUT * attempt,
-                             headers={"User-Agent": USER_AGENT})
+            r = requests.get(
+                url,
+                timeout=TIMEOUT * attempt,
+                headers={"User-Agent": USER_AGENT},
+            )
             r.raise_for_status()
             return r.text
         except (requests.Timeout, requests.ConnectionError) as exc:
             if attempt == 1:
-                print(f"    … {type(exc).__name__}, retrying once")
+                print(f"    ... {type(exc).__name__}, retrying once")
                 continue
             print(f"    ! unreachable: {exc}", file=sys.stderr)
         except requests.RequestException as exc:
@@ -111,12 +113,10 @@ def fetch(url: str) -> str | None:
 
 # ------------------------------------------------------------------ sources
 
-
 def from_rss(xml: str, keywords: list[str]) -> list[dict]:
     """Minimal RSS/Atom reader. Avoids a feedparser dependency."""
     found = []
     items = re.findall(r"<(?:item|entry)\b.*?</(?:item|entry)>", xml, re.S | re.I)
-
     for item in items:
         def tag(name: str) -> str:
             m = re.search(rf"<{name}\b[^>]*>(.*?)</{name}>", item, re.S | re.I)
@@ -127,7 +127,7 @@ def from_rss(xml: str, keywords: list[str]) -> list[dict]:
             continue
 
         link = tag("link")
-        if not link:  # Atom puts the URL in an attribute
+        if not link:
             m = re.search(r'<link[^>]+href="([^"]+)"', item, re.I)
             link = m.group(1) if m else ""
         if not link:
@@ -143,10 +143,9 @@ def from_rss(xml: str, keywords: list[str]) -> list[dict]:
 
 def from_html(html: str, base_url: str, keywords: list[str],
               link_contains: str | None) -> list[dict]:
-    """Scrape anchor text off a page. Fragile by nature — verify occasionally."""
+    """Scrape anchor text off a page."""
     found = []
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-
     for href, inner in re.findall(r'<a\b[^>]*href="([^"]+)"[^>]*>(.*?)</a>', html, re.S | re.I):
         text = clean(inner)
         if not text or len(text) < 12:
@@ -159,29 +158,76 @@ def from_html(html: str, base_url: str, keywords: list[str],
     return found
 
 
-# --------------------------------------------------------------------- main
+def from_escribe(portal_url: str, keywords: list[str], max_meetings: int = 5) -> list[dict]:
+    """Poll meeting agenda pages from an Escribe portal."""
+    found = []
+    cal_html = fetch(f"{portal_url.rstrip('/')}/MeetingsCalendarView.aspx?FillWidth=1")
+    if not cal_html:
+        return found
 
+    meeting_ids = list(dict.fromkeys(
+        re.findall(r"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})", cal_html, re.I)
+    ))
+
+    for uid in meeting_ids[:max_meetings]:
+        agenda_url = f"{portal_url.rstrip('/')}/Meeting.aspx?Id={uid}&Agenda=Agenda&lang=English"
+        m_html = fetch(agenda_url)
+        if not m_html or "Runtime Error" in m_html:
+            continue
+
+        # Extract meeting date
+        date_match = re.search(r"class=[\"'][^\"']*MeetingDate[^\"']*[\"'][^>]*>(.*?)<", m_html, re.I)
+        if not date_match:
+            date_match = re.search(r"([A-Za-z]+ \d{1,2}, \d{4})", m_html)
+        meeting_date = parse_date(date_match.group(1)) if date_match else datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+        # Extract meeting title
+        title_match = re.search(r"<title\b[^>]*>(.*?)</title>", m_html, re.I | re.S)
+        meeting_title = clean(title_match.group(1)) if title_match else "Council Meeting"
+
+        # Parse text into agenda item statements
+        clean_text = clean(m_html)
+        items = re.findall(r"(\d+\.(?:\d+\.?)?\s+[^.]{10,140})", clean_text)
+        
+        seen_items = set()
+        for it in items:
+            it_clean = clean(it)
+            if it_clean in seen_items or len(it_clean) < 15:
+                continue
+            seen_items.add(it_clean)
+
+            if matches(it_clean, keywords):
+                found.append({
+                    "title": f"{meeting_title}: {it_clean}",
+                    "url": agenda_url,
+                    "date": meeting_date,
+                })
+    return found
+
+
+# --------------------------------------------------------------------- main
 
 def collect(sources: list[dict], keywords: list[str]) -> list[dict]:
     results = []
     for src in sources:
-        print(f"  → {src['name']}")
-        html = fetch(src["url"])
-        if not html:
-            continue
-
-        if src.get("mode") == "html":
-            hits = from_html(html, src["url"], keywords, src.get("link_contains"))
+        print(f"  -> {src['name']}")
+        mode = src.get("mode")
+        if mode == "escribe":
+            hits = from_escribe(src["url"], keywords)
+        elif mode == "html":
+            html = fetch(src["url"])
+            hits = from_html(html, src["url"], keywords, src.get("link_contains")) if html else []
         else:
-            hits = from_rss(html, keywords)
+            html = fetch(src["url"])
+            hits = from_rss(html, keywords) if html else []
 
         for hit in hits:
             hit.update({
-                "id": entry_id(hit["url"]),
+                "id": entry_id(hit["url"] + hit["title"]),
                 "source": src["name"],
                 "jurisdiction": src.get("jurisdiction", ""),
                 "type": src.get("type", ""),
-                "note": "",              # <- you write this
+                "note": "",
             })
         print(f"    {len(hits)} match{'' if len(hits) == 1 else 'es'}")
         results.extend(hits)
@@ -211,7 +257,7 @@ def main() -> int:
     keywords = config.get("keywords", [])
     sources = [s for s in config.get("sources", []) if s.get("url")]
 
-    print(f"Polling {len(sources)} source(s) for {len(keywords)} keyword(s)…")
+    print(f"Polling {len(sources)} source(s) for {len(keywords)} keyword(s)...")
     candidates = collect(sources, keywords)
 
     new = [c for c in candidates if c["id"] not in existing]
@@ -223,7 +269,6 @@ def main() -> int:
         return 0
 
     if new:
-        # Newest first, and preserve every note already written.
         store["entries"] = sorted(
             list(existing.values()) + new, key=lambda e: e["date"], reverse=True
         )
@@ -231,9 +276,8 @@ def main() -> int:
     store["updated"] = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     DATA_FILE.write_text(json.dumps(store, indent=2, ensure_ascii=False) + "\n",
                          encoding="utf-8")
-
     pending = sum(1 for e in store["entries"] if not e.get("note"))
-    print(f"Wrote {DATA_FILE.relative_to(ROOT)} — {pending} awaiting your note.")
+    print(f"Wrote {DATA_FILE.relative_to(ROOT)}: {pending} awaiting your note.")
     return 0
 
 

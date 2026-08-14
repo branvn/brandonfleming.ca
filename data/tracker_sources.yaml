@@ -1,31 +1,43 @@
-# Sources for the Bill 44 tracker.
+﻿# Sources for the Bill 44 tracker.
 #
-# Each source is polled by scripts/track_bill44.py. Anything matching the
-# keyword list below becomes an UNREVIEWED candidate in data/tracker.json.
-# Nothing appears on the site until you write a `note` for it by hand.
-#
-# mode: "rss"  — a real feed. Reliable, cheap, preferred.
-# mode: "html" — scrape links off a page. Fragile; municipal sites are
-#                redesigned without warning. Check these occasionally.
+# mode: "rss" : a real feed. Reliable, cheap, preferred.
+# mode: "html" : scrape links off a page. Fragile; verify occasionally.
 #
 # IMPORTANT: only headline, link, and date are ever stored. Never store article
-# body text — that's someone else's copyright.
+# body text: that is someone else's copyright.
 
 keywords:
   - "bill 44"
   - "ssmuh"
   - "small-scale multi-unit"
   - "small scale multi unit"
-  - "small-scale multi unit"
   - "housing statutes amendment"
+  - "bill 25"
   - "upzoning"
   - "upzone"
   - "multiplex"
   - "fourplex"
   - "sixplex"
+  - "restricted zone"
+  - "infill housing"
   - "transit-oriented area"
+  - "official community plan"
+  - "zoning bylaw amendment"
 
 sources:
+  # --- Municipal council agendas ------------------------------------------
+  - name: "City of Surrey: Corporate Reports"
+    jurisdiction: "Surrey"
+    type: "council"
+    mode: "html"
+    url: "https://www.surrey.ca/city-government/council-meetings/corporate-reports"
+
+  - name: "City of Surrey: Planning Reports"
+    jurisdiction: "Surrey"
+    type: "council"
+    mode: "html"
+    url: "https://www.surrey.ca/city-government/council-meetings/planning-reports"
+
   # --- Regional and provincial news (RSS) ---------------------------------
   - name: "Business in Vancouver"
     jurisdiction: "Metro Vancouver"
@@ -43,34 +55,10 @@ sources:
     jurisdiction: "British Columbia"
     type: "news"
     mode: "rss"
-    url: "https://www.cbc.ca/webfeed/rss/rss-canada-britishcolumbia"
+    url: "https://www.cbc.ca/cmlink/rss-canada-britishcolumbia"
 
-  # The ministry was renamed to Housing and Municipal Affairs, and BC Gov News
-  # builds its feed URL from the ministry slug — so the old `housing.rss` now
-  # 404s rather than redirecting. If this breaks again, open news.gov.bc.ca,
-  # find the ministry under "By Ministry", and append .rss to its URL.
-  - name: "BC Government News — Housing and Municipal Affairs"
+  - name: "BC Government News: Housing and Municipal Affairs"
     jurisdiction: "British Columbia"
     type: "provincial"
     mode: "rss"
-    url: "https://news.gov.bc.ca/ministries/housing-and-municipal-affairs.rss"
-
-  # --- Municipal council agendas ------------------------------------------
-  # This is the part nobody else aggregates, and the reason the tracker is
-  # worth building. Verify each selector once, then leave it alone.
-  #
-  # Uncomment and adjust as you confirm each municipality's agenda page.
-  #
-  # - name: "City of Surrey — Council Agendas"
-  #   jurisdiction: "Surrey"
-  #   type: "council"
-  #   mode: "html"
-  #   url: "https://www.surrey.ca/city-government/councils-committees/city-council/agendas-minutes"
-  #   link_contains: "agenda"
-  #
-  # - name: "City of New Westminster — Council Agendas"
-  #   jurisdiction: "New Westminster"
-  #   type: "council"
-  #   mode: "html"
-  #   url: "https://www.newwestcity.ca/council-agendas-minutes"
-  #   link_contains: "agenda"
+    url: "https://news.gov.bc.ca/ministries/housing-and-municipal-affairs/feed"
