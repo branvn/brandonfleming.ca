@@ -1,8 +1,8 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 Bill 44 tracker: candidate collector.
 
-Polls the sources in data/tracker_sources.yaml, tests either titles or linked
+Polls the sources in scripts/tracker_sources.yaml, tests either titles or linked
 PDF documents against targeted keywords, and merges new items into
 data/tracker.json as UNREVIEWED candidates (note = "").
 
@@ -40,9 +40,13 @@ import yaml
 from pypdf import PdfReader
 
 ROOT = Path(__file__).resolve().parent.parent
-SOURCES_FILE = ROOT / "data" / "tracker_sources.yaml"
+# Only tracker.json lives in data/, because that is the one Hugo genuinely
+# reads. Hugo parses every file in data/ on every build whether a template
+# touches it or not, so a typo in the scraper's own config or its URL-hash
+# cache would break the website. Keep script-only files out of there.
+SOURCES_FILE = ROOT / "scripts" / "tracker_sources.yaml"
 DATA_FILE = ROOT / "data" / "tracker.json"
-CACHE_FILE = ROOT / "data" / "tracker_cache.json"
+CACHE_FILE = ROOT / "scripts" / "tracker_cache.json"
 
 TIMEOUT = 25
 USER_AGENT = (
@@ -50,6 +54,9 @@ USER_AGENT = (
     "(+https://brandonfleming.ca/tracker/; contact@brandonfleming.ca)"
 )
 MAX_DOC_CHARS = 250_000
+
+MONTH = r"(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s+\d{4}"
+STATUS = r"(?:Active|Approved|Closed|Pending|In Progress|Completed|Deferred)"
 
 
 # ---------------------------------------------------------------- utilities
@@ -86,6 +93,49 @@ def parse_date(raw: str) -> str:
         except ValueError:
             continue
     return datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+
+def clean_surrey_title(raw_text: str) -> str:
+    """Clean and format Surrey corporate and planning report titles."""
+    text = clean(raw_text)
+    text = re.split(r"\bPagination\b", text, flags=re.I)[0].strip()
+
+    # Strip leading date
+    text = re.sub(rf"^{MONTH}\s*", "", text, flags=re.I).strip()
+
+    # Corporate reports: truncate abstract at boundary phrase
+    abstract_split = re.split(
+        r"\s+(?:The (?:intent|purpose) of this [A-Za-z ]*report|This report)\b",
+        text,
+        maxsplit=1,
+        flags=re.I,
+    )
+    text = abstract_split[0].strip()
+
+    # Planning reports: strip trailing repeated date(s) and status word
+    text = re.sub(rf"(?:\s*{MONTH})*\s*{STATUS}\s*$", "", text, flags=re.I).strip()
+
+    # Planning reports: insert comma after report number(s) if missing
+    m_plr = re.match(r"^(Planning Report\s+[\d\-]+(?:\s+and\s+[\d\-]+)*)\s+(.*)$", text, re.I)
+    if m_plr:
+        prefix = m_plr.group(1).strip()
+        rest = m_plr.group(2).strip()
+        if not rest.startswith(","):
+            text = f"{prefix}, {rest}"
+
+    # Clean trailing punctuation
+    text = re.sub(r"[\s\-\,\:\.]+$", "", text).strip()
+
+    # Truncate on word boundaries if needed
+    if len(text) > 160:
+        truncated = text[:157]
+        last_space = truncated.rfind(" ")
+        if last_space > 80:
+            text = truncated[:last_space].rstrip() + "..."
+        else:
+            text = truncated.rstrip() + "..."
+
+    return text
 
 
 def compute_keywords_hash(config: dict) -> str:
@@ -138,7 +188,6 @@ def fetch_pdf_text(url: str) -> str:
                 except Exception:
                     continue
         except Exception:
-            # Captures decompression limit or corrupted stream during page iteration
             pass
 
         return " ".join(extracted).lower()
@@ -220,15 +269,13 @@ def from_drupal(html: str, base_url: str, keywords: list[str],
         item_date = parse_date(date_m.group(1)) if date_m else datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
         b_clean = re.sub(r'<div\b[^>]*class=["\'][^"\']*listing-view__item-link[^"\']*["\'].*?</div>', " ", b, flags=re.S | re.I)
-        raw_title = clean(b_clean)
-        raw_title = re.split(r"\bPagination\b", raw_title, flags=re.I)[0].strip()
-        display_title = raw_title if len(raw_title) <= 160 else raw_title[:157] + "..."
+        display_title = clean_surrey_title(b_clean)
 
         if match_target == "document":
             doc_text = fetch_pdf_text(pdf_url)
             hits, matched = score_text(doc_text, keywords)
         else:
-            hits, matched = score_text(raw_title, keywords)
+            hits, matched = score_text(display_title, keywords)
 
         if hits > 0:
             found.append({

@@ -52,19 +52,26 @@ These are not preferences.
 
 | Thing | State |
 |---|---|
-| `data/tracker.json` | `{"updated": "", "entries": []}` — empty |
-| Sources configured | 4, all news/provincial RSS |
-| Municipal agenda sources | **0 active**; 2 commented-out scaffolds |
-| Candidates ever collected | 0 |
+| `data/tracker.json` | 26 candidates, all with an empty `note` |
+| Sources configured | 6: four news/provincial RSS, two Surrey report listings |
+| Municipal sources | Surrey corporate reports and planning reports, both working |
+| Documents evaluated | 100, cached in `scripts/tracker_cache.json` |
 | `showTracker` in `hugo.toml` | `false` — not in the nav |
-| GitHub Action | Committed and scheduled, has never had anything to commit |
+| GitHub Action | Scheduled weekly, has not yet run on its own |
 | Rail on home page | Renders nothing (correctly) when no annotated entries |
-| `/tracker/` page | Renders "No reviewed entries yet." |
+| `/tracker/` page | Renders "No reviewed entries yet." until a note exists |
 
-Last manual run polled all four sources; two worked, two failed. Both failures
-are now fixed (a renamed BC ministry slug, and a missing retry on timeout), but
-the run still produced **0 matches**. That is the core problem: the keywords and
-the sources are not yet finding real material.
+The pipeline works. Top candidates are R149 on inclusionary housing in
+transit-oriented areas (98 hits), R162 on the SSMUH review framework (86), and
+the Old Yale Road houseplex planning report (44).
+
+**What is left is Brandon's, not yours: the notes.** Nothing publishes without
+them. After that, Telegram delivery and `showTracker = true`.
+
+Two findings worth not rediscovering. Council report titles are just application
+numbers, so keyword matching runs against the linked PDF text, which is why
+`pypdf` is a hard dependency. And Surrey's own word for a small-scale multi-unit
+building is **houseplex**, which no journalist ever writes.
 
 ---
 
@@ -73,7 +80,7 @@ the sources are not yet finding real material.
 ```
 scripts/track_bill44.py            the collector
 scripts/requirements.txt           requests, PyYAML (plus the plate's deps)
-data/tracker_sources.yaml          keywords + source list  ← most of your work
+scripts/tracker_sources.yaml       keywords + source list  <- most of your work
 data/tracker.json                  the store; notes written by hand
 layouts/partials/tracker-rail.html home page rail, top 4 annotated entries
 layouts/tracker/list.html          the /tracker/ page
@@ -92,7 +99,7 @@ Every entry in `data/tracker.json` is:
   "title": "headline or link text, as published",
   "url": "https://…",
   "date": "YYYY-MM-DD",
-  "source": "name from tracker_sources.yaml",
+  "source": "name from scripts/tracker_sources.yaml",
   "jurisdiction": "Surrey",
   "type": "council | news | provincial",
   "note": ""
@@ -147,7 +154,7 @@ Richmond, Coquitlam, Delta, Langley Township, North Vancouver District.
 
 ### What to produce
 
-Entries in `data/tracker_sources.yaml`:
+Entries in `scripts/tracker_sources.yaml`:
 
 ```yaml
   - name: "City of Surrey — Council Agendas"

@@ -67,7 +67,8 @@ assets/
 static/
   fonts/            Jost + Michroma (+ unused Basteleur)
   documents/        résumé and two PDFs
-data/             tracker.json + tracker_sources.yaml
+data/             tracker.json only. Hugo parses everything in here on every
+                  build, so nothing script-only belongs in it
 scripts/
   make_plate.py     the contour plate generator
   track_bill44.py   Bill 44 news/agenda collector
@@ -230,11 +231,20 @@ carried over to the new level list unchanged and needed no retuning.
 
 ## Bill 44 tracker
 
-`scripts/track_bill44.py` polls RSS feeds and municipal agenda pages listed in
-`data/tracker_sources.yaml`, and writes candidates into `data/tracker.json` with
-an **empty `note`**. Nothing publishes until Brandon writes that note by hand —
-the annotation is the point; an unreviewed feed reads as a robot nobody watches.
-Only headline, URL and date are stored, never article text.
+`scripts/track_bill44.py` polls the news feeds and Surrey report listings in
+`scripts/tracker_sources.yaml`, and writes candidates into `data/tracker.json`
+with an **empty `note`**. Nothing publishes until Brandon writes that note by
+hand: the annotation is the point, and an unreviewed feed reads as a robot
+nobody watches. Only title, URL, date, hit count and matched terms are stored,
+never document text.
+
+Council report titles are just application numbers, so keyword matching runs
+against the linked PDFs rather than the headings. That needs `pypdf`.
+
+**`data/` holds `tracker.json` and nothing else.** Hugo parses every file in
+`data/` on every build, whether a template reads it or not, so the scraper's
+config and its URL-hash cache live in `scripts/`. They were in `data/` once,
+and a stray byte at the top of the YAML took down the whole site build.
 
 `.github/workflows/track-bill44.yml` runs it weekly and commits back. Currently
 inert: `data/tracker.json` is empty and `showTracker = false` in `hugo.toml`.
