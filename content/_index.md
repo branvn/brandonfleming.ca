@@ -1,10 +1,11 @@
 +++
 title = "Brandon Fleming"
-# The hero is set in Michroma, which is very wide. Four words is about the
-# ceiling before it wraps to three lines. heroAccent is the part that takes the
-# teal gradient and sits on its own line.
-heroLead = "Mapping"
-heroAccent = "Public Policy’s Footprint"
+# The hero is set in Michroma, which runs about 1.4x the width of a normal
+# face, so it fits roughly 19 characters a line at full size. This is 51, which
+# lands at three lines. heroAccent takes the teal gradient and starts its own
+# line, so the break has to fall somewhere that reads naturally.
+heroLead = "Mapping Public Policy’s Footprint"
+heroAccent = "in Metro Vancouver"
 +++
 
 I'm a Master of Urban Studies student at Simon Fraser University, working toward
