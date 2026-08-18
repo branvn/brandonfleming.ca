@@ -23,9 +23,12 @@
     {{ with .Params.portrait }}
       {{ with $.Resources.GetMatch . }}
         {{ $img := .Fill "600x750 Smart q82" }}
-        <img class="portrait" src="{{ $img.RelPermalink }}"
-             width="{{ $img.Width }}" height="{{ $img.Height }}"
-             alt="{{ $.Params.portraitAlt }}" loading="lazy" decoding="async">
+        <figure class="portrait">
+          <img src="{{ $img.RelPermalink }}"
+               width="{{ $img.Width }}" height="{{ $img.Height }}"
+               alt="{{ $.Params.portraitAlt }}" loading="lazy" decoding="async">
+          {{ with $.Params.portraitCaption }}<figcaption>{{ . }}</figcaption>{{ end }}
+        </figure>
       {{ end }}
     {{ end }}
     {{ .Content }}

@@ -5,8 +5,9 @@ summary = "Urban studies graduate researcher and GIS analyst in Metro Vancouver,
 # Drop the photo into this folder (content/about/) and name it here. Hugo
 # resizes it, so the original can be straight off a phone. portraitAlt is what
 # a screen reader announces, so describe the picture rather than naming me.
-portrait    = "portrait.jpg"
-portraitAlt = "Brandon Fleming riding a bike-share bicycle along a paved path through parkland"
+portrait        = "portrait.jpg"
+portraitAlt     = "Riding a rented bicycle on a separated cycle path through parkland in Leeuwarden, in the Netherlands"
+portraitCaption = "Leeuwarden, Netherlands. The infrastructure the URB 660 paper is about."
 
 [download]
   url   = "/documents/brandon-fleming-resume.pdf"
