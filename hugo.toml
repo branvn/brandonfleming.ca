@@ -20,6 +20,14 @@ summaryLength = 30
   linkedin = "https://www.linkedin.com/in/brandon-fleming-/"
   resume   = "/documents/brandon-fleming-resume.pdf"
 
+  # Third-party pages that are demonstrably about you. These feed the "sameAs"
+  # list in the structured data, which is how a search engine tells one Brandon
+  # Fleming from another. Add an ORCID here once you have one: it is the proper
+  # fix for name collisions and it matters most once the thesis is deposited.
+  profiles = [
+    "https://www.kpu.ca/stories/policy-studies/brandon-fleming",
+  ]
+
   # Shown in the header corner. A public civic landmark in Surrey — deliberately
   # NOT a residential address. Same point as the decimal form 49.1913 / -122.8490,
   # written in degrees-minutes-seconds because that's how a survey mark reads.

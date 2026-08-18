@@ -66,7 +66,7 @@
       (dict "@type" "CollegeOrUniversity" "name" "Simon Fraser University")
       (dict "@type" "CollegeOrUniversity" "name" "British Columbia Institute of Technology")
       (dict "@type" "CollegeOrUniversity" "name" "Kwantlen Polytechnic University"))
-  "sameAs" (slice site.Params.linkedin)
+  "sameAs" (append (site.Params.profiles | default slice) (slice site.Params.linkedin))
   | jsonify (dict "indent" "  ")
   | safeJS }}
 </script>
