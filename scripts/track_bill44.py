@@ -421,10 +421,14 @@ def main() -> int:
     new = [c for c in candidates if c["id"] not in existing]
     print(f"\n{len(new)} new candidate(s).")
 
+    # Listed in both modes, highest scoring first. The weekly Telegram message
+    # is built from these lines, so a run that finds three things says which
+    # three rather than replaying the whole backlog of unreviewed items.
+    for c in sorted(new, key=lambda x: x.get("hits", 0), reverse=True):
+        hits_str = f" [hits: {c.get('hits', 0)} | {', '.join(c.get('matched', []))}]"
+        print(f"  [{c['date']}]{hits_str} {c['title']} ({c['source']})")
+
     if args.dry_run:
-        for c in sorted(new, key=lambda x: x.get("hits", 0), reverse=True):
-            hits_str = f" [hits: {c.get('hits', 0)} | {', '.join(c.get('matched', []))}]"
-            print(f"  [{c['date']}]{hits_str} {c['title']} ({c['source']})")
         return 0
 
     if new:

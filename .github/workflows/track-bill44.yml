@@ -46,9 +46,20 @@ jobs:
             echo "has_new=false" >> "$GITHUB_OUTPUT"
           else
             echo "has_new=true" >> "$GITHUB_OUTPUT"
-            PENDING=$(echo "$OUTPUT" | grep -oP '\d+(?= awaiting your note)' | tail -1)
-            echo "pending=${PENDING:-0}" >> "$GITHUB_OUTPUT"
           fi
+
+          # Set unconditionally. Reading it only inside the else branch meant a
+          # forced test notification arrived with a blank where the count goes.
+          PENDING=$(echo "$OUTPUT" | grep -oP '\d+(?= awaiting your note)' | tail -1)
+          echo "pending=${PENDING:-0}" >> "$GITHUB_OUTPUT"
+
+          # The candidate lines this run produced, newest scoring first. Written
+          # to a file rather than a step output because outputs choke on
+          # multiline values.
+          echo "$OUTPUT" | sed -n '/new candidate(s)\./,$p' | sed '1d' \
+            | grep -v '^Wrote ' | head -n 20 > /tmp/new_candidates.txt
+          echo "--- candidates captured for notification ---"
+          cat /tmp/new_candidates.txt
 
       # Deliberately NOT gated on has_new. A run can evaluate new documents,
       # match none of them, and still change tracker_cache.json. Skipping the
@@ -86,13 +97,18 @@ jobs:
             exit 0
           fi
 
-          # The review list carries title, hit count and matched terms, which is
-          # what lets you triage from a phone without opening the PDF.
-          QUEUE=$(python scripts/track_bill44.py --review | head -c 3000)
+          # Prefer what this run actually turned up. Falling back to the whole
+          # review queue only matters for a forced test, because otherwise every
+          # weekly message would replay the same backlog until it was annotated.
+          BODY=$(cat /tmp/new_candidates.txt 2>/dev/null)
+          if [ -z "$BODY" ]; then
+            BODY=$(python scripts/track_bill44.py --review | head -n 24)
+            HEADLINE="Bill 44 tracker: nothing new. ${PENDING} still awaiting your note."
+          else
+            HEADLINE="Bill 44 tracker: new documents. ${PENDING} awaiting your note."
+          fi
 
-          MESSAGE=$(printf '%s\n\n%s' \
-            "Bill 44 tracker: ${PENDING} awaiting your note." \
-            "$QUEUE")
+          MESSAGE=$(printf '%s\n\n%s' "$HEADLINE" "$BODY")
 
           # --data-urlencode, not -d: the message contains newlines, and -d
           # would send them raw and mangle the request.
