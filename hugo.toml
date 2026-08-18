@@ -25,6 +25,7 @@ summaryLength = 30
   # Fleming from another. Add an ORCID here once you have one: it is the proper
   # fix for name collisions and it matters most once the thesis is deposited.
   profiles = [
+    "https://orcid.org/0009-0000-0925-2317",
     "https://www.kpu.ca/stories/policy-studies/brandon-fleming",
   ]
 

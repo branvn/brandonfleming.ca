@@ -312,18 +312,21 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
    straight through the text. It gets the same panel as the work cards below,
    which settles the background without hiding the map.
 
-   max-width carries the padding: box-sizing is border-box, so measure + the
-   left and right padding keeps the line length at --measure exactly. Change
-   the padding and change this to match, or the reading measure drifts. */
+   The panel is 54rem to line up with .hero, so its right edge sits under the
+   headline's rather than stopping short. The paragraphs inside are held to a
+   shorter measure, because 54rem of running text is about 108 characters a
+   line and nobody reads that comfortably. The small amount of ragged space on
+   the right is the price of the alignment, and it is the cheaper of the two. */
 .hero-body {
   margin-top: 1.75rem;
-  max-width: calc(var(--measure) + 3.2rem);
+  max-width: 54rem;
   color: var(--text-dim);
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 1.5rem 1.6rem;
 }
+.hero-body p { max-width: 44rem; }
 .hero-body p:last-child { margin-bottom: 0; }
 
 /* --------------------------------------------------------------------------
