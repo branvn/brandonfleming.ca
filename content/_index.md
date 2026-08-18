@@ -1,7 +1,10 @@
 +++
 title = "Brandon Fleming"
-heroLead = "Land use policy in Metro Vancouver,"
-heroAccent = "read through the data it leaves behind."
+# The hero is set in Michroma, which is very wide. Four words is about the
+# ceiling before it wraps to three lines. heroAccent is the part that takes the
+# teal gradient and sits on its own line.
+heroLead = "Mapping"
+heroAccent = "Public Policy’s Footprint"
 +++
 
 I'm a Master of Urban Studies student at Simon Fraser University, working toward
