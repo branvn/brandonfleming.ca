@@ -308,13 +308,29 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent; color: transparent;
 }
-.hero-body { margin-top: 1.75rem; max-width: var(--measure); color: var(--text-dim); }
+/* The intro sits on the densest part of the plate, where contour lines run
+   straight through the text. It gets the same panel as the work cards below,
+   which settles the background without hiding the map.
+
+   max-width carries the padding: box-sizing is border-box, so measure + the
+   left and right padding keeps the line length at --measure exactly. Change
+   the padding and change this to match, or the reading measure drifts. */
+.hero-body {
+  margin-top: 1.75rem;
+  max-width: calc(var(--measure) + 3.2rem);
+  color: var(--text-dim);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.5rem 1.6rem;
+}
 .hero-body p:last-child { margin-bottom: 0; }
 
 /* --------------------------------------------------------------------------
    Tracker rail — fills the space beside the hero on wide screens.
-   Deliberately quiet: no card, no background, hairline rules only. It should
-   read as marginalia, not as a second headline competing with the hero.
+   Carries the same panel as the work cards, because it sits on the plate and
+   its type is small. Still quiet in every other respect: hairline rules, no
+   headings competing with the hero. It should read as marginalia.
    -------------------------------------------------------------------------- */
 
 .hero-wrap {
@@ -332,14 +348,23 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
 
 @media (min-width: 1100px) {
   .hero-wrap {
-    grid-template-columns: minmax(0, 1fr) 17rem;
+    /* 19rem, not 17rem: the rail now has padding, and box-sizing means that
+       padding eats into the column rather than adding to it. */
+    grid-template-columns: minmax(0, 1fr) 19rem;
     gap: clamp(2rem, 5vw, 5rem);
   }
   .hero { padding-block: clamp(.5rem, 2vw, 1.75rem) clamp(2rem, 5vw, 4rem); }
-  .rail { padding-top: clamp(1rem, 3vw, 2.5rem); }
+  /* margin, not padding: the rail's own padding is what draws the panel. */
+  .rail { margin-top: clamp(1rem, 3vw, 2.5rem); }
 }
 
-.rail { display: none; }
+.rail {
+  display: none;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.35rem;
+}
 @media (min-width: 1100px) { .rail { display: block; } }
 
 .rail-head {
@@ -409,7 +434,6 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
 .more,
 .empty,
 .tracker-updated,
-.rail,
 .site-foot,
 .post-list time,
 .shot figcaption {
