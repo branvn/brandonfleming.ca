@@ -1,51 +1,61 @@
-name: Bill 44 tracker
-
-# Runs in GitHub's cloud, not on your laptop — so it keeps working whether or
-# not your machine is on. Commits new candidates back to the repo; Cloudflare
-# Pages then rebuilds automatically.
-#
-# Candidates land with an empty `note`. They do NOT appear on the site until
-# you write that note yourself and push.
+﻿name: Bill 44 Tracker
 
 on:
   schedule:
-    - cron: "0 14 * * 1"      # Mondays, 14:00 UTC (~6am Pacific)
-  workflow_dispatch:           # lets you run it on demand from the Actions tab
-
-permissions:
-  contents: write
+    - cron: '0 17 * * 5' # Runs every Friday at 10:00 AM PDT (17:00 UTC)
+  workflow_dispatch: # Allows manual trigger from the GitHub UI
 
 jobs:
-  collect:
+  poll-sources:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
-          cache: pip
+          python-version: '3.12'
+          cache: 'pip'
 
       - name: Install dependencies
         run: pip install -r scripts/requirements.txt
 
-      - name: Poll sources
-        run: python scripts/track_bill44.py
-
-      # scripts/tracker_cache.json records every document already fetched,
-      # including the ones that matched nothing. It has to be committed too, or
-      # the runner throws it away and every weekly run re-downloads every Surrey
-      # PDF from scratch. It lives in scripts/ rather than data/ because Hugo
-      # parses everything in data/ on every build, and this file is the
-      # scraper's business, not the website's.
-      - name: Commit any new candidates
+      - name: Run tracker scraper
+        id: scrape
         run: |
-          if git diff --quiet -- data/tracker.json scripts/tracker_cache.json; then
-            echo "No changes."
-            exit 0
+          # Run the script and capture the output to determine if there are new candidates
+          OUTPUT=$(python scripts/track_bill44.py)
+          echo "$OUTPUT"
+          
+          # Check if the output contains "0 new candidate(s)"
+          if echo "$OUTPUT" | grep -q "0 new candidate(s)"; then
+            echo "has_new=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_new=true" >> $GITHUB_OUTPUT
+            
+            # Extract the number of pending items for the notification
+            PENDING=$(echo "$OUTPUT" | grep -oP '\d+(?= awaiting your note)')
+            echo "pending=$PENDING" >> $GITHUB_OUTPUT
           fi
-          git config user.name  "bill44-tracker"
-          git config user.email "actions@github.com"
+
+      - name: Commit and push changes
+        if: steps.scrape.outputs.has_new == 'true'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add data/tracker.json scripts/tracker_cache.json
-          git commit -m "tracker: new candidates $(date -u +%Y-%m-%d)"
+          git commit -m "chore(tracker): automated weekly polling [skip ci]"
           git push
+
+      - name: Send Telegram Alert
+        if: steps.scrape.outputs.has_new == 'true'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          MESSAGE="<b>Bill 44 Tracker</b>%0AFound new municipal documents. You have ${PENDING} entries awaiting review in tracker.json."
+          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            -d chat_id="${TELEGRAM_CHAT_ID}" \
+            -d text="${MESSAGE}" \
+            -d parse_mode="HTML"
