@@ -301,12 +301,28 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
      minimum size still fits a 360px phone, but a future headline with a longer
      word shouldn't be able to break the layout. */
   overflow-wrap: break-word;
+  /* Lit contour bands run right through the hero. A wide halo in the
+     background colour keeps the letterforms whole no matter what the plate is
+     doing underneath. */
+  text-shadow: 0 0 10px var(--bg), 0 0 22px var(--bg);
 }
 .hero-accent {
   display: block;
-  background: linear-gradient(100deg, var(--text) 10%, #7fd4c1 90%);
+  /* #a8ece0, deliberately NOT #7fd4c1. That is the exact stroke colour of the
+     contour lines, so the old gradient ended in the same ink as the map behind
+     it and the letter edges disappeared wherever a line crossed them. This is
+     the same hue, lifted well clear of the plate: 14.4:1 on the background
+     against the lines' 11.1:1. */
+  background: linear-gradient(100deg, var(--text) 10%, #a8ece0 90%);
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent; color: transparent;
+
+  /* The glyphs here are transparent windows onto the gradient, so an inherited
+     text-shadow paints INSIDE the letterforms rather than behind them. Cancel
+     it and use a filter instead: drop-shadow acts on the painted result, so it
+     haloes the visible glyph the way text-shadow does on ordinary text. */
+  text-shadow: none;
+  filter: drop-shadow(0 0 10px var(--bg)) drop-shadow(0 0 20px var(--bg));
 }
 /* The intro sits on the densest part of the plate, where contour lines run
    straight through the text. It gets the same panel as the work cards below,
