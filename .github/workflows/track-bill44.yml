@@ -10,6 +10,11 @@ on:
   schedule:
     - cron: "0 17 * * 5"     # Fridays, 17:00 UTC (10:00 Pacific)
   workflow_dispatch:          # lets you run it on demand from the Actions tab
+    inputs:
+      test_notify:
+        description: "Send a Telegram message even if nothing new was found"
+        type: boolean
+        default: false
 
 # Without this the job can only read the repo, and the push below fails.
 # It was dropped once during a rewrite and the failure only shows up a week
@@ -66,8 +71,11 @@ jobs:
           git push
 
       # Sends only when something new turned up. Silence means nothing matched.
+      # Tick "test_notify" when running by hand to fire one regardless, which is
+      # the only way to check the token and chat id are right before the first
+      # real hit arrives.
       - name: Notify on Telegram
-        if: steps.scrape.outputs.has_new == 'true'
+        if: steps.scrape.outputs.has_new == 'true' || inputs.test_notify
         env:
           TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
