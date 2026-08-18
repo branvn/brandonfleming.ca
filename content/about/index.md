@@ -2,6 +2,12 @@
 title = "About"
 summary = "Urban studies graduate researcher and GIS analyst in Metro Vancouver, focused on housing policy and agricultural land use."
 
+# Drop the photo into this folder (content/about/) and name it here. Hugo
+# resizes it, so the original can be straight off a phone. portraitAlt is what
+# a screen reader announces, so describe the picture rather than naming me.
+portrait    = "portrait.jpg"
+portraitAlt = "Brandon Fleming riding a bike-share bicycle along a paved path through parkland"
+
 [download]
   url   = "/documents/brandon-fleming-resume.pdf"
   label = "Download résumé (PDF)"

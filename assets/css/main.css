@@ -628,6 +628,20 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
   font-size: 1.0625rem; line-height: 1.72;
   max-width: var(--measure);
 }
+/* Portrait on a reading page. Floated so the opening paragraphs run beside it
+   rather than being pushed down the page, and dropped to full width on a phone
+   where a 15rem float would leave a two-word column next to it. */
+.portrait {
+  float: right;
+  width: 14rem;
+  margin: .3rem 0 1.25rem 1.75rem;
+  border: 1px solid var(--paper-edge);
+  border-radius: 6px;
+}
+@media (max-width: 620px) {
+  .portrait { float: none; width: 100%; margin: 0 0 1.5rem; }
+}
+
 .prose h2 {
   font-size: 1.45rem; margin: 2.25rem 0 .6rem;
   padding-top: .5rem; border-top: 1px solid var(--paper-edge);
