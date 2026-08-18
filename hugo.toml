@@ -35,7 +35,7 @@ summaryLength = 30
   # Flip to true to put the whole site behind a holding page.
   underConstruction = false
   # Flip to true once the Bill 44 tracker has real entries in it.
-  showTracker = true
+  showTracker = false
 
 [menu]
   [[menu.main]]
