@@ -182,22 +182,32 @@ project → **Deployments**.
 
 ## 9. Turn on the Bill 44 tracker
 
-The scaffolding is in place but switched off. When you have real entries:
+The tracker runs already. It polls Fridays in GitHub's cloud, commits new
+candidates back to the repo, and messages you on Telegram. It is only absent
+from the site's navigation.
 
-1. Run it once locally to check the sources work:
+1. `python scripts\track_bill44.py --review` lists everything awaiting a note.
+2. Open `data\tracker.json`, delete what isn't worth keeping, and write a `note`
+   for the rest. **Only entries with a note appear on the site.** That is the
+   whole design: the script finds things to read, you do the reading.
+3. Check the JSON is still valid before you push, because a stray comma stops
+   the site rebuilding:
    ```powershell
-   pip install -r scripts\requirements.txt
-   python scripts\track_bill44.py --dry-run
+   python -c "import json;json.load(open('data/tracker.json',encoding='utf-8'));print('valid')"
    ```
-2. Run it for real (`python scripts\track_bill44.py`) — this writes candidates
-   into `data\tracker.json` with an empty `note`.
-3. Open `data\tracker.json`, delete the junk, and write a `note` for the items
-   worth keeping. **Only entries with a note appear on the site.**
-4. In `hugo.toml`, set `showTracker = true`.
-5. Commit and push.
+4. Preview with `hugo server` at <http://localhost:1313/tracker/>.
+5. In `hugo.toml`, set `showTracker = true` to add it to the nav.
+6. Commit and push.
 
-The GitHub Action in `.github/workflows/track-bill44.yml` then polls weekly on
-its own. Nothing publishes without your note.
+A note makes an entry live whether or not `showTracker` is true, because
+`/tracker/` is a real page either way. That flag only controls the nav link.
+
+**Expect the occasional rejected push.** The Action commits to `main` too, so if
+it runs between your last pull and your next push you'll get "Updates were
+rejected". `git pull --rebase` then push. It only ever touches
+`data/tracker.json` and `scripts/tracker_cache.json`.
+
+`TRACKER-HANDOFF.md` covers the internals.
 
 ---
 
