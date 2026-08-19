@@ -28,7 +28,7 @@ There is a short list at the bottom of things that unavoidably live in
 |---|---|
 | The big headline on the home page | `content/_index.md` |
 | The three paragraphs under it | `content/_index.md` |
-| Everything on the About page | `content/about.md` |
+| Everything on the About page | `content/about/index.md` |
 | A project page | `content/work/<that-project>.md` |
 | The blurb at the top of the Work page | `content/work/_index.md` |
 | The blurb at the top of the Writing page | `content/writing/_index.md` |
@@ -130,8 +130,8 @@ Open `content/_index.md`. The headline is split in two so the second half can be
 the colour that fades to teal:
 
 ```
-heroLead   = "Land use policy in Metro Vancouver,"
-heroAccent = "read through the data it leaves behind."
+heroLead   = "Mapping Public Policy’s Footprint"
+heroAccent = "in Metro Vancouver"
 ```
 
 Keep both short. The typeface used there is very wide, and a long line will wrap
@@ -196,6 +196,9 @@ If it does not match, the caption silently does not appear.
 hover the photograph. Leave any of them blank and it drops out of the line
 rather than leaving a gap.
 
+`alt` is not optional in spirit. It is what a screen reader announces and what
+Google indexes, and the checker treats a missing one as a failure.
+
 ### Reorder the photographs
 
 Change `order`. Lowest appears first. Renumber freely, and leave gaps so you can
@@ -206,9 +209,6 @@ slot something in later without touching everything else.
 Add the name to `categories` in `content/photography/_index.md`, then set
 `category` on at least one photo to match. **A category with no photos shows an
 empty tab**, which is the one thing this page was designed to avoid.
-
-`alt` is not optional in spirit. It is what a screen reader announces, and it is
-what Google indexes.
 
 ### Write a tracker note
 
