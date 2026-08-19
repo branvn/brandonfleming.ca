@@ -1,6 +1,7 @@
 # brandonfleming.ca
 
-Personal site — Hugo, hand-written layouts, no theme and no JavaScript.
+Personal site — Hugo, hand-written layouts, no theme, no framework, no
+third-party requests. Two small scripts, both optional to the page working.
 Deployed on Cloudflare Pages. See [DEPLOY.md](DEPLOY.md) for setup and
 publishing.
 
@@ -12,12 +13,13 @@ content/          the words — edit these
   about.md
   work/             one .md per project
   writing/          blog posts
-  photography/      drop .jpg files straight in here
+  photography/      one page; drop .jpg files straight in here
   tracker/          Bill 44 tracker intro text
 layouts/          the HTML templates
 assets/
   css/main.css      the entire stylesheet
-  js/terrain.js     the only JavaScript on the site
+  js/terrain.js     drives the contour plate
+  js/gallery.js     photo filtering and lightbox
   img/plate.svg     contour plate (generated)
 static/           files served as-is (PDFs, images, favicon)
 data/             tracker entries and source list
@@ -39,9 +41,11 @@ Uses `archetypes/work.md`, which lists every field with a comment. Set
 
 **New blog post** — `hugo new writing/my-post.md`
 
-**Add photos** — resize the long edge to ~2400px, drop the `.jpg` files into
+**Add photos** — resize the long edge to 2200px, drop the `.jpg` files into
 `content/photography/`, add a `[captions."filename.jpg"]` block in that folder's
-`_index.md`. Hugo makes the thumbnails.
+`_index.md`. Hugo makes the thumbnails. The block carries the caption, the
+category that drives the filter chips, and the camera, lens and film stock shown
+on hover. See EDITING.md for the fields.
 
 > Resize *before* copying them in. Git stores every version of every binary
 > forever — a 25 MB original stays in the repo permanently even after deletion.
@@ -131,6 +135,5 @@ keep it — it costs nothing unless something links to it.
 
 ## Still to write
 
-- `content/work/bill-44-thesis.md` — thesis summary, especially preliminary findings
-- Photographs
+- `content/work/bill-44-thesis.md` — the "What I'm finding" section
 - A real `og-default.png` if you'd like something other than the generated card

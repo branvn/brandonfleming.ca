@@ -32,9 +32,8 @@ There is a short list at the bottom of things that unavoidably live in
 | A project page | `content/work/<that-project>.md` |
 | The blurb at the top of the Work page | `content/work/_index.md` |
 | The blurb at the top of the Writing page | `content/writing/_index.md` |
-| The blurb at the top of the Photography page | `content/photography/_index.md` |
-| Photo captions, Film | `content/photography/film/_index.md` |
-| Photo captions, Digital | `content/photography/digital/_index.md` |
+| Everything on the Photography page | `content/photography/_index.md` |
+| Photo captions, categories, filters | `content/photography/_index.md` |
 | The Bill 44 tracker intro text | `content/tracker/_index.md` |
 | Tracker entry notes | `data/tracker.json` |
 | Your name, tagline, email, LinkedIn | `hugo.toml` |
@@ -113,13 +112,13 @@ On project pages you also get:
 | `tools` | A list in square brackets: `["ArcGIS Pro", "Excel"]` |
 | `status` | Set to `"in-progress"` to show the orange tag. Blank for nothing |
 
-On photography sections:
+On the photography page:
 
 | Setting | What it does |
 |---|---|
-| `gear` | The camera line under the heading |
-| `cover` | Which photo is the thumbnail for that gallery |
-| `[captions."file.jpg"]` | The caption block for one photo, explained below |
+| `categories` | The filter chips on the left. Every one needs at least one photo |
+| `media` | The filter chips on the right, currently Film and Digital |
+| `[captions."file.jpg"]` | Everything about one photo, explained below |
 
 ---
 
@@ -168,21 +167,45 @@ spaces. Renaming the file later breaks any link anyone has saved.
 
 ### Add a photo
 
-1. **Resize it first.** Long edge about 2200 pixels. This matters more than it
-   sounds: Git keeps every version of every file forever, so a 25 MB original
-   stays in the repository permanently even if you delete it afterwards.
-2. Drop the `.jpg` into `content/photography/film/` or `.../digital/`.
-3. Add a caption block in that folder's `_index.md`:
+1. **Resize it first.** Long edge 2200 pixels, which lands each file under about
+   1 MB. This matters more than it sounds: Git keeps every version of every file
+   forever, so a 25 MB original stays in the repository permanently even after
+   you delete it.
+2. Drop the `.jpg` into `content/photography/`. All photos live in that one
+   folder now; there are no Film and Digital sub-folders any more.
+3. Add a block in `content/photography/_index.md`:
 
 ```toml
   [captions."granville-bridge.jpg"]
-    caption = "What the photo is"
-    place   = "Where it was taken"
-    alt     = "A description for someone who cannot see the image"
+    caption  = "What the photo is"
+    place    = "Where it was taken"
+    category = "Urban"                  # must match one in `categories`
+    medium   = "Film"                   # Film or Digital, drives the right chips
+    camera   = "Nikon FE"
+    lens     = "28mm f/2.8 AI"
+    film     = "Fujifilm 400"           # film only
+    settings = "f/8 · 1/250 · ISO 400"  # digital, straight from the EXIF
+    order    = 120                      # lowest first, gaps are fine
+    alt      = "A description for someone who cannot see the image"
 ```
 
 The filename in quotes must match the actual file exactly, including `.jpg`.
 If it does not match, the caption silently does not appear.
+
+`camera`, `lens`, `film` and `settings` join into the line that shows when you
+hover the photograph. Leave any of them blank and it drops out of the line
+rather than leaving a gap.
+
+### Reorder the photographs
+
+Change `order`. Lowest appears first. Renumber freely, and leave gaps so you can
+slot something in later without touching everything else.
+
+### Add a new filter category
+
+Add the name to `categories` in `content/photography/_index.md`, then set
+`category` on at least one photo to match. **A category with no photos shows an
+empty tab**, which is the one thing this page was designed to avoid.
 
 `alt` is not optional in spirit. It is what a screen reader announces, and it is
 what Google indexes.

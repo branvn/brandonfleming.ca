@@ -11,8 +11,8 @@ Studies student at SFU doing an Advanced Certificate in GIS at BCIT. He's
 applying for graduate co-op terms in municipal planning in Metro Vancouver.
 The site's job is to get him interviews at planning departments.
 
-Domain registered at **Porkbun**, to be hosted on **Cloudflare Pages**, built
-with **Hugo**. Nothing is deployed yet — the repo has never been pushed.
+Domain registered at **Porkbun**, DNS and hosting on **Cloudflare Pages**, built
+with **Hugo**. Live, and deploying on every push to `main`.
 
 He works on **Windows 11** in PowerShell. He does not consider himself a
 programmer; he built the first version with an LLM. He *is* strong at GIS
@@ -27,7 +27,7 @@ programmer; he built the first version with an LLM. He *is* strong at GIS
 
 - **Home** — hero, four work cards, Bill 44 tracker rail (hidden below 1100px)
 - **Work** — 4 project pages, all written
-- **Photography** — Film (13 photos) and Digital (2), all captioned
+- **Photography** — one page, 19 photographs, filtered by subject and by medium
 - **About**, **404**, RSS, sitemap, JSON-LD, Open Graph
 - **Bill 44 tracker** — scaffolded, switched off (`showTracker = false`)
 - **Email** — `contact@brandonfleming.ca` forwarding confirmed working. Settled.
@@ -42,8 +42,10 @@ programmer; he built the first version with an LLM. He *is* strong at GIS
    the file where the section belongs.
 
    **He set himself a deadline of 28 August 2026** for getting this up.
-2. **Bill 44 tracker is still inert.** `showTracker = false`, `tracker.json`
-   empty. The dry run polls four sources cleanly but has matched nothing yet.
+2. **Bill 44 tracker works but is switched off.** `showTracker = false`, so it is
+   reachable at `/tracker/` and absent from the nav. 26 candidates collected from
+   6 sources, 3 annotated. It runs unattended on Fridays and messages Telegram.
+   See `TRACKER-HANDOFF.md`.
 
 ---
 
@@ -52,17 +54,17 @@ programmer; he built the first version with an LLM. He *is* strong at GIS
 ```
 content/          the words
   _index.md         home; hero lines are in front matter
-  about.md
+  about/            page bundle: index.md + portrait.jpg
   work/             one .md per project, `weight` orders them
   writing/          empty
-  photography/
-    film/           11 .jpg + captions in _index.md
-    digital/        empty; D750 + 24-85mm
+  photography/      one page. All 19 .jpg live here as page resources,
+                    with captions, categories and shooting data in _index.md
   tracker/          Bill 44 tracker intro
 layouts/          hand-written templates, no theme
 assets/
-  css/main.css      the entire stylesheet, ~700 lines, heavily commented
-  js/terrain.js     the ONLY JavaScript on the site
+  css/main.css      the entire stylesheet, heavily commented
+  js/terrain.js     drives the contour plate, every page
+  js/gallery.js     photo filtering + lightbox, photography page only
   img/plate.svg     generated contour plate (77 KB gz)
 static/
   fonts/            Jost + Michroma (+ unused Basteleur)
@@ -99,9 +101,13 @@ Deliberate: long text on dark is tiring, and photographs need a neutral surround
 50% measured 4.75:1, which *passes* AA — I initially claimed it failed. The
 change is still worth it at 8.9:1, but it wasn't a compliance fix.)
 
-**Photography** uses masonry CSS columns, not a square grid — these are 3:2 and
-2:3 film frames and square-cropping throws away the composition. Photo surround
-is neutral `#0b0b0c` so the teal palette can't tint a B&W print.
+**Photography** is one page, two columns of masonry, filtered by two independent
+axes: subject on the left, medium on the right. Columns rather than a square grid
+because these are 3:2 and 2:3 frames and cropping them square throws away the
+composition. It was split into Film and Digital galleries once; that was a menu
+standing between the visitor and the photographs, and medium is a caption detail
+rather than a way to navigate. Photo surround is neutral `#0b0b0c` so the teal
+palette can't tint a B&W print.
 
 **Positioning:** the site says "Urban Studies Graduate Student | GIS & Policy
 Analysis", not "Junior Urban Planner". In BC, *planner* carries professional
@@ -120,8 +126,8 @@ Structure, which is the entire contract between generator and JS:
 
 ```html
 <g id="coast">              coastline, lake and river shores
-<g class="b" data-e="-2" style="--c:#4fc9a6">    contour band, metres
-<g class="b" data-e="33" style="--c:#70cd8f">
+<g class="b" data-e="10" style="--c:#4fc9a6">    contour band, metres
+<g class="b" data-e="20" style="--c:#76cd8b">
 ```
 
 `assets/js/terrain.js` reads `data-e`, and on pointer move adds `.lit` to every
@@ -129,9 +135,11 @@ band at or below a threshold derived from cursor Y. Lit bands take their `--c`
 from a hypsometric ramp. Reads as a water line rising across the delta —
 substantive for a region whose housing sits on a floodplain.
 
-Cheap by construction: no canvas, no per-frame redraw. A full pointer sweep is
-~35 className writes. Disabled under `prefers-reduced-motion` and on coarse
-pointers. With JS off it's simply a map.
+Cheap by construction: no canvas, no per-frame redraw. A full sweep is at most a
+couple of dozen className writes. On a fine pointer the cursor height drives it;
+on a coarse one there is no cursor, so scroll position does instead and the water
+rises as you read down the page. Disabled under `prefers-reduced-motion`. With JS
+off it's simply a map.
 
 **Current build:** 72 × 44 km, 1.63 aspect, 1,116 paths, 77 KB gzipped,
 17 bands, 92 coast paths. Generates in about four seconds.
