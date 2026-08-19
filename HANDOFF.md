@@ -95,8 +95,6 @@ programmer; he built the first version with an LLM. He *is* strong at GIS
    - `HUGO_VERSION` in Cloudflare is `0.147.7`; his laptop runs `0.164`. It
      builds today, but that gap is the usual cause of works-locally-fails-live.
    - `static/fonts/Basteleur-*.woff2` are 92 KB of typeface nothing references.
-   - The portrait on the About page is 459px wide, below the 600px the template
-     would like. It is no longer upscaled, but a larger original would sharpen it.
 
 ---
 
@@ -126,6 +124,8 @@ scripts/
   make_plate.py     the contour plate generator
   track_bill44.py   Bill 44 news/agenda collector
 _preview/         gitignored; build.py renders static previews without Hugo
+_originals/       gitignored; full-resolution sources. Anything dropped inside
+                  a page bundle gets published verbatim, so originals live here
 ```
 
 `README.md` covers design decisions. `DEPLOY.md` covers shipping.

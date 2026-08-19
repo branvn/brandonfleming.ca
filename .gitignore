@@ -28,3 +28,6 @@ venv/
 
 # Python bytecode
 scripts/__pycache__/
+
+# Full-resolution originals kept on disk, never published
+/_originals/
