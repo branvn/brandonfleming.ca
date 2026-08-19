@@ -294,6 +294,16 @@ Open <http://localhost:1313>. It reloads the moment you save a file. Press
 **Always do this before publishing.** It costs ten seconds and catches almost
 everything.
 
+There is also a checker for the things a build will happily ignore, like a photo
+with no caption or an oversized image about to enter the repository forever:
+
+```powershell
+python scripts\check_site.py
+```
+
+It is not a substitute for `hugo server`. A template error can only be found by
+building.
+
 If it reports an error, read the last line. It names the file and the line
 number, and it is nearly always a missing quote in the settings block.
 
