@@ -84,9 +84,12 @@
                width="{{ $view.Width }}" height="{{ $view.Height }}"
                alt="{{ or .alt .caption }}"
                loading="lazy" decoding="async">
-          {{/* Revealed on hover and on keyboard focus. aria-hidden because the
-               same text is already in the caption for anyone not hovering. */}}
-          {{ with $spec }}<span class="shot-spec" aria-hidden="true">{{ . }}</span>{{ end }}
+          {{/* Revealed on hover and on keyboard focus, and shown in the flow on
+               touch, where there is no hover and no lightbox. Deliberately not
+               aria-hidden: it appears nowhere else in the document, so hiding
+               it would put the camera, lens and film stock out of reach of a
+               screen reader entirely. */}}
+          {{ with $spec }}<span class="shot-spec">{{ . }}</span>{{ end }}
         </a>
         {{ if or .caption .place .medium }}
           <figcaption>

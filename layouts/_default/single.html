@@ -22,7 +22,10 @@
          Hugo resizes it, so commit a reasonable original and forget about it. */}}
     {{ with .Params.portrait }}
       {{ with $.Resources.GetMatch . }}
-        {{ $img := .Fill "600x750 Smart q82" }}
+        {{/* Only crop to the target if the source is actually big enough.
+             Fill will happily upscale a small file, which produces a soft
+             image and hides the fact that the original was undersized. */}}
+        {{ $img := cond (ge .Width 600) (.Fill "600x750 Smart q82") . }}
         <figure class="portrait">
           <img src="{{ $img.RelPermalink }}"
                width="{{ $img.Width }}" height="{{ $img.Height }}"

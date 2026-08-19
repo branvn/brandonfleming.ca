@@ -113,6 +113,12 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
+/* The browser's own rule for this is `[hidden] { display: none }`, which any
+   class setting a display value silently beats. That is how a progressively
+   enhanced control ends up visible and inert when its script never runs. This
+   is the one place !important earns its keep. */
+[hidden] { display: none !important; }
+
 html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -785,6 +791,19 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
   .shot-spec { transition: none; }
 }
 
+/* A touch device has no hover state, and the lightbox is skipped there too, so
+   the overlay version would make this data unreachable rather than subtle.
+   Drop it into the flow underneath instead. */
+@media (hover: none) {
+  .shot-spec {
+    position: static;
+    opacity: 1;
+    padding: .45rem 0 0;
+    background: none;
+    color: var(--text-faint);
+  }
+}
+
 .shot a {
   position: relative;
   display: block;
@@ -923,7 +942,6 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
    -------------------------------------------------------------------------- */
 
 .site-foot {
-  font-size: .9375rem;
   margin-top: auto;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
@@ -1005,4 +1023,16 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
   .prose { max-width: none; }
   a { color: #000; }
   .prose a::after { content: " (" attr(href) ")"; font-size: .8em; color: #555; }
+
+  /* Gallery. Filters are interactive and meaningless on paper. The shooting
+     data is the opposite: it should print, so it comes out of its hover
+     overlay and into the flow. */
+  .filters, .lightbox { display: none !important; }
+  .gallery { columns: 2; }
+  .shot { break-inside: avoid; }
+  .shot-spec {
+    position: static; opacity: 1;
+    padding: .3rem 0 0;
+    background: none; color: #555;
+  }
 }
