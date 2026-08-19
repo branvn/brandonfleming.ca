@@ -6,30 +6,42 @@
        is a click that buys nothing. Categories are chips, not pages, so
        switching never loads anything and never changes the URL.
 
-       Photos are page resources of this branch bundle. Drop a .jpg in
-       content/photography/ and add a [captions."name.jpg"] block. */}}
+       Photos are page resources of this branch bundle. Drop a .jpg into
+       content/photography/ and add a [captions."name.jpg"] block.
+
+       Everything a photo needs is flattened into the row dict below. Reaching
+       back out to $ from inside a nested block gets you the Page, not the row,
+       which is a build error rather than a wrong value. Flat is safer. */}}
 
   <header class="page-head gallery-head">
     <h1>{{ .Title }}</h1>
     {{ with .Content }}<div class="page-intro">{{ . }}</div>{{ end }}
   </header>
 
-  {{ $photos := .Resources.ByType "image" }}
   {{ $caps := .Params.captions }}
-
-  {{/* Sort by the `order` in front matter, falling back to filename. Building
-       a slice of dicts is the only way to sort resources by a value that lives
-       outside them. */}}
   {{ $rows := slice }}
-  {{ range $photos }}
-    {{ $m := or (index $caps .Name) dict }}
-    {{ $rows = $rows | append (dict "res" . "meta" $m "order" (int (or $m.order 999)) "name" .Name) }}
+  {{ range .Resources.ByType "image" }}
+    {{ $m := index $caps .Name }}
+    {{ if $m }}
+      {{ $rows = $rows | append (dict
+          "res" . "name" .Name
+          "order"    (int (default 999 $m.order))
+          "caption"  (default "" $m.caption)
+          "place"    (default "" $m.place)
+          "medium"   (default "" $m.medium)
+          "category" (default "" $m.category)
+          "alt"      (default "" $m.alt)) }}
+    {{ else }}
+      {{ $rows = $rows | append (dict
+          "res" . "name" .Name "order" 999
+          "caption" "" "place" "" "medium" "" "category" "" "alt" "") }}
+    {{ end }}
   {{ end }}
   {{ $rows = sort (sort $rows "name") "order" }}
 
   {{ with .Params.categories }}
-    {{/* Hidden entirely without JavaScript, because chips that do nothing are
-         worse than no chips. The gallery below is complete either way. */}}
+    {{/* Hidden until gallery.js reveals it, so chips never sit there looking
+         clickable while doing nothing. */}}
     <nav class="filters" aria-label="Filter photographs" hidden>
       <button type="button" class="chip is-on" data-filter="all" aria-pressed="true">All</button>
       {{ range . }}
@@ -40,24 +52,26 @@
 
   <div class="gallery">
     {{ range $rows }}
-      {{ $img := .res }}
-      {{ $m := .meta }}
-      {{ $view := $img.Resize "1400x q84" }}
-      {{ $full := cond (gt $img.Width 2000) ($img.Resize "2000x q86") $img }}
-      <figure class="shot" data-category="{{ $m.category }}">
+      {{ $view := .res.Resize "1400x q84" }}
+      {{ $full := cond (gt .res.Width 2000) (.res.Resize "2000x q86") .res }}
+      <figure class="shot" data-category="{{ .category }}">
         <a href="{{ $full.RelPermalink }}"
            data-full="{{ $full.RelPermalink }}"
-           data-caption="{{ $m.caption }}"
-           data-place="{{ $m.place }}">
+           data-caption="{{ .caption }}"
+           data-place="{{ .place }}">
           <img src="{{ $view.RelPermalink }}"
                width="{{ $view.Width }}" height="{{ $view.Height }}"
-               alt="{{ with $m }}{{ .alt | default .caption }}{{ end }}"
+               alt="{{ or .alt .caption }}"
                loading="lazy" decoding="async">
         </a>
-        {{ with $m }}
+        {{ if or .caption .place .medium }}
           <figcaption>
             <span class="shot-caption">{{ .caption }}</span>
-            <span class="shot-place">{{ .place }}{{ with .medium }}{{ with $.meta.place }} · {{ end }}{{ . }}{{ end }}</span>
+            <span class="shot-place">
+              {{- .place -}}
+              {{- if and .place .medium }} · {{ end -}}
+              {{- .medium -}}
+            </span>
           </figcaption>
         {{ end }}
       </figure>
