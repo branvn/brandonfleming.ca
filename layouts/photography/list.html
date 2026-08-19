@@ -32,13 +32,14 @@
           "category" (default "" $m.category)
           "camera"   (default "" $m.camera)
           "lens"     (default "" $m.lens)
+          "film"     (default "" $m.film)
           "settings" (default "" $m.settings)
           "alt"      (default "" $m.alt)) }}
     {{ else }}
       {{ $rows = $rows | append (dict
           "res" . "name" .Name "order" 999
           "caption" "" "place" "" "medium" "" "category" ""
-          "camera" "" "lens" "" "settings" "" "alt" "") }}
+          "camera" "" "lens" "" "film" "" "settings" "" "alt" "") }}
     {{ end }}
   {{ end }}
   {{ $rows = sort (sort $rows "name") "order" }}
@@ -72,7 +73,7 @@
       {{/* One string, assembled here so the markup, the hover panel and the
            lightbox all say the same thing. Empty parts drop out, so a film
            frame with no lens recorded yet just shows the body. */}}
-      {{ $spec := delimit (slice .camera .lens .settings | complement (slice "")) " · " }}
+      {{ $spec := delimit (slice .camera .lens .film .settings | complement (slice "")) " · " }}
       <figure class="shot" data-category="{{ .category }}" data-medium="{{ .medium }}">
         <a href="{{ $full.RelPermalink }}"
            data-full="{{ $full.RelPermalink }}"
