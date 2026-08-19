@@ -42,11 +42,41 @@ programmer; he built the first version with an LLM. He *is* strong at GIS
    the file where the section belongs.
 
    **He set himself a deadline of 28 August 2026** for getting this up.
-2. **Bill 44 tracker works but is switched off.** `showTracker = false`, so it is
+2. **Every public-facing sentence needs to be rewritten in Brandon's own voice.**
+   This is his call, made 18 August 2026, and it is the highest-value item on the
+   list after the findings section.
+
+   Most of the prose currently on the site was drafted by Claude. It is accurate
+   and it is tight, but it is not *his*, and a portfolio whose whole argument is
+   "here is how I think" cannot be written by something that is not him. Anyone
+   who reads a lot of this stuff can hear it, and hiring managers now read a lot
+   of this stuff.
+
+   What this covers, in rough order of how much it matters:
+
+   - `content/about/_index.md` — the bio. Most obvious, most read, worst offender.
+   - `content/work/*.md` — all four project pages, especially the summary lines,
+     which are what show on the Work index cards.
+   - `content/_index.md` — the homepage intro and hero slogan.
+   - `content/photography/_index.md` — the page intro and all 19 photo captions.
+     Four have no `place` either (see item 5). Captions are the easiest win here:
+     they are one sentence each and he was actually there.
+   - `content/colophon.md` and `content/work/affordability-calculator.md`, both
+     draft. Better to rewrite before shipping than after.
+   - `layouts/partials/footer.html` — the "Focus" line.
+   - Tracker notes in `data/tracker.json`, two of which end in my sentences.
+
+   Method that works: read a paragraph, close it, and say the same thing out loud
+   to a friend. Write down what you actually said. It will be shorter, less
+   balanced, and better. Keep the numbers exactly as they are; those are checked
+   against sources and the accuracy is not the problem.
+
+   `scripts/check_site.py` cannot catch this. Nothing can. It is a read-through.
+3. **Bill 44 tracker works but is switched off.** `showTracker = false`, so it is
    reachable at `/tracker/` and absent from the nav. 26 candidates collected from
    6 sources, 3 annotated. It runs unattended on Fridays and messages Telegram.
    See `TRACKER-HANDOFF.md`.
-3. **Two pages sit finished at `draft = true`**, waiting on Brandon rather than
+4. **Two pages sit finished at `draft = true`**, waiting on Brandon rather than
    on any more building:
    - `content/colophon.md` — explains the contour plate. Needs a read-through
      and the last section put in his voice. Add a footer link when it ships.
@@ -56,7 +86,7 @@ programmer; he built the first version with an LLM. He *is* strong at GIS
      matter most are Newton and Fleetwood renter median household income, 2021
      Census, dissemination-area level: with those it gets a preset per
      neighbourhood instead of one generic slider.
-4. **Smaller, none urgent:**
+5. **Smaller, none urgent:**
    - Four photographs have no `place` set: `lake-camp`, `milky-way`,
      `balanced-stones`, `driftwood`. Their captions are also mine, not his.
    - Two tracker notes end with sentences I wrote. He meant to replace them.

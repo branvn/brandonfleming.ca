@@ -6,6 +6,12 @@ not for a developer.
 You do not need to understand Hugo to use this. You need to know which file to
 open, and the three commands at the end that put your change online.
 
+> **Standing job, added 18 August 2026.** Most of the prose on this site was
+> drafted by Claude. All of it is to be rewritten in your own voice. When you
+> open a file to change something small, reread the whole page while you are in
+> there and rewrite whatever does not sound like you. Keep the numbers as they
+> are; they are checked against sources. Full note in `HANDOFF.md`, item 2.
+
 ---
 
 ## The one rule
