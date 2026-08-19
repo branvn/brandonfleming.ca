@@ -904,6 +904,75 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
 }
 
 /* --------------------------------------------------------------------------
+   Pro forma calculator
+
+   Lives inside .prose on a paper panel, so it uses the ink palette rather than
+   the dark shell's. Sliders only: a number field invites typing a value that
+   makes no sense, and the point here is moving one input and watching another
+   move with it.
+   -------------------------------------------------------------------------- */
+
+#proforma { margin: 2rem 0 2.5rem; }
+
+.pf-group {
+  font-family: var(--font-display);
+  font-size: .75rem; font-weight: 600;
+  letter-spacing: .18em; text-transform: uppercase;
+  color: var(--ink-dim);
+  margin: 1.75rem 0 .9rem;
+  padding-bottom: .4rem;
+  border-bottom: 1px solid var(--paper-edge);
+}
+.pf-group:first-child { margin-top: 0; }
+
+.pf-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: .2rem .75rem;
+  margin-bottom: 1.1rem;
+}
+.pf-row label { font-size: .9375rem; }
+.pf-note {
+  display: block;
+  font-size: .8125rem; line-height: 1.4;
+  color: var(--ink-dim);
+  margin-top: .1rem;
+}
+.pf-row output {
+  font-family: var(--font-mono);
+  font-size: .875rem;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.pf-row input[type="range"] { grid-column: 1 / -1; width: 100%; accent-color: var(--ink-link); }
+
+/* Results. The gap is the number the whole page exists to show, so it is the
+   one that gets the size and the colour. */
+.pf-out {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 1.25rem;
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: #ece7dc;
+  border-radius: var(--radius);
+}
+.pf-fig { display: flex; flex-direction: column; gap: .15rem; }
+.pf-lab { font-size: .8125rem; color: var(--ink-dim); }
+.pf-num { font-family: var(--font-mono); font-size: 1.75rem; letter-spacing: -.01em; }
+.pf-unit { font-size: .75rem; color: var(--ink-dim); }
+.pf-gap .pf-num { font-size: 2.25rem; }
+.pf-gap.is-short .pf-num { color: #9d3b23; }
+
+.pf-total {
+  margin-top: 1rem;
+  font-size: .875rem;
+  color: var(--ink-dim);
+}
+.pf-total strong { font-family: var(--font-mono); font-weight: 400; color: var(--ink); }
+
+/* --------------------------------------------------------------------------
    Bill 44 tracker
    -------------------------------------------------------------------------- */
 

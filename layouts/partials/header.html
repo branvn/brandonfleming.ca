@@ -7,8 +7,24 @@
   <nav class="site-nav" aria-label="Primary">
     {{ $current := . }}
     {{ range site.Menus.main }}
-      {{ $active := or ($current.IsMenuCurrent "main" .) ($current.HasMenuCurrent "main" .) }}
-      <a href="{{ .URL }}"{{ if $active }} class="is-active" aria-current="page"{{ end }}>{{ .Name }}</a>
+      {{/* Hide a section that has nothing in it. An empty tab is worse than no
+           tab: it promises content and delivers a page saying so. Writing sits
+           here waiting for its first post, and reappears on its own the moment
+           one exists.
+
+           Photography counts as populated even with no child pages, because its
+           photographs are page resources rather than pages. Single pages like
+           About are never sections, so they are never hidden. */}}
+      {{ $empty := false }}
+      {{ with .Page }}
+        {{ if and (eq .Kind "section") (eq (len .RegularPages) 0) (eq (len .Resources) 0) }}
+          {{ $empty = true }}
+        {{ end }}
+      {{ end }}
+      {{ if not $empty }}
+        {{ $active := or ($current.IsMenuCurrent "main" .) ($current.HasMenuCurrent "main" .) }}
+        <a href="{{ .URL }}"{{ if $active }} class="is-active" aria-current="page"{{ end }}>{{ .Name }}</a>
+      {{ end }}
     {{ end }}
     {{ if site.Params.showTracker }}
       <a href="{{ "/tracker/" | relURL }}"{{ if hasPrefix .RelPermalink "/tracker" }} class="is-active" aria-current="page"{{ end }}>Bill 44 Tracker</a>

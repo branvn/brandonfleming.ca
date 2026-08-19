@@ -39,5 +39,13 @@
     {{ end }}
   {{ end }}
 
+  {{/* Pro forma calculator, only on a page that asks for it. */}}
+  {{ if .Params.calculator }}
+    {{ with resources.Get "js/proforma.js" }}
+      {{ $js := . | minify | fingerprint }}
+      <script src="{{ $js.RelPermalink }}" integrity="{{ $js.Data.Integrity }}" defer></script>
+    {{ end }}
+  {{ end }}
+
 </body>
 </html>
