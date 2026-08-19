@@ -207,7 +207,7 @@ media = ["Film", "Digital"]
     alt      = "A lake ringed by forested hills, with bleached driftwood leaned together into a shelter on a gravel shore and the corner of a tent at the right"
 
   [captions."milky-way.jpg"]
-    caption  = "Thirteen seconds, no moon"
+    caption  = "New Moon"
     place    = ""
     category = "Landscape"
     medium   = "Digital"
