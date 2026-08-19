@@ -1,88 +1,68 @@
 {{ define "bodyclass" }}gallery-page{{ end }}
 
 {{ define "main" }}
-  <header class="page-head">
-    {{ if .Parent.IsSection }}
-      <p class="breadcrumb"><a href="{{ .Parent.RelPermalink }}">← {{ .Parent.Title }}</a></p>
-    {{ end }}
+  {{/* One page, every photograph, filtered in place. There is deliberately no
+       index of sub-galleries: a menu standing between someone and the pictures
+       is a click that buys nothing. Categories are chips, not pages, so
+       switching never loads anything and never changes the URL.
+
+       Photos are page resources of this branch bundle. Drop a .jpg in
+       content/photography/ and add a [captions."name.jpg"] block. */}}
+
+  <header class="page-head gallery-head">
     <h1>{{ .Title }}</h1>
-    {{ with .Params.gear }}<p class="gear">{{ . }}</p>{{ end }}
     {{ with .Content }}<div class="page-intro">{{ . }}</div>{{ end }}
   </header>
 
-  {{ $subs := .Sections }}
+  {{ $photos := .Resources.ByType "image" }}
+  {{ $caps := .Params.captions }}
 
-  {{ if $subs }}
-    {{/* Parent page: index the galleries rather than showing photos. Each card
-         uses the first image in that gallery as its cover, unless the section's
-         front matter names one. */}}
-    <div class="cards">
-      {{ range $subs.ByWeight }}
-        {{ $imgs := .Resources.ByType "image" }}
-        {{/* Cover: the one named in front matter, else the first image, else
-             none — a section with no photos yet must not error. */}}
-        {{ $cover := false }}
-        {{ with .Params.cover }}{{ $cover = $imgs.GetMatch . }}{{ end }}
-        {{ if and (not $cover) $imgs }}{{ $cover = index $imgs 0 }}{{ end }}
-        {{ $link := .RelPermalink }}
-        <article class="card">
-          {{ with $cover }}
-            {{ $t := .Fill "900x600 Smart q80" }}
-            <a class="card-thumb" href="{{ $link }}" tabindex="-1" aria-hidden="true">
-              <img src="{{ $t.RelPermalink }}" alt="" loading="lazy" decoding="async"
-                   width="{{ $t.Width }}" height="{{ $t.Height }}">
-            </a>
-          {{ end }}
-          <div class="card-body">
-            <p class="card-meta"><span>{{ len $imgs }} photo{{ if ne (len $imgs) 1 }}s{{ end }}</span></p>
-            <h3><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
-            <p class="card-summary">{{ .Params.summary }}</p>
-            {{ with .Params.gear }}<p class="card-tools">{{ . }}</p>{{ end }}
-            <p class="card-link"><a href="{{ .RelPermalink }}">View →</a></p>
-          </div>
-        </article>
-      {{ end }}
-    </div>
-
-  {{ else }}
-    {{/* Leaf gallery. Photos are page resources — drop .jpg files straight into
-         this folder. Aspect ratios are preserved rather than square-cropped;
-         these are 3:2 and 2:3 frames and cropping them square throws away the
-         composition. The CSS lays them out in masonry columns.
-
-         Resize the long edge to ~2200px before committing. */}}
-    {{ $photos := .Resources.ByType "image" }}
-    {{ if $photos }}
-      <div class="gallery">
-        {{ range $photos }}
-          {{ $view := .Resize "1000x q82" }}
-          {{ $full := cond (gt .Width 2000) (.Resize "2000x q84") . }}
-          {{/* Captions are keyed by filename in the section's front matter.
-               Hold the resource's own name in a variable first: inside the
-               `with` below the dot rebinds to the captions map, so a bare
-               `.Name` would be the map's and `$.Name` is the page's — neither
-               is the photo's, and the lookup silently returns nothing. */}}
-          {{ $name := .Name }}
-          {{ $meta := false }}
-          {{ with $.Params.captions }}{{ $meta = index . $name }}{{ end }}
-          <figure class="shot">
-            <a href="{{ $full.RelPermalink }}">
-              <img src="{{ $view.RelPermalink }}"
-                   width="{{ $view.Width }}" height="{{ $view.Height }}"
-                   alt="{{ with $meta }}{{ .alt | default .caption }}{{ end }}"
-                   loading="lazy" decoding="async">
-            </a>
-            {{ with $meta }}
-              <figcaption>
-                {{ with .caption }}<span class="shot-caption">{{ . }}</span>{{ end }}
-                {{ with .place }}<span class="shot-place">{{ . }}</span>{{ end }}
-              </figcaption>
-            {{ end }}
-          </figure>
-        {{ end }}
-      </div>
-    {{ else }}
-      <p class="empty">Nothing here yet.</p>
-    {{ end }}
+  {{/* Sort by the `order` in front matter, falling back to filename. Building
+       a slice of dicts is the only way to sort resources by a value that lives
+       outside them. */}}
+  {{ $rows := slice }}
+  {{ range $photos }}
+    {{ $m := or (index $caps .Name) dict }}
+    {{ $rows = $rows | append (dict "res" . "meta" $m "order" (int (or $m.order 999)) "name" .Name) }}
   {{ end }}
+  {{ $rows = sort (sort $rows "name") "order" }}
+
+  {{ with .Params.categories }}
+    {{/* Hidden entirely without JavaScript, because chips that do nothing are
+         worse than no chips. The gallery below is complete either way. */}}
+    <nav class="filters" aria-label="Filter photographs" hidden>
+      <button type="button" class="chip is-on" data-filter="all" aria-pressed="true">All</button>
+      {{ range . }}
+        <button type="button" class="chip" data-filter="{{ . }}" aria-pressed="false">{{ . }}</button>
+      {{ end }}
+    </nav>
+  {{ end }}
+
+  <div class="gallery">
+    {{ range $rows }}
+      {{ $img := .res }}
+      {{ $m := .meta }}
+      {{ $view := $img.Resize "1400x q84" }}
+      {{ $full := cond (gt $img.Width 2000) ($img.Resize "2000x q86") $img }}
+      <figure class="shot" data-category="{{ $m.category }}">
+        <a href="{{ $full.RelPermalink }}"
+           data-full="{{ $full.RelPermalink }}"
+           data-caption="{{ $m.caption }}"
+           data-place="{{ $m.place }}">
+          <img src="{{ $view.RelPermalink }}"
+               width="{{ $view.Width }}" height="{{ $view.Height }}"
+               alt="{{ with $m }}{{ .alt | default .caption }}{{ end }}"
+               loading="lazy" decoding="async">
+        </a>
+        {{ with $m }}
+          <figcaption>
+            <span class="shot-caption">{{ .caption }}</span>
+            <span class="shot-place">{{ .place }}{{ with .medium }}{{ with $.meta.place }} · {{ end }}{{ . }}{{ end }}</span>
+          </figcaption>
+        {{ end }}
+      </figure>
+    {{ end }}
+  </div>
+
+  <p class="empty gallery-empty" hidden>Nothing in that category yet.</p>
 {{ end }}
