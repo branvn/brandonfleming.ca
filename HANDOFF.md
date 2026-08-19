@@ -46,6 +46,27 @@ programmer; he built the first version with an LLM. He *is* strong at GIS
    reachable at `/tracker/` and absent from the nav. 26 candidates collected from
    6 sources, 3 annotated. It runs unattended on Fridays and messages Telegram.
    See `TRACKER-HANDOFF.md`.
+3. **Two pages sit finished at `draft = true`**, waiting on Brandon rather than
+   on any more building:
+   - `content/colophon.md` — explains the contour plate. Needs a read-through
+     and the last section put in his voice. Add a footer link when it ships.
+   - `content/work/affordability-calculator.md` — a working pro forma. The
+     model is verified; the *inputs* are plausible guesses I chose. The list of
+     figures needed is in a comment at the bottom of that file. The two that
+     matter most are Newton and Fleetwood renter median household income, 2021
+     Census, dissemination-area level: with those it gets a preset per
+     neighbourhood instead of one generic slider.
+4. **Smaller, none urgent:**
+   - Four photographs have no `place` set: `lake-camp`, `milky-way`,
+     `balanced-stones`, `driftwood`. Their captions are also mine, not his.
+   - Two tracker notes end with sentences I wrote. He meant to replace them.
+   - The résumé still says "GIS spatial analysis of corporate land assembly",
+     which thesis proposal 2.1 demoted to a stretch goal.
+   - `HUGO_VERSION` in Cloudflare is `0.147.7`; his laptop runs `0.164`. It
+     builds today, but that gap is the usual cause of works-locally-fails-live.
+   - `static/fonts/Basteleur-*.woff2` are 92 KB of typeface nothing references.
+   - The portrait on the About page is 459px wide, below the 600px the template
+     would like. It is no longer upscaled, but a larger original would sharpen it.
 
 ---
 
