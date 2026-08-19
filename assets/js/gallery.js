@@ -1,10 +1,10 @@
-/* Photography page: category filtering and a lightbox.
+/* Photography page: two-axis filtering and a lightbox.
  *
  * Both are progressive. With this file absent or broken you get every
  * photograph in one flow, and clicking one opens the full-size file, which is
- * exactly what the page did before any of this existed. The filter chips are
- * marked hidden in the template and only revealed here, so they can never sit
- * there looking clickable while doing nothing.
+ * exactly what the page did before any of this existed. The chips are marked
+ * hidden in the template and only revealed here, so they can never sit there
+ * looking clickable while doing nothing.
  *
  * No dependencies. The lightbox is a native <dialog>, which brings focus
  * trapping, Escape-to-close and the top layer for free.
@@ -23,6 +23,24 @@
   var bar = document.querySelector(".filters");
   var empty = document.querySelector(".gallery-empty");
 
+  // One entry per axis, so subject and medium are independent and combine.
+  // "all" means no constraint on that axis.
+  var picked = { category: "all", medium: "all" };
+
+  function applyFilters() {
+    var shown = 0;
+    shots.forEach(function (fig) {
+      var ok = true;
+      for (var axis in picked) {
+        var want = picked[axis];
+        if (want !== "all" && fig.getAttribute("data-" + axis) !== want) ok = false;
+      }
+      fig.hidden = !ok;
+      if (ok) shown++;
+    });
+    if (empty) empty.hidden = shown > 0;
+  }
+
   if (bar) {
     bar.hidden = false;
 
@@ -30,22 +48,22 @@
       var btn = e.target.closest(".chip");
       if (!btn) return;
 
-      var want = btn.getAttribute("data-filter");
-      var shown = 0;
+      var group = btn.closest(".filter-group");
+      var axis = group.getAttribute("data-axis");
+      var value = btn.getAttribute("data-value");
 
-      bar.querySelectorAll(".chip").forEach(function (c) {
-        var on = c === btn;
+      // Clicking the active chip clears that axis rather than doing nothing,
+      // which saves hunting for an "All" button on the medium group.
+      var next = picked[axis] === value ? "all" : value;
+      picked[axis] = next;
+
+      group.querySelectorAll(".chip").forEach(function (c) {
+        var on = c.getAttribute("data-value") === next;
         c.classList.toggle("is-on", on);
         c.setAttribute("aria-pressed", on ? "true" : "false");
       });
 
-      shots.forEach(function (fig) {
-        var show = want === "all" || fig.getAttribute("data-category") === want;
-        fig.hidden = !show;
-        if (show) shown++;
-      });
-
-      if (empty) empty.hidden = shown > 0;
+      applyFilters();
     });
   }
 
@@ -63,20 +81,22 @@
     '<button class="lb-nav lb-prev" type="button" aria-label="Previous photograph">‹</button>' +
     '<img alt="">' +
     '<button class="lb-nav lb-next" type="button" aria-label="Next photograph">›</button>' +
-    '<p class="lb-caption"></p>';
+    '<p class="lb-caption"><span class="lb-text"></span><span class="lb-spec"></span></p>';
   document.body.appendChild(dlg);
 
   var img = dlg.querySelector("img");
-  var cap = dlg.querySelector(".lb-caption");
+  var text = dlg.querySelector(".lb-text");
+  var spec = dlg.querySelector(".lb-spec");
   var at = 0;
 
   // Only the photos currently on screen, so the arrows follow the active
-  // filter instead of wandering into hidden ones.
+  // filters instead of wandering into hidden ones.
   function visible() {
     return shots.filter(function (f) { return !f.hidden; });
   }
 
   function show(list, i) {
+    if (!list.length) return;
     at = (i + list.length) % list.length;
     var link = list[at].querySelector("a");
     var thumb = list[at].querySelector("img");
@@ -86,7 +106,8 @@
 
     var c = link.getAttribute("data-caption") || "";
     var p = link.getAttribute("data-place") || "";
-    cap.textContent = c && p ? c + " · " + p : c || p;
+    text.textContent = c && p ? c + " · " + p : c || p;
+    spec.textContent = link.getAttribute("data-spec") || "";
 
     var many = list.length > 1;
     dlg.querySelector(".lb-prev").hidden = !many;

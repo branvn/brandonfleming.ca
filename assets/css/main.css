@@ -717,10 +717,15 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
 
 /* Filter chips. Hidden until gallery.js reveals them, so they never sit there
    looking clickable while doing nothing. */
+/* Two axes, pushed to opposite ends: subject left, medium right. They read as
+   separate questions rather than one long row of unrelated options. */
 .filters {
-  display: flex; flex-wrap: wrap; gap: .5rem;
+  display: flex; flex-wrap: wrap; gap: .75rem 1.5rem;
+  justify-content: space-between; align-items: center;
   margin: 0 0 1.75rem;
 }
+.filter-group { display: flex; flex-wrap: wrap; gap: .5rem; }
+.filter-group--end { margin-left: auto; }
 .chip {
   font: inherit;
   font-size: .8125rem; font-weight: 500;
@@ -758,7 +763,30 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
   break-inside: avoid;          /* never split a photo across columns */
   -webkit-column-break-inside: avoid;
 }
+/* Shooting data, over the bottom of the frame on hover. Sits on a gradient
+   rather than a solid bar so it never hides a corner of the photograph, and it
+   appears on keyboard focus too, because hover-only content is invisible to
+   anyone navigating by tab. */
+.shot-spec {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  padding: 2.5rem .9rem .8rem;
+  font-family: var(--font-mono);
+  font-size: .75rem; letter-spacing: .02em;
+  color: var(--text);
+  background: linear-gradient(to top, rgba(5, 16, 20, .88), transparent);
+  opacity: 0;
+  transition: opacity .2s ease;
+  pointer-events: none;
+}
+.shot a:hover .shot-spec,
+.shot a:focus-visible .shot-spec { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .shot-spec { transition: none; }
+}
+
 .shot a {
+  position: relative;
   display: block;
   background: #0b0b0c;          /* neutral, so the teal palette can't tint a B&W print */
   border-radius: 4px;
@@ -817,6 +845,17 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
   font-size: .8125rem;
   color: var(--text-dim);
 }
+/* The shooting data again, quieter and always visible here. In the grid it is
+   hover-only; in the lightbox there is room, and touch users never get a hover
+   state at all, so this is the only place they see it. */
+.lb-spec {
+  display: block;
+  margin-top: .35rem;
+  font-family: var(--font-mono);
+  font-size: .75rem;
+  color: var(--text-faint);
+}
+.lb-spec:empty { display: none; }
 
 .lb-close, .lb-nav {
   font: inherit;

@@ -30,39 +30,62 @@
           "place"    (default "" $m.place)
           "medium"   (default "" $m.medium)
           "category" (default "" $m.category)
+          "camera"   (default "" $m.camera)
+          "lens"     (default "" $m.lens)
+          "settings" (default "" $m.settings)
           "alt"      (default "" $m.alt)) }}
     {{ else }}
       {{ $rows = $rows | append (dict
           "res" . "name" .Name "order" 999
-          "caption" "" "place" "" "medium" "" "category" "" "alt" "") }}
+          "caption" "" "place" "" "medium" "" "category" ""
+          "camera" "" "lens" "" "settings" "" "alt" "") }}
     {{ end }}
   {{ end }}
   {{ $rows = sort (sort $rows "name") "order" }}
 
-  {{ with .Params.categories }}
-    {{/* Hidden until gallery.js reveals it, so chips never sit there looking
-         clickable while doing nothing. */}}
-    <nav class="filters" aria-label="Filter photographs" hidden>
-      <button type="button" class="chip is-on" data-filter="all" aria-pressed="true">All</button>
-      {{ range . }}
-        <button type="button" class="chip" data-filter="{{ . }}" aria-pressed="false">{{ . }}</button>
-      {{ end }}
-    </nav>
-  {{ end }}
+  {{/* Two independent axes that combine: subject on the left, medium on the
+       right. Picking Urban and Film shows urban film frames only. Hidden until
+       gallery.js reveals them, so chips never sit there looking clickable
+       while doing nothing. */}}
+  <div class="filters" hidden>
+    {{ with .Params.categories }}
+      <nav class="filter-group" data-axis="category" aria-label="Filter by subject">
+        <button type="button" class="chip is-on" data-value="all" aria-pressed="true">All</button>
+        {{ range . }}
+          <button type="button" class="chip" data-value="{{ . }}" aria-pressed="false">{{ . }}</button>
+        {{ end }}
+      </nav>
+    {{ end }}
+    {{ with .Params.media }}
+      <nav class="filter-group filter-group--end" data-axis="medium" aria-label="Filter by medium">
+        {{ range . }}
+          <button type="button" class="chip" data-value="{{ . }}" aria-pressed="false">{{ . }}</button>
+        {{ end }}
+      </nav>
+    {{ end }}
+  </div>
 
   <div class="gallery">
     {{ range $rows }}
       {{ $view := .res.Resize "1400x q84" }}
       {{ $full := cond (gt .res.Width 2000) (.res.Resize "2000x q86") .res }}
-      <figure class="shot" data-category="{{ .category }}">
+      {{/* One string, assembled here so the markup, the hover panel and the
+           lightbox all say the same thing. Empty parts drop out, so a film
+           frame with no lens recorded yet just shows the body. */}}
+      {{ $spec := delimit (slice .camera .lens .settings | complement (slice "")) " · " }}
+      <figure class="shot" data-category="{{ .category }}" data-medium="{{ .medium }}">
         <a href="{{ $full.RelPermalink }}"
            data-full="{{ $full.RelPermalink }}"
            data-caption="{{ .caption }}"
-           data-place="{{ .place }}">
+           data-place="{{ .place }}"
+           data-spec="{{ $spec }}">
           <img src="{{ $view.RelPermalink }}"
                width="{{ $view.Width }}" height="{{ $view.Height }}"
                alt="{{ or .alt .caption }}"
                loading="lazy" decoding="async">
+          {{/* Revealed on hover and on keyboard focus. aria-hidden because the
+               same text is already in the caption for anyone not hovering. */}}
+          {{ with $spec }}<span class="shot-spec" aria-hidden="true">{{ . }}</span>{{ end }}
         </a>
         {{ if or .caption .place .medium }}
           <figcaption>
