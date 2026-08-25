@@ -12,6 +12,15 @@ role    = "Sole researcher"
 tools   = ["ArcGIS Pro", "BC Assessment data", "Difference-in-differences", "Pro forma modelling", "Semi-structured interviews"]
 status  = "in-progress"
 
+# Header coordinates: Newton Town Centre, the displacement-vulnerable half of
+# the comparison. Fleetwood, the other half, is roughly 49.1490 / -122.7930 at
+# 60 m; swap them if Fleetwood ends up carrying the argument.
+# CHECK: both were estimated off the Surrey grid, not measured. You have the
+# study-area boundaries in ArcGIS Pro, so use their centroids instead.
+lat  =   49.1315
+lng  = -122.8433
+elev =   70.0
+
 # thumb = "/images/bill-44-thumb.jpg"
 +++
 

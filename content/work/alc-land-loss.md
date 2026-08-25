@@ -11,6 +11,14 @@ context = "GEOG 4380, Kwantlen Polytechnic University, following an internship a
 role    = "Sole analyst and cartographer"
 tools   = ["ArcMap", "Kernel Density", "ALC Application Portal", "ParcelMap BC"]
 
+# Header coordinates: the Agricultural Land Commission's own office, 201-4940
+# Canada Way, Burnaby. The 157 applications this project maps were all decided
+# in that building. CHECK: geocoded by inference from the street address, not
+# from a source, so confirm the point in ArcGIS Pro.
+lat  =   49.2340
+lng  = -122.9757
+elev =   50.0
+
 thumb   = "/images/alc-land-loss-poster-thumb.jpg"
 hero    = "/images/alc-land-loss-poster.jpg"
 heroAlt = "Research poster titled Land Lost to ALC Applications in Greater Vancouver, showing a kernel density heatmap and an application-type map of the Agricultural Land Reserve across Metro Vancouver."

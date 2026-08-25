@@ -31,6 +31,9 @@ programmer; he built the first version with an LLM. He *is* strong at GIS
 - **About**, **404**, RSS, sitemap, JSON-LD, Open Graph
 - **Bill 44 tracker** — scaffolded, switched off (`showTracker = false`)
 - **Email** — `contact@brandonfleming.ca` forwarding confirmed working. Settled.
+- **Per-page coordinates** — the header readout is Brandon's idea, built
+  18 August 2026. Each page names a real place it is about; pages outside the
+  plate's bounding box show an OFF FRAME line. See below.
 
 ## State: what's outstanding
 
@@ -165,6 +168,56 @@ Analysis", not "Junior Urban Planner". In BC, *planner* carries professional
 designation weight (RPP/MCIP via PIBC) and the audience is RPPs. Don't reinstate
 it. Similarly there's no "available for freelance" — he's seeking a co-op term,
 and the two stories conflict.
+
+---
+
+## The header coordinates
+
+Brandon's idea, and the best thing on the site that nobody is told about. The
+readout in the top right is not decoration: every page points at a real place
+that page is about.
+
+| Page | Point | Elev |
+|---|---|---|
+| site default, Home, Photography, 404 | Blackie Spit, Crescent Beach | 2 m |
+| About | Leeuwarden, the place in the portrait | 3 m |
+| Protest to Policy | Amsterdam, where Stop de Kindermoord began | -2 m |
+| Land Lost to ALC | 4940 Canada Way, the ALC's own office | 50 m |
+| The Affordability Gap | Newton Town Centre | 70 m |
+| Townhouses Before Transit | Grandview Heights | 90 m |
+| Bill 44 Tracker | Surrey City Hall | 80 m |
+
+The elevations are doing work. Amsterdam at -2 m sitting two cards away from
+Grandview Heights at 90 m is the whole op-ed in two numbers.
+
+**How it is put together:**
+
+- `hugo.toml` holds the site default and `params.frame`, the plate's bounding
+  box. Values are **decimal degrees as floats**, South and West negative.
+- `layouts/partials/dms.html` converts a decimal degree to
+  degrees-minutes-seconds. It converts to tenths of an arcsecond and rounds
+  **once, as an integer**, before splitting. The naive version rounds seconds
+  last and prints `49°03'60.0"` instead of `49°04'00.0"` a fraction of the time.
+- `layouts/partials/header.html` reads page params with a site fallback, using
+  `isset` rather than `or`. `or` treats zero as absent, and zero is a real value
+  for all three: the equator, the prime meridian, and sea level.
+- Coordinates outside `params.frame` get an `OFF FRAME` line. Nothing switches
+  this on; it falls out of the numbers.
+- `check_site.py` catches integers written where floats belong, dropped minus
+  signs, pages that set some of the three but not all, and `params.frame`
+  drifting from `FRAME` in `make_plate.py`. All four were tested by breaking
+  them deliberately.
+
+**Caveats.** The elevations were read off the CDEM 92G contours in `FINAL_DEM/`,
+which run 10, 20, 35, 55, 80, 110 m and so resolve only to the nearest band.
+Several coordinates are marked `CHECK` in their front matter because they were
+geocoded by inference rather than from a source. Sampling exact values in
+ArcGIS Pro would take ten minutes and would make every number on the site true.
+
+**Not built:** a marker on the plate itself at the page's coordinates. It needs
+JS to read the rendered SVG box, because `preserveAspectRatio="slice"` means the
+mapping from coordinate to screen position depends on the viewport. Worth doing,
+but it is a separate piece of work and half of it is worse than none.
 
 ---
 

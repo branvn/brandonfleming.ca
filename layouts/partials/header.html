@@ -31,10 +31,41 @@
     {{ end }}
   </nav>
 
-  {{/* Map marginalia. Surrey City Hall — a civic landmark, not a home address. */}}
-  <div class="coords" aria-hidden="true">
-    <span>LAT {{ site.Params.lat }}</span>
-    <span>LNG {{ site.Params.lng }}</span>
-    <span>ELEV {{ site.Params.elev }}</span>
+  {{/* Map marginalia, and the closest thing this site has to an easter egg.
+
+       The coordinates are not decoration. Each page names a real place that the
+       page is about: the ALC project points at the ALC's own office, the thesis
+       points at Newton, the tracker points at the building whose agendas it
+       reads. Nobody is told this. You either notice the numbers change as you
+       move through the site, or you don't, and the site works either way.
+
+       Set lat / lng / elev in a page's front matter to override. Decimal
+       degrees, South and West negative. See layouts/partials/dms.html.
+
+       isset rather than `or`, because `or` treats zero as absent and zero is a
+       real value for all three: the equator, the prime meridian, and sea level.
+       Leeuwarden is at 0 m, so this is not hypothetical. */}}
+
+  {{- $lat  := cond (isset .Params "lat")  .Params.lat  site.Params.lat -}}
+  {{- $lng  := cond (isset .Params "lng")  .Params.lng  site.Params.lng -}}
+  {{- $elev := cond (isset .Params "elev") .Params.elev site.Params.elev -}}
+
+  {{- $lat  = add 0.0 $lat -}}
+  {{- $lng  = add 0.0 $lng -}}
+  {{- $elev = add 0.0 $elev -}}
+
+  {{/* Does this point fall on the contour plate behind it? Everywhere in Metro
+       Vancouver does. Leeuwarden does not, and that page quietly says so, which
+       is the same joke the 404 page makes. */}}
+  {{- $f := site.Params.frame -}}
+  {{- $onFrame := and (ge $lat $f.south) (le $lat $f.north) (ge $lng $f.west) (le $lng $f.east) -}}
+
+  <div class="coords{{ if not $onFrame }} is-offframe{{ end }}" aria-hidden="true">
+    <span>LAT {{ partial "dms.html" (dict "value" $lat "axis" "lat") }}</span>
+    <span>LNG {{ partial "dms.html" (dict "value" $lng "axis" "lng") }}</span>
+    <span>ELEV {{ lang.FormatNumber 0 $elev }} m</span>
+    {{- if not $onFrame }}
+      <span class="coords-note">OFF FRAME</span>
+    {{- end }}
   </div>
 </header>

@@ -126,6 +126,48 @@ On the photography page:
 | `media` | The filter chips on the right, currently Film and Digital |
 | `[captions."file.jpg"]` | Everything about one photo, explained below |
 
+And on any page at all:
+
+| Setting | What it does |
+|---|---|
+| `lat` `lng` `elev` | The coordinates in the top right corner. See below |
+
+---
+
+## The coordinates in the corner
+
+Every page can point the header readout at a real place. Most do: the ALC
+project points at the ALC's own office, the thesis points at Newton, the tracker
+points at the building whose agendas it reads. Nobody is told this. It rewards
+someone who notices the numbers changing as they move through the site, and it
+costs nothing to anyone who doesn't.
+
+Add three lines to a page's front matter:
+
+```toml
+lat  =   49.0453
+lng  = -122.7690
+elev =   90.0
+```
+
+**Five rules, and `python scripts/check_site.py` enforces all of them:**
+
+1. **Decimal degrees**, not degrees-minutes-seconds. Paste the number straight
+   out of ArcGIS Pro. The site does the conversion and displays the DMS form.
+2. **South and West are negative.** Everywhere in BC has a negative longitude.
+   A dropped minus sign puts Surrey in China and Hugo will build it happily.
+3. **Always a decimal point.** Write `90.0`, not `90`.
+4. **All three or none.** A page with a latitude and no longitude inherits the
+   longitude from the site default and ends up pointing at open water.
+5. Set nothing and the page inherits Blackie Spit from `hugo.toml`.
+
+Elevation is in metres and can be negative. Amsterdam is at -2, which is half
+the reason that page is worth reading.
+
+If the coordinates fall outside the contour map behind them, the header adds a
+quiet **OFF FRAME** line underneath. Today that means the two Netherlands pages.
+You do not switch this on; it works itself out from the numbers.
+
 ---
 
 ## Common jobs

@@ -1,6 +1,13 @@
 +++
 title = "Bill 44 Tracker"
 summary = "A running record of how Metro Vancouver municipalities are implementing small-scale multi-unit housing under BC's Bill 44."
+
+# Header coordinates: Surrey City Hall, 13450 104 Avenue. The tracker reads the
+# agendas that come out of this building every week, so the page points at it.
+# CHECK the exact point.
+lat  =   49.1889
+lng  = -122.8478
+elev =   80.0
 +++
 
 Bill 44 requires BC municipalities to permit small-scale multi-unit housing on

@@ -288,6 +288,16 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
   letter-spacing: .04em;
 }
 
+/* Shown only when the page's coordinates fall outside the bounding box of the
+   contour plate, which today means only the Netherlands page. A real map sheet
+   would say as much in the margin. Deliberately quieter than the numbers above
+   it: this is a footnote, not an error. */
+.coords-note {
+  color: var(--sand);
+  opacity: .55;
+  letter-spacing: .14em;
+}
+
 /* --------------------------------------------------------------------------
    Home
    -------------------------------------------------------------------------- */

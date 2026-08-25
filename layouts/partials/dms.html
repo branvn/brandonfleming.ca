@@ -1,0 +1,56 @@
+{{/* Format a decimal degree as degrees-minutes-seconds.
+
+     Call it with a dict:
+
+       {{ partial "dms.html" (dict "value" 49.05922 "axis" "lat") }}
+         →  49°03'33.2" N
+
+       {{ partial "dms.html" (dict "value" -122.88261 "axis" "lng") }}
+         →  122°52'57.4" W
+
+     "axis" is either "lat" or "lng" and only decides which pair of hemisphere
+     letters to use. The sign of the value decides which of the pair you get, so
+     South and West must be written negative.
+
+     Why the arithmetic looks the way it does: the obvious approach is to take
+     the whole degrees, multiply the remainder by 60 for minutes, then the
+     remainder of that by 60 for seconds. It gives the right answer almost
+     always, and then rounding the seconds to one decimal occasionally produces
+     60.0 and you print 49°03'60.0" instead of 49°04'00.0". Carrying that by
+     hand in a template is miserable.
+
+     So convert the whole thing to tenths of an arcsecond first, round ONCE
+     while it is a single integer, and only then split it into degrees, minutes
+     and seconds. There is nothing left to carry.
+
+     One degree = 3600 seconds = 36000 tenths.
+     One minute =   60 seconds =   600 tenths.
+*/}}
+
+{{- $v := .value -}}
+{{- $axis := .axis -}}
+
+{{/* add 0.0 forces the value to a float even if front matter said `49` rather
+     than `49.0`, which keeps the comparison below honest. */}}
+{{- $v = add 0.0 $v -}}
+
+{{- $south := lt $v 0.0 -}}
+{{- $hemi := "" -}}
+{{- if eq $axis "lat" -}}
+  {{- $hemi = cond $south "S" "N" -}}
+{{- else -}}
+  {{- $hemi = cond $south "W" "E" -}}
+{{- end -}}
+
+{{/* Every div is wrapped in int. Hugo's div returns an integer when both
+     operands are integers, which is what happens here, but %d against an
+     unexpected float prints %!d(float64=49) rather than failing the build, and
+     a wrong-looking coordinate is the kind of thing that ships. */}}
+
+{{- $tenths := int (math.Round (mul (math.Abs $v) 36000.0)) -}}
+{{- $deg  := int (div $tenths 36000) -}}
+{{- $rest := mod $tenths 36000 -}}
+{{- $min  := int (div $rest 600) -}}
+{{- $sec  := mod $rest 600 -}}
+
+{{- printf "%d°%02d'%02d.%d\" %s" $deg $min (int (div $sec 10)) (mod $sec 10) $hemi -}}

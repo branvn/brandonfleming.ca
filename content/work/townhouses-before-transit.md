@@ -10,6 +10,13 @@ year    = "2025"
 context = "Written for URB 650, Urban Governance, Simon Fraser University"
 role    = "Author"
 tools   = ["Census of Canada", "TransLink performance data", "Surrey neighbourhood plans"]
+
+# Header coordinates: Grandview Heights. The elevation is not incidental. This
+# is the plateau the op-ed is about, and 90 m is most of why the buses climb.
+# CHECK: estimated off the Surrey grid near 24 Avenue and 168 Street.
+lat  =   49.0453
+lng  = -122.7690
+elev =   90.0
 +++
 
 *South Surrey's unchecked sprawl is a masterclass on how not to grow an urban

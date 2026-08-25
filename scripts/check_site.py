@@ -153,6 +153,88 @@ def check_tracker() -> None:
                      f"Hugo parses everything in data/ on every build.")
 
 
+# ------------------------------------------------------------------- coordinates
+
+def check_coordinates() -> None:
+    """The header coordinate readout, and the frame it is measured against.
+
+    Three things go wrong here and none of them announce themselves. A sign
+    dropped off a longitude puts Surrey in China and Hugo builds it happily. A
+    value written `49` instead of `49.0` parses as an integer, and Hugo's `ge`
+    then compares an int against a float when deciding whether the point is on
+    the plate. And the frame in hugo.toml can drift from the FRAME in
+    make_plate.py, after which the OFF FRAME line starts lying.
+    """
+    config = toml.loads((ROOT / "hugo.toml").read_text(encoding="utf-8"))
+    params = config.get("params", {})
+
+    frame = params.get("frame")
+    if not frame:
+        fail("hugo.toml has no params.frame. The header cannot tell whether a "
+             "coordinate falls on the contour plate without it.")
+        return
+
+    # The frame must match the generator that draws the plate, or the OFF FRAME
+    # line is measured against a box the background does not actually cover.
+    plate = ROOT / "scripts" / "make_plate.py"
+    if plate.exists():
+        text = plate.read_text(encoding="utf-8")
+        for edge in ("west", "east", "south", "north"):
+            marker = f"{edge}="
+            if marker in text:
+                raw = text.split(marker, 1)[1]
+                number = raw.split(",")[0].split(")")[0].strip()
+                try:
+                    if abs(float(number) - float(frame[edge])) > 1e-9:
+                        fail(f"frame.{edge} is {frame[edge]} in hugo.toml but "
+                             f"{number} in make_plate.py. The header would "
+                             f"measure OFF FRAME against the wrong box.")
+                except ValueError:
+                    pass
+
+    def check_point(where: str, values: dict, required: bool) -> None:
+        present = [k for k in ("lat", "lng", "elev") if k in values]
+        if not present:
+            if required:
+                fail(f"{where} sets no coordinates and nothing to inherit from.")
+            return
+        if len(present) != 3:
+            missing = sorted({"lat", "lng", "elev"} - set(present))
+            fail(f"{where} sets {', '.join(present)} but not "
+                 f"{', '.join(missing)}. Set all three or none: a page that "
+                 f"sets only latitude inherits a longitude from somewhere else "
+                 f"and points at open ocean.")
+            return
+
+        for key in ("lat", "lng", "elev"):
+            if isinstance(values[key], bool) or not isinstance(values[key], float):
+                fail(f"{where}: {key} = {values[key]!r} must be a float. "
+                     f"Write 49.0, not 49, so Hugo's comparisons stay honest.")
+
+        lat, lng = values["lat"], values["lng"]
+        if isinstance(lat, float) and not -90.0 <= lat <= 90.0:
+            fail(f"{where}: latitude {lat} is outside -90..90.")
+        if isinstance(lng, float) and not -180.0 <= lng <= 180.0:
+            fail(f"{where}: longitude {lng} is outside -180..180.")
+
+        # Everywhere this site talks about is either western North America or
+        # western Europe. A positive longitude in the Americas means a dropped
+        # minus sign, which is the single most common way to get this wrong.
+        if isinstance(lat, float) and isinstance(lng, float):
+            if 20.0 < lat < 75.0 and 100.0 < lng < 150.0:
+                fail(f"{where}: longitude {lng} looks like a dropped minus "
+                     f"sign. West is negative.")
+
+    check_point("hugo.toml [params]", params, required=True)
+
+    for path in sorted((ROOT / "content").rglob("*.md")):
+        try:
+            matter = front_matter(path)
+        except Exception:
+            continue
+        check_point(str(path.relative_to(ROOT)), matter, required=False)
+
+
 # -------------------------------------------------------------------------- main
 
 def main() -> int:
@@ -161,6 +243,7 @@ def main() -> int:
     check_photography()
     check_image_sizes()
     check_tracker()
+    check_coordinates()
 
     if warns:
         print("\nWarnings (not failures):")

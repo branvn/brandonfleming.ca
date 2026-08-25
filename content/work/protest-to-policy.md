@@ -12,6 +12,13 @@ context = "URB 660, Transportation & Urban Development, Simon Fraser University"
 role    = "Author"
 tools   = ["Archival research", "Policy analysis"]
 
+# Header coordinates: Amsterdam, where Stop de Kindermoord began. Off the plate,
+# so this page shows OFF FRAME. The elevation is the good part: negative, against
+# Grandview Heights at 90 m on the page two along. CHECK the -2 m figure.
+lat  = 52.3676
+lng  =  4.9041
+elev = -2.0
+
 [download]
   url   = "/documents/protest-to-policy-urb660.pdf"
   label = "Read the full paper (PDF)"
