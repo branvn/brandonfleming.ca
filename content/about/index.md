@@ -6,8 +6,17 @@ summary = "Urban studies graduate researcher and GIS analyst in Metro Vancouver,
 # resizes it, so the original can be straight off a phone. portraitAlt is what
 # a screen reader announces, so describe the picture rather than naming me.
 portrait        = "portrait.jpg"
-portraitAlt     = "Riding a rented bicycle on a separated cycle path through parkland in Leeuwarden, in the Netherlands"
+portraitAlt     = "Riding a rented bicycle in Leeuwarden, Netherlands"
 portraitCaption = "Biking in Leeuwarden, Netherlands. 2024"
+
+# Header coordinates: Leeuwarden, the place in the photograph directly below.
+# Outside the contour plate's bounding box, so the header adds an OFF FRAME
+# line here and nowhere else on the site except Protest to Policy.
+# These must sit ABOVE [download]: everything after a TOML table header belongs
+# to that table.
+lat  = 53.2012
+lng  =  5.7999
+elev =  3.2
 
 [download]
   url   = "/documents/brandon-fleming-resume.pdf"
@@ -15,7 +24,7 @@ portraitCaption = "Biking in Leeuwarden, Netherlands. 2024"
 +++
 
 I'm a graduate researcher in urban studies based in Surrey, British Columbia,
-where I've lived my whole life. My work sits between spatial analysis and public
+where I've lived my whole life. My work bridges the gap between spatial analysis and public
 policy, using GIS and financial modelling to test whether land use policy does
 what it claims to do.
 
@@ -29,8 +38,7 @@ Before graduate school I interned at the **Agricultural Land Commission**, where
 audited 78 land-use applications for financial and compliance irregularities,
 evaluated 39 more and found 46% eligible for expedited review, and mapped
 residential land loss across 157 applications in ArcMap. That last piece became
-[a research poster](/work/alc-land-loss/) and
-is still the work I'd most want to be judged on.
+[a research poster](/work/alc-land-loss/).
 
 I've also taught undergraduates to use ArcGIS StoryMaps as a Student Learning
 Assistant at KPU, and I volunteer as a mapper with the **Humanitarian
@@ -61,5 +69,4 @@ am always happy to talk about why Grandview Heights has townhouses but no bus.
 You can reach me at [contact@brandonfleming.ca](mailto:contact@brandonfleming.ca)
 or on [LinkedIn](https://www.linkedin.com/in/brandon-fleming-/). Kwantlen also
 [profiled me](https://www.kpu.ca/stories/policy-studies/brandon-fleming) as a
-Policy Studies student, back when the Master of Urban Studies was still ahead of
-me.
+Policy Studies student.
