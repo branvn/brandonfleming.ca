@@ -14,3 +14,8 @@ numpy>=1.24
 pyshp>=2.3
 pyproj>=3.6
 shapely>=2.0
+
+# Preparing photographs — scripts/add_photo.py
+# Only needed when adding a photo. check_site.py deliberately does not import
+# Pillow, so the checker keeps working on a machine that has none of this.
+Pillow>=10.0

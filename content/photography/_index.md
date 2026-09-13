@@ -27,6 +27,20 @@ media = ["Film", "Digital"]
 #   alt       what a screen reader announces. Describe the photograph
 [captions]
 
+  # order 5 puts this first on the page, ahead of the Urban block that starts at
+  # 10. The numbering is otherwise grouped by subject in hundreds: Urban 10-110,
+  # Landscape 200-250, Textures 310-320.
+  [captions."crescent-beach-lightning.jpg"]
+    caption  = "Lightning at the Wharf"
+    place    = "Crescent Beach, Surrey"
+    category = "Landscape"
+    medium   = "Digital"
+    camera   = "Nikon D750"
+    lens     = "24–85mm f/3.5–4.5"
+    settings = "38mm · f/8 · 30s · ISO 100"
+    order    = 5
+    alt      = "A floating dock of white rowboats beside the Crescent Beach Swimming Club hut on dark water, with two forks of lightning striking the horizon beneath a heavy sky"
+
   [captions."science-world.jpg"]
     caption  = "Science World as seen from the Expo Line"
     place    = "False Creek"

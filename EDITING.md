@@ -215,13 +215,26 @@ spaces. Renaming the file later breaks any link anyone has saved.
 
 ### Add a photo
 
-1. **Resize it first.** Long edge 2200 pixels, which lands each file under about
-   1 MB. This matters more than it sounds: Git keeps every version of every file
-   forever, so a 25 MB original stays in the repository permanently even after
-   you delete it.
-2. Drop the `.jpg` into `content/photography/`. All photos live in that one
-   folder now; there are no Film and Digital sub-folders any more.
-3. Add a block in `content/photography/_index.md`:
+Drop the file into `content/photography/`, then run one command:
+
+```powershell
+python scripts/add_photo.py content/photography/D75_2313.jpg crescent-beach-lightning
+```
+
+That resizes it to 2200 pixels on the long edge, renames it to the slug you
+gave, keeps the EXIF, moves your original to `_originals/` where Git ignores it,
+and prints the camera, lens and exposure ready to paste below.
+
+**Do not leave the original in `content/photography/`.** Hugo publishes every
+file in that folder whether or not anything points at it, so a stray full-size
+original ships to the live site and appears on the page with no caption. The
+script moves it for you; if you copy files around by hand, move it yourself.
+
+Resizing matters more than it sounds. Git keeps every version of every file
+forever, so a 25 MB original stays in the repository permanently even after you
+delete it.
+
+Then add a block in `content/photography/_index.md`:
 
 ```toml
   [captions."granville-bridge.jpg"]
