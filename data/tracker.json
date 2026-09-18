@@ -1,6 +1,37 @@
 {
-  "updated": "2026-09-11",
+  "updated": "2026-09-18",
   "entries": [
+    {
+      "id": "39a89d4ad702",
+      "title": "Planning Report 7923-0297-00, 10073 - 137A Street 10083 - 137A Street 10089 - 137A Street 10057 - 137A Street (10055 - 137A Street) (10065 - 137A Street)...",
+      "url": "https://www.surrey.ca/sites/default/files/planning-reports/PLR_7923-0297-00.pdf",
+      "date": "2026-09-21",
+      "hits": 2,
+      "matched": [
+        "transit oriented area"
+      ],
+      "source": "City of Surrey: Planning Reports",
+      "jurisdiction": "Surrey",
+      "type": "council",
+      "note": ""
+    },
+    {
+      "id": "65135c04faaa",
+      "title": "R196: Prefabricated Garden Suites Guidebook - Housing Accelerator Fund Initiative",
+      "url": "https://www.surrey.ca/sites/default/files/corporate-reports/CR_2026-R196.pdf",
+      "date": "2026-09-21",
+      "hits": 8,
+      "matched": [
+        "ssmuh",
+        "small-scale multi-unit",
+        "houseplex",
+        "transit-oriented area"
+      ],
+      "source": "City of Surrey: Corporate Reports",
+      "jurisdiction": "Surrey",
+      "type": "council",
+      "note": ""
+    },
     {
       "id": "28930214b0f1",
       "title": "Planning Report 7926-0127-00, 13003 Old Yale Road",
