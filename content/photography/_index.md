@@ -167,7 +167,7 @@ media = ["Film", "Digital"]
   #     these, so none of them name a lens yet.
   [captions."granville-towers.jpg"]
     caption  = "Three eras on one block"
-    place    = "Granville Street, Vancouver"   # TODO confirm
+    place    = "Vancouver City Centre Station"
     category = "Urban"
     medium   = "Digital"
     camera   = "Nikon D750"
@@ -182,7 +182,8 @@ media = ["Film", "Digital"]
     medium   = "Film"
     camera   = "Nikon FE"
     lens     = "28mm f/2.8 AI"
-    # TODO film stock. NOTE: this file carries D750 EXIF from the copy-stand
+    film     = "Fomapan 200"
+    # NOTE: this file carries D750 EXIF from the copy-stand
     # the negative was scanned on, not from how the photograph was taken, so
     # there is deliberately no `settings` line. The scan rig happened to use a
     # 28mm too, which is a coincidence, not the source of the lens above.
@@ -260,8 +261,10 @@ media = ["Film", "Digital"]
 
   [captions."mount-baker.jpg"]
     caption  = "Baker, pulled in close"
-    # TODO place. This is where you stood, not what you pointed at: the
-    # mountain is in the caption, the vantage point belongs here.
+    # CHECK: `place` is where you stood on every other photo here. This says
+    # you were on the mountain. At 300mm you may well have shot it from the
+    # Lower Mainland, in which case put the viewpoint here instead.
+    place    = "Mount Baker, Washington"
     category = "Landscape"
     medium   = "Digital"
     camera   = "Nikon D750"
@@ -271,7 +274,7 @@ media = ["Film", "Digital"]
 
   [captions."rescue-boats.jpg"]
     caption  = "End of shift"
-    # TODO place
+    place    = "Crescent Beach, Surrey"
     category = "Landscape"
     medium   = "Digital"
     camera   = "Nikon D750"
@@ -281,7 +284,7 @@ media = ["Film", "Digital"]
 
   [captions."dusk-breakwater.jpg"]
     caption  = "Ten seconds, after the sun had gone"
-    # TODO place
+    place    = "Crescent Beach, Surrey"
     category = "Landscape"
     medium   = "Digital"
     camera   = "Nikon D750"
@@ -291,7 +294,7 @@ media = ["Film", "Digital"]
 
   [captions."lighthouse.jpg"]
     caption  = "Still working"
-    # TODO place, and which light this is. I could not identify it reliably.
+    place    = "Lighthouse Park, West Vancouver"
     category = "Landscape"
     medium   = "Digital"
     camera   = "Nikon D750"
@@ -301,7 +304,10 @@ media = ["Film", "Digital"]
 
   [captions."valley-fog.jpg"]
     caption  = "Fog sitting on the treeline"
-    # TODO place
+    # CHECK: you said "foggy scene is Crescent Beach". The other foggy frame,
+    # foggy-beach.jpg, was already set to Crescent Beach last time, so I read
+    # this as the one you meant. Correct it if not.
+    place    = "Crescent Beach, Surrey"
     category = "Landscape"
     medium   = "Digital"
     camera   = "Nikon D750"
