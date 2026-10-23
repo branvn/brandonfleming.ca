@@ -31,3 +31,7 @@ scripts/__pycache__/
 
 # Full-resolution originals kept on disk, never published
 /_originals/
+
+# Source GIS data for the contour plate. Kept on disk, never committed:
+# 14 MB of shapefiles that only make_plate.py reads, and only when regenerating.
+/FINAL_DEM/
