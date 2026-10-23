@@ -135,5 +135,4 @@ keep it — it costs nothing unless something links to it.
 
 ## Still to write
 
-- `content/work/bill-44-thesis.md` — the "What I'm finding" section
 - A real `og-default.png` if you'd like something other than the generated card

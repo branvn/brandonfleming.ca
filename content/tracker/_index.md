@@ -23,5 +23,6 @@ than their headings.
 Every entry published here has been read and annotated by me. The note is the
 point. An unreviewed feed would just be noise.
 
-Related: [my thesis on whether Bill 44 upzoning actually produces affordable
-housing](/work/bill-44-thesis/).
+Related: [my thesis on Vancouver's R1-1 multiplex
+reform](/work/vancouver-r1-1/). R1-1 is the City's own zoning change rather than
+a Bill 44 implementation, but the two run in parallel and the questions overlap.

@@ -37,14 +37,28 @@ programmer; he built the first version with an LLM. He *is* strong at GIS
 
 ## State: what's outstanding
 
-1. **`content/work/bill-44-thesis.md` has no "What I'm finding" section.** The
-   page runs question, method, why it matters, and is accurate to thesis
-   proposal 2.1 — but the preliminary findings are the part a planner actually
-   reads, and they are missing. Only Brandon can write them. Do not write them
-   for him; he asked explicitly to do it himself, twice. An HTML comment sits in
-   the file where the section belongs.
+1. **The thesis page needs Brandon's voice over it, and nothing else.** As of
+   22 October 2026 the thesis is a different study: Vancouver's R1-1 multiplex
+   reform, not Bill 44 in Surrey. It moved because Surrey's permit data could
+   not date rebuilds properly. `content/work/vancouver-r1-1.md` was rewritten
+   from his own research design brief and now carries question, policy, method,
+   preliminary findings, limits, and why it matters.
 
-   **He set himself a deadline of 28 August 2026** for getting this up.
+   Every figure on it traces to that brief. Nothing was inferred, estimated or
+   rounded by me. **Do not adjust a number on that page without a source from
+   him.**
+
+   Three hard constraints, all his, all still binding:
+   - **His supervisor is never named on the site.** He has not completed the
+     prospectus and is not comfortable with it. Do not add it back.
+   - **No property-level BC Assessment data, ever.** Licensed; aggregates only,
+     cells under ten suppressed. No maps of individual lots.
+   - **No interviewee named or identified**, including who is being approached.
+
+   Also from his brief: label findings preliminary, describe R1-1 by its stated
+   aims rather than as a crisis fix or a failure, and never call it "Bill 44 in
+   Vancouver". It is the City's own reform, it came first, and it largely
+   satisfies the provincial requirement without being it.
 2. **Every public-facing sentence needs to be rewritten in Brandon's own voice.**
    This is his call, made 18 August 2026, and it is the highest-value item on the
    list after the findings section.
@@ -183,7 +197,7 @@ that page is about.
 | About | Leeuwarden, the place in the portrait | 3 m |
 | Protest to Policy | Amsterdam, where Stop de Kindermoord began | -2 m |
 | Land Lost to ALC | 4940 Canada Way, the ALC's own office | 50 m |
-| The Affordability Gap | Newton Town Centre | 70 m |
+| Vancouver's Multiplex Reform | Vancouver City Hall, where R1-1 was approved | 40 m |
 | Townhouses Before Transit | Grandview Heights | 90 m |
 | Bill 44 Tracker | Surrey City Hall | 80 m |
 

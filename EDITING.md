@@ -48,7 +48,7 @@ There is a short list at the bottom of things that unavoidably live in
 The four project pages are:
 
 ```
-content/work/bill-44-thesis.md            The Affordability Gap
+content/work/vancouver-r1-1.md            Vancouver's Multiplex Reform
 content/work/alc-land-loss.md             Land Lost to ALC Applications
 content/work/townhouses-before-transit.md Townhouses Before Transit
 content/work/protest-to-policy.md         Protest to Policy
@@ -62,8 +62,8 @@ Every file in `content/` has two parts.
 
 ```
 +++
-title = "The Affordability Gap"
-summary = "Does small-scale upzoning actually produce affordable housing?"
+title = "Vancouver's Multiplex Reform"
+summary = "How many net homes did R1-1 actually add in its first 18 months?"
 weight = 10
 +++
 
