@@ -177,16 +177,17 @@ media = ["Film", "Digital"]
 
   [captions."concrete-facade.jpg"]
     caption  = "Angled canopy, late light"
-    # TODO place. Shot on film; the frame was scanned 19 October 2026.
+    place    = "Nikkei Centre, Burnaby"
     category = "Urban"
     medium   = "Film"
     camera   = "Nikon FE"
-    # TODO film stock and lens. NOTE: this file carries D750 EXIF reading
-    # 28mm f/2.8 1/30 ISO 100. That is the copy-stand rig you scanned the
-    # negative with, not how the photograph was taken, so it is deliberately
-    # not recorded as `settings`.
+    lens     = "28mm f/2.8 AI"
+    # TODO film stock. NOTE: this file carries D750 EXIF from the copy-stand
+    # the negative was scanned on, not from how the photograph was taken, so
+    # there is deliberately no `settings` line. The scan rig happened to use a
+    # 28mm too, which is a coincidence, not the source of the lens above.
     order    = 130
-    alt      = "A concrete modernist building in black and white, an angular canopy jutting out from its upper storey beside a row of tall cedars"
+    alt      = "The concrete wall of the Nikkei Centre in black and white, an angular canopy jutting out from its upper storey beside a row of tall cedars"
 
   [captions."boundary-bay.jpg"]
     caption  = "Catamaran coming in on the tide"
@@ -310,12 +311,14 @@ media = ["Film", "Digital"]
 
   [captions."foggy-beach.jpg"]
     caption  = "Driftwood, and not much else visible"
-    # TODO place
+    place    = "Crescent Beach, Surrey"
     category = "Landscape"
     medium   = "Film"
-    camera   = "Nikon FE"
+    camera   = "Voigtländer Bessa (1939)"
+    lens     = "Voigtar f/3.5"
     film     = "Kentmere Pan 400"   # read off the rebate in the scan
-    # TODO lens. No exposure data survived the scan, so there is no `settings`.
+    # No exposure data survived the scan, and the Bessa would not have recorded
+    # any to begin with, so there is no `settings` line.
     order    = 310
     alt      = "Driftwood logs piled along a beach in heavy fog, a forested point receding into the haze beyond them"
 
