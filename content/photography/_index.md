@@ -162,6 +162,32 @@ media = ["Film", "Digital"]
     order    = 110
     alt      = "Two tall carved poles standing either side of a pair of stone interpretive plaques, with the sea and a long pier behind them"
 
+  # --- Added 23 October 2026. Captions and places below are mine, not yours;
+  #     see the TODO comments. Lens is missing from the EXIF on every one of
+  #     these, so none of them name a lens yet.
+  [captions."granville-towers.jpg"]
+    caption  = "Three eras on one block"
+    place    = "Granville Street, Vancouver"   # TODO confirm
+    category = "Urban"
+    medium   = "Digital"
+    camera   = "Nikon D750"
+    settings = "28mm · f/8 · 1/250 · ISO 1100"
+    order    = 120
+    alt      = "Three downtown Vancouver towers seen from the pavement looking up: a dark 1970s office slab, a glass tower, and an older stone building topped with a clock tower"
+
+  [captions."concrete-facade.jpg"]
+    caption  = "Angled canopy, late light"
+    # TODO place. Shot on film; the frame was scanned 19 October 2026.
+    category = "Urban"
+    medium   = "Film"
+    camera   = "Nikon FE"
+    # TODO film stock and lens. NOTE: this file carries D750 EXIF reading
+    # 28mm f/2.8 1/30 ISO 100. That is the copy-stand rig you scanned the
+    # negative with, not how the photograph was taken, so it is deliberately
+    # not recorded as `settings`.
+    order    = 130
+    alt      = "A concrete modernist building in black and white, an angular canopy jutting out from its upper storey beside a row of tall cedars"
+
   [captions."boundary-bay.jpg"]
     caption  = "Catamaran coming in on the tide"
     place    = "Boundary Bay"
@@ -231,6 +257,78 @@ media = ["Film", "Digital"]
     order    = 250
     alt      = "The band of the Milky Way across a dense starfield, with a faint meteor trail crossing the upper right"
 
+  [captions."mount-baker.jpg"]
+    caption  = "Baker, pulled in close"
+    # TODO place. This is where you stood, not what you pointed at: the
+    # mountain is in the caption, the vantage point belongs here.
+    category = "Landscape"
+    medium   = "Digital"
+    camera   = "Nikon D750"
+    settings = "300mm · f/10 · 1/800 · ISO 100"
+    order    = 260
+    alt      = "The snow-covered summit and glaciers of Mount Baker against a deep blue sky, crevasses raking across the ice field below the peak"
+
+  [captions."rescue-boats.jpg"]
+    caption  = "End of shift"
+    # TODO place
+    category = "Landscape"
+    medium   = "Digital"
+    camera   = "Nikon D750"
+    settings = "200mm · f/8 · 1/500 · ISO 1800"
+    order    = 270
+    alt      = "A man checking his phone on a gravel spit at sunset beside two beached rescue boats, with a pink sky and a long mountain ridge behind"
+
+  [captions."dusk-breakwater.jpg"]
+    caption  = "Ten seconds, after the sun had gone"
+    # TODO place
+    category = "Landscape"
+    medium   = "Digital"
+    camera   = "Nikon D750"
+    settings = "28mm · f/8 · 10s · ISO 100"
+    order    = 280
+    alt      = "A long exposure at dusk: a low wooden breakwater on a dark beach, water smoothed to silver, and a band of orange on the horizon under deep blue sky"
+
+  [captions."lighthouse.jpg"]
+    caption  = "Still working"
+    # TODO place, and which light this is. I could not identify it reliably.
+    category = "Landscape"
+    medium   = "Digital"
+    camera   = "Nikon D750"
+    settings = "160mm · f/8 · 1/400 · ISO 100"
+    order    = 290
+    alt      = "A white concrete lighthouse with a red lantern room and gallery rail, the sea and distant mountains behind it and shrubs crowding the foreground"
+
+  [captions."valley-fog.jpg"]
+    caption  = "Fog sitting on the treeline"
+    # TODO place
+    category = "Landscape"
+    medium   = "Digital"
+    camera   = "Nikon D750"
+    settings = "155mm · f/8 · 1/125 · ISO 1250"
+    order    = 300
+    alt      = "A low band of fog lying along a forested ridge, mountains fading into haze behind it and flat water in the foreground"
+
+  [captions."foggy-beach.jpg"]
+    caption  = "Driftwood, and not much else visible"
+    # TODO place
+    category = "Landscape"
+    medium   = "Film"
+    camera   = "Nikon FE"
+    film     = "Kentmere Pan 400"   # read off the rebate in the scan
+    # TODO lens. No exposure data survived the scan, so there is no `settings`.
+    order    = 310
+    alt      = "Driftwood logs piled along a beach in heavy fog, a forested point receding into the haze beyond them"
+
+  [captions."curtain-wall.jpg"]
+    caption  = "Curtain wall"
+    # TODO place
+    category = "Textures"
+    medium   = "Digital"
+    camera   = "Nikon D750"
+    settings = "120mm · f/8 · 1/2500 · ISO 2200"
+    order    = 430
+    alt      = "A blue glass curtain wall filling the frame, its grid of mullions running on the diagonal, ceiling lights showing faintly through the glazing"
+
   [captions."balanced-stones.jpg"]
     caption  = "Closer, with the water gone soft behind"
     place    = ""
@@ -239,7 +337,7 @@ media = ["Film", "Digital"]
     camera   = "Nikon D750"
     lens     = "24–85mm f/3.5–4.5"
     settings = "85mm · f/6.3 · 1/500 · ISO 1000"
-    order    = 310
+    order    = 410
     alt      = "Close view of two wet balanced stones on the growth rings of a cut stump, the lake behind them thrown far out of focus"
 
   [captions."driftwood.jpg"]
@@ -250,7 +348,7 @@ media = ["Film", "Digital"]
     camera   = "Nikon D750"
     lens     = "24–85mm f/3.5–4.5"
     settings = "48mm · f/6.3 · 1/640 · ISO 1000"
-    order    = 320
+    order    = 420
     alt      = "A dense tangle of bleached and blackened driftwood filling the frame, one pale reed standing upright through it"
 +++
 
