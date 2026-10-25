@@ -7,8 +7,13 @@ name: Bill 44 tracker
 # you write that note yourself and push.
 
 on:
-  schedule:
-    - cron: "0 17 * * 5"     # Fridays, 17:00 UTC (10:00 Pacific)
+  # Schedule disabled 25 October 2026. The Surrey collector works and is kept
+  # for the thesis's Burnaby/Surrey land-value comparison, but nothing has been
+  # annotated since July and the site no longer publishes its output. Run it by
+  # hand from the Actions tab when that comparison needs fresh material.
+  #
+  # schedule:
+  #   - cron: "0 17 * * 5"     # Fridays, 17:00 UTC (10:00 Pacific)
   workflow_dispatch:          # lets you run it on demand from the Actions tab
     inputs:
       test_notify:
