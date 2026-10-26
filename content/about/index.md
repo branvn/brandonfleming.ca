@@ -29,10 +29,10 @@ policy, using GIS and financial modelling to test whether land use policy does
 what it claims to do.
 
 Right now that means a Master of Urban Studies at **Simon Fraser University**, an
-Advanced Certificate in GIS at **BCIT**, and a thesis asking whether small-scale
-upzoning under BC's Bill 44 produces rental housing that local renters in Surrey
-can afford. I hold a BA in Policy Studies with a minor in Geography from
-**Kwantlen Polytechnic University**.
+Advanced Certificate in GIS at **BCIT**, and a thesis measuring how many homes
+Vancouver's R1-1 multiplex rezoning actually produced in its first 18 months. I
+hold a BA in Policy Studies with a minor in Geography from **Kwantlen
+Polytechnic University**.
 
 Before graduate school I interned at the **Agricultural Land Commission**, where I
 audited 78 land-use applications for financial and compliance irregularities,
@@ -52,8 +52,8 @@ I can put provincial housing policy and GIS to work on real applications.
 
 ## Focus
 
-**Research**: Housing policy and Bill 44, agricultural land use and the ALR,
-transportation and land use sequencing.
+**Research**: Zoning reform and housing supply, agricultural land use and the
+ALR, transportation and land use sequencing.
 
 **Technical**: ArcGIS Pro, ArcGIS StoryMaps, FME Workbench, Excel. Some working
 familiarity with QGIS.

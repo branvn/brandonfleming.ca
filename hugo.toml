@@ -58,7 +58,7 @@ summaryLength = 30
   frame = { west = -123.354, east = -122.356, south = 49.003, north = 49.403 }
 
   # --- SEO ------------------------------------------------------------------
-  description = "Urban studies graduate researcher and GIS analyst in Metro Vancouver. Spatial analysis of housing policy, agricultural land use, and BC's Bill 44."
+  description = "Urban studies graduate researcher and GIS analyst in Metro Vancouver. Spatial analysis of zoning reform, housing supply, and agricultural land use."
   ogImage = "/images/og-default.png"
 
   # --- Feature switches -----------------------------------------------------
