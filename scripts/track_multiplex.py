@@ -127,7 +127,10 @@ def facets() -> int:
                 "group_by": field,
             })
             rows = page.get("results") or []
-            for row in rows[:40]:
+            # No truncation. The first version of this cut the list at 40, and
+            # since the values come back alphabetically that hid everything
+            # from G onwards, including every value with "Multiple" in it.
+            for row in rows:
                 print("   ", row.get(field))
         except Exception:
             # group_by is not available on every Opendatasoft deployment, so
@@ -142,6 +145,66 @@ def facets() -> int:
                 print(f"    could not read this field: {e}")
 
     print("\nTell me which values mean 'multiplex' and I will write the filter.")
+    return 0
+
+
+# ---------------------------------------------------------------------- probe
+
+CANDIDATES = [
+    ("new build, Multiple Dwelling",
+     "typeofwork = 'New Building' AND specificusecategory LIKE 'Multiple Dwelling'"),
+    ("new build, Multiple Conversion Dwelling",
+     "typeofwork = 'New Building' AND specificusecategory LIKE 'Multiple Conversion Dwelling'"),
+    ("new build, anything with 'Multiple'",
+     "typeofwork = 'New Building' AND specificusecategory LIKE 'Multiple'"),
+    ("permitcategory: New Build - Low Density Housing",
+     "permitcategory = 'New Build - Low Density Housing'"),
+    ("description mentions multiplex",
+     'search(projectdescription, "multiplex")'),
+    ("new build + description mentions multiplex",
+     'typeofwork = \'New Building\' AND search(projectdescription, "multiplex")'),
+    ("new build, Dwelling Uses, any",
+     "typeofwork = 'New Building' AND propertyuse LIKE 'Dwelling Uses'"),
+]
+
+
+def probe() -> int:
+    """Count each candidate filter, so the choice is made on numbers.
+
+    Everything here is a guess about ODSQL syntax as much as about the City's
+    vocabulary, so each candidate is run separately and a failure is reported
+    rather than raised. A candidate that errors tells us about the query
+    language; a candidate that returns a plausible count tells us about the
+    data.
+
+    For scale: the City expected about 150 multiplex projects a year, and more
+    than 600 applications had been filed by April 2026. A filter returning
+    single digits or tens of thousands is the wrong filter.
+    """
+    print(f"Counting candidate filters, all since {IN_FORCE}.\n")
+
+    for label, clause in CANDIDATES:
+        where = f"issuedate >= date'{IN_FORCE}' AND ({clause})"
+        try:
+            page = api({"where": where, "limit": 3,
+                        "select": "permitnumber,issuedate,typeofwork,specificusecategory,"
+                                  "permitcategory,projectdescription,geolocalarea"})
+        except Exception as e:
+            msg = str(e)
+            print(f"  {label}\n      FAILED: {msg[:140]}\n")
+            continue
+
+        total = page.get("total_count")
+        print(f"  {label}\n      {total} permits")
+        for r in (page.get("results") or [])[:2]:
+            desc = str(r.get("projectdescription") or "")[:90]
+            print(f"        {r.get('issuedate')}  {r.get('geolocalarea')}  "
+                  f"{r.get('specificusecategory')}")
+            print(f"           {desc}")
+        print()
+
+    print("Send me this whole block. The count that lands near the City's 150 a\n"
+          "year, with descriptions that read like multiplexes, is the filter.")
     return 0
 
 
@@ -201,12 +264,17 @@ def main(argv: list[str]) -> int:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--facets", action="store_true",
                     help="print the distinct field values, to work out the filter")
+    ap.add_argument("--probe", action="store_true",
+                    help="count several candidate filters and show sample rows")
     ap.add_argument("--dry-run", action="store_true",
                     help="print the result instead of writing data/multiplex.json")
     args = ap.parse_args(argv)
 
     if args.facets:
         return facets()
+
+    if args.probe:
+        return probe()
 
     if not MULTIPLEX_FILTER:
         print("MULTIPLEX_FILTER is not set yet, so there is nothing to count.\n"
