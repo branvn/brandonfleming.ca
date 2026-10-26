@@ -73,7 +73,30 @@ CITY_EXPECTATION_PER_YEAR = 150
 # then set these to the values that actually identify a multiplex. Leave a
 # comment saying which you chose and why, because the next person to read this
 # will wonder.
-MULTIPLEX_FILTER = None   # e.g. "propertyuse LIKE 'Multiple Dwelling'"
+# Settled 26 October 2026 by running --compare. The evidence, permits per year:
+#
+#          2019  2020  2021  2022  2023   2024  2025  2026
+#   A        78    90    89   157   118    145   381   250   category only
+#   B         0     0     0     0     0     60   328   234   description  <-- this
+#   C         0     0     0     0     0     10   134   173   low density + description
+#   D         0     0     0     0     0     16   154   173   low density + category
+#
+# A is disqualified outright. It reports 78 to 157 permits a year before R1-1
+# existed, because Vancouver calls an apartment block a "Multiple Dwelling"
+# too. Spot checks on what A catches and B does not: a six-storey
+# non-combustible building, a three-storey townhouse block. Not multiplexes.
+#
+# C and D have the right shape but are roughly half the size, because
+# permitcategory is empty on a large share of records. They are not more
+# precise than B, they are B with a hole in it.
+#
+# B is zero in all five pre-policy years and rises afterwards, which is the
+# signature of the policy taking effect. It is free-text matching, so it is not
+# perfect in either direction: of the 48 permits B catches that A misses, most
+# read as multiplexes (one literally begins "R1-1 MULTIPLEX") but at least one
+# is an infill single detached house whose description mentions the word. Treat
+# the number as good to within a few percent, not exact, and say so on the page.
+MULTIPLEX_FILTER = 'typeofwork = \'New Building\' AND search(projectdescription, "multiplex")'
 # ---------------------------------------------------------------------------
 
 TIMEOUT = 45
@@ -312,20 +335,32 @@ def fetch_all(where: str) -> list[dict]:
 
 
 def build() -> dict:
-    where = f"issuedate >= date'{IN_FORCE}' AND ({MULTIPLEX_FILTER})"
+    # Everything from 2019, not just from the policy date. The five empty years
+    # before R1-1 are the most convincing thing on the page: they are what turn
+    # a number into evidence that the number is about this policy.
+    where = f"issueyear >= 2019 AND ({MULTIPLEX_FILTER})"
     print(f"  where: {where}")
     rows = fetch_all(where)
-    print(f"  {len(rows)} permits")
+    print(f"  {len(rows)} permits from 2019 onwards")
 
+    by_year: Counter = Counter()
     by_month: Counter = Counter()
-    for r in rows:
-        issued = str(r.get("issuedate") or "")[:7]
-        if issued:
-            by_month[issued] += 1
+    by_area: Counter = Counter()
 
-    months = sorted(by_month)
+    for r in rows:
+        issued = str(r.get("issuedate") or "")
+        if not issued:
+            continue
+        by_year[issued[:4]] += 1
+        if issued >= IN_FORCE:
+            by_month[issued[:7]] += 1
+            area = r.get("geolocalarea")
+            if area:
+                by_area[area] += 1
+
+    since = sum(n for m, n in by_month.items())
     first = datetime.strptime(IN_FORCE, "%Y-%m-%d").replace(tzinfo=timezone.utc)
-    years = (datetime.now(timezone.utc) - first).days / 365.25
+    elapsed = (datetime.now(timezone.utc) - first).days / 365.25
 
     return {
         "updated": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
@@ -333,10 +368,12 @@ def build() -> dict:
         "source_url": "https://opendata.vancouver.ca/explore/dataset/issued-building-permits/",
         "in_force": IN_FORCE,
         "filter": MULTIPLEX_FILTER,
-        "total": len(rows),
-        "per_year": round(len(rows) / years, 1) if years > 0 else None,
+        "total_since_in_force": since,
+        "per_year": round(since / elapsed, 1) if elapsed > 0 else None,
         "city_expectation_per_year": CITY_EXPECTATION_PER_YEAR,
-        "months": [{"month": m, "permits": by_month[m]} for m in months],
+        "years": [{"year": y, "permits": by_year[y]} for y in sorted(by_year)],
+        "months": [{"month": m, "permits": by_month[m]} for m in sorted(by_month)],
+        "areas": [{"area": a, "permits": n} for a, n in by_area.most_common()],
     }
 
 
@@ -382,8 +419,9 @@ def main(argv: list[str]) -> int:
 
     DATA_FILE.parent.mkdir(exist_ok=True)
     DATA_FILE.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
-    print(f"Wrote {DATA_FILE.relative_to(ROOT)}: {data['total']} permits, "
-          f"about {data['per_year']} a year against the City's {CITY_EXPECTATION_PER_YEAR}.")
+    print(f"Wrote {DATA_FILE.relative_to(ROOT)}: {data['total_since_in_force']} permits "
+          f"since R1-1, about {data['per_year']} a year against the City's "
+          f"{CITY_EXPECTATION_PER_YEAR}.")
     return 0
 
 
