@@ -374,6 +374,14 @@ def build() -> dict:
 
     since = sum(by_month.values())
     print(f"  {since} permits since R1-1, {sum(by_year.values())} from 2019 onwards")
+
+    # group_by returns no row at all for a count of zero, so the pre-policy
+    # years come back missing rather than empty. Those five zeros are the
+    # entire argument that this number is about R1-1 and not about Vancouver
+    # building things in general, so put them back explicitly.
+    this_year = datetime.now(timezone.utc).year
+    for y in range(2019, this_year + 1):
+        by_year.setdefault(str(y), 0)
     first = datetime.strptime(IN_FORCE, "%Y-%m-%d").replace(tzinfo=timezone.utc)
     elapsed = (datetime.now(timezone.utc) - first).days / 365.25
 
@@ -386,6 +394,10 @@ def build() -> dict:
         "total_since_in_force": since,
         "per_year": round(since / elapsed, 1) if elapsed > 0 else None,
         "city_expectation_per_year": CITY_EXPECTATION_PER_YEAR,
+        # The gap between R1-1 coming into force and the first permit actually
+        # being issued. A finding in its own right, and the clearest evidence
+        # on the page that these are issuances rather than applications.
+        "first_permit_month": min(by_month) if by_month else None,
         "years": [{"year": y, "permits": by_year[y]} for y in sorted(by_year)],
         "months": [{"month": m, "permits": by_month[m]} for m in sorted(by_month)],
         "areas": [{"area": a, "permits": n}
