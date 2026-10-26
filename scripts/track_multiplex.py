@@ -302,7 +302,10 @@ def compare() -> int:
     for label, clause in FINALISTS.items():
         cells = []
         for y in YEARS:
-            cells.append(count(f"{clause} AND issueyear = {y}"))
+            # Quoted: issueyear is text. Equality against a bare int is
+            # coerced by the API, but relying on that is how the --dry-run
+            # query ended up broken.
+            cells.append(count(f"{clause} AND issueyear = '{y}'"))
         total = count(f"{clause} AND issuedate >= date'{IN_FORCE}'")
         row = "".join(f"{str(c):>7}" for c in cells)
         print(f"  {row}  {str(total):>8}   {label}")
@@ -357,7 +360,11 @@ def build() -> dict:
     # Everything from 2019, not just from the policy date. The five empty years
     # before R1-1 are the most convincing thing on the page: they are what turn
     # a number into evidence that the number is about this policy.
-    all_years = f"issueyear >= 2019 AND ({MULTIPLEX_FILTER})"
+    # Range-filter on issuedate, not issueyear. issueyear is a TEXT field, so
+    # `issueyear >= 2019` is a text-to-int comparison and the API rejects it
+    # outright. Equality happens to be coerced, which is why `issueyear = 2019`
+    # worked in --compare and hid this.
+    all_years = f"issuedate >= date'2019-01-01' AND ({MULTIPLEX_FILTER})"
     since_policy = f"issuedate >= date'{IN_FORCE}' AND ({MULTIPLEX_FILTER})"
 
     print(f"  filter: {MULTIPLEX_FILTER}")
