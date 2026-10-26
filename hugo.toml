@@ -64,7 +64,9 @@ summaryLength = 30
   # --- Feature switches -----------------------------------------------------
   # Flip to true to put the whole site behind a holding page.
   underConstruction = false
-  # Flip to true once the Bill 44 tracker has real entries in it.
+  # The multiplex permit page. Flip to true to put it in the nav; it is a
+  # real page at /tracker/ either way. Needs data/multiplex.json to exist,
+  # which means running scripts/track_multiplex.py once.
   showTracker = false
 
 [menu]

@@ -1,44 +1,121 @@
 {{ define "bodyclass" }}reading{{ end }}
 
+{{/* Vancouver multiplex permits.
+
+     Reads data/multiplex.json, written by scripts/track_multiplex.py and
+     committed by .github/workflows/track-multiplex.yml. Nothing here is
+     hand-written and nothing waits on a human, which is the whole reason this
+     replaced the Bill 44 tracker: that one needed a note typed against every
+     entry before it would publish, and the notes stopped in July.
+
+     The chart that matters is the per-year one. Five zeros before the policy
+     and a rise after is what makes this evidence rather than a statistic, so
+     the pre-2024 years are rendered even though they are empty. Do not
+     "tidy up" by dropping them. */}}
+
 {{ define "main" }}
+  {{ $d := site.Data.multiplex }}
+
   <header class="page-head">
     <h1>{{ .Title }}</h1>
     {{ with .Content }}<div class="page-intro">{{ . }}</div>{{ end }}
   </header>
 
-  {{/* Entries come from data/tracker.json, written by scripts/track_bill44.py
-       and committed by the GitHub Action. The `note` field is written by hand —
-       that annotation is the point of the tracker; the automation only
-       surfaces candidates. Entries without a note are treated as unreviewed
-       and are not published. */}}
-  {{ $entries := slice }}
-  {{ with site.Data.tracker }}
-    {{ with .entries }}
-      {{ $entries = sort (where . "note" "!=" "") "date" "desc" }}
-    {{ end }}
-  {{ end }}
+  {{ if not $d }}
+    <p class="empty">
+      No data yet. Run <code>python scripts/track_multiplex.py</code> to
+      generate <code>data/multiplex.json</code>.
+    </p>
+  {{ else }}
 
-  {{ if $entries }}
     <p class="tracker-updated">
-      {{ len $entries }} reviewed item{{ if ne (len $entries) 1 }}s{{ end }}.
-      {{ with site.Data.tracker.updated }}Last checked {{ dateFormat "2 January 2006" . }}.{{ end }}
+      Last refreshed {{ dateFormat "2 January 2006" $d.updated }} from
+      <a href="{{ $d.source_url }}" rel="noopener">City of Vancouver open data</a>.
     </p>
 
-    <ol class="tracker">
-      {{ range $entries }}
-        <li class="tracker-item">
-          <p class="tracker-meta">
-            <time datetime="{{ .date }}">{{ dateFormat "2 Jan 2006" .date }}</time>
-            {{ with .jurisdiction }}<span class="pill">{{ . }}</span>{{ end }}
-            {{ with .type }}<span class="pill pill-type">{{ . }}</span>{{ end }}
-          </p>
-          <h2><a href="{{ .url }}" rel="noopener">{{ .title }}</a></h2>
-          {{ with .source }}<p class="tracker-source">{{ . }}</p>{{ end }}
-          <p class="tracker-note">{{ .note | markdownify }}</p>
+    <div class="mx-figures">
+      <div class="mx-fig">
+        <span class="mx-num">{{ $d.total_since_in_force }}</span>
+        <span class="mx-lab">multiplex permits issued since R1-1 came into force</span>
+      </div>
+      <div class="mx-fig">
+        <span class="mx-num">{{ $d.per_year }}</span>
+        <span class="mx-lab">a year, against the City's expectation of
+          about {{ $d.city_expectation_per_year }}</span>
+      </div>
+    </div>
+
+    <h2 class="section-label">Permits a year</h2>
+
+    {{/* Scale every bar to the busiest year. */}}
+    {{ $max := 1 }}
+    {{ range $d.years }}
+      {{ if gt .permits $max }}{{ $max = .permits }}{{ end }}
+    {{ end }}
+
+    <ol class="mx-years">
+      {{ range $d.years }}
+        {{ $pct := div (mul .permits 100.0) $max }}
+        <li class="mx-year{{ if eq .permits 0 }} is-zero{{ end }}">
+          <span class="mx-year-label">{{ .year }}</span>
+          <span class="mx-bar" style="width: {{ printf "%.1f" $pct }}%"></span>
+          <span class="mx-year-count">{{ .permits }}</span>
         </li>
       {{ end }}
     </ol>
-  {{ else }}
-    <p class="empty">No reviewed entries yet.</p>
+
+    <p class="mx-note">
+      R1-1 came into force on 17 October 2023. The empty years before it are
+      the control: a filter that caught apartment buildings rather than
+      multiplexes would show permits in all of them.
+      {{ with $d.first_permit_month }}
+        The first multiplex permit was issued in
+        {{ dateFormat "January 2006" (printf "%s-01" .) }}.
+      {{ end }}
+    </p>
+
+    {{ with $d.areas }}
+      <h2 class="section-label">Where they went</h2>
+      {{ $amax := 1 }}
+      {{ range . }}{{ if gt .permits $amax }}{{ $amax = .permits }}{{ end }}{{ end }}
+      <ol class="mx-areas">
+        {{ range . }}
+          {{ $pct := div (mul .permits 100.0) $amax }}
+          <li class="mx-area">
+            <span class="mx-area-label">{{ .area }}</span>
+            <span class="mx-bar" style="width: {{ printf "%.1f" $pct }}%"></span>
+            <span class="mx-area-count">{{ .permits }}</span>
+          </li>
+        {{ end }}
+      </ol>
+    {{ end }}
+
+    <h2 class="section-label">What this is not</h2>
+
+    <div class="mx-caveats">
+      <p>
+        <strong>These are issued permits, not applications.</strong> A permit is
+        issued only after an application has worked through the queue, so the
+        most recent months are undercounted and always will be. Counts of
+        multiplex <em>applications</em> run higher and earlier. The two are
+        different measures and should not be read against each other.
+      </p>
+      <p>
+        <strong>The filter is text matching.</strong> A permit counts here when
+        the City's own project description mentions a multiplex. That is
+        accurate to within a few percent, not exact: it catches a small number
+        of records that mention the word without being one, and misses any
+        multiplex described without it.
+      </p>
+      <p>
+        <strong>A permit is not a finished home.</strong> Nothing here says how
+        many of these were built, how many homes each contains, who lives in
+        them, or what they cost.
+      </p>
+      <p class="mx-method">
+        Filter: <code>{{ $d.filter }}</code>
+      </p>
+    </div>
+
   {{ end }}
 {{ end }}

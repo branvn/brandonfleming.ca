@@ -1,40 +1,43 @@
-{{/* Bill 44 tracker rail — fills the space beside the hero on wide screens.
+{{/* Multiplex permit rail — fills the space beside the hero on wide screens.
 
-     Renders nothing at all when there are no reviewed entries, so an empty
-     tracker never shows as an empty box. Entries come from data/tracker.json;
-     only ones you've written a `note` for are published (see
-     layouts/tracker/list.html for the same rule).
+     Renders nothing when data/multiplex.json is missing, so the home page
+     never shows an empty box. Hidden below 1100px, where the hero needs the
+     full width anyway.
 
-     Hidden below 1100px, where the hero needs the full width anyway. */}}
+     This used to list the four most recent annotated Bill 44 entries. It now
+     shows the last six months of multiplex permits, because the new tracker
+     has no entries to list: it counts. */}}
 
-{{ $entries := slice }}
-{{ with site.Data.tracker }}
-  {{ with .entries }}
-    {{ $entries = sort (where . "note" "!=" "") "date" "desc" }}
-  {{ end }}
-{{ end }}
+{{ $d := site.Data.multiplex }}
 
-{{ with first 4 $entries }}
+{{ with $d }}
+  {{ $recent := last 6 .months }}
+  {{ $max := 1 }}
+  {{ range $recent }}{{ if gt .permits $max }}{{ $max = .permits }}{{ end }}{{ end }}
+
   <aside class="rail" aria-labelledby="rail-heading">
     <h2 id="rail-heading" class="rail-head">
-      <span>Bill 44 tracker</span>
-      {{ with site.Data.tracker.updated }}
-        <time datetime="{{ . }}">{{ dateFormat "2 Jan" . }}</time>
-      {{ end }}
+      <span>Multiplex permits</span>
+      <time datetime="{{ .updated }}">{{ dateFormat "2 Jan" .updated }}</time>
     </h2>
 
-    <ol class="rail-list">
-      {{ range . }}
+    <p class="rail-figure">
+      <strong>{{ .total_since_in_force }}</strong> issued since R1-1,
+      about {{ .per_year }} a year against the City's
+      {{ .city_expectation_per_year }}.
+    </p>
+
+    <ol class="rail-bars">
+      {{ range $recent }}
+        {{ $pct := div (mul .permits 100.0) $max }}
         <li>
-          <p class="rail-meta">
-            <time datetime="{{ .date }}">{{ dateFormat "2 Jan" .date }}</time>
-            {{ with .jurisdiction }}<span>{{ . }}</span>{{ end }}
-          </p>
-          <a href="{{ .url }}" rel="noopener">{{ .title }}</a>
+          <span class="rail-bar-label">{{ dateFormat "Jan" (printf "%s-01" .month) }}</span>
+          <span class="mx-bar" style="width: {{ printf "%.1f" $pct }}%"></span>
+          <span class="rail-bar-count">{{ .permits }}</span>
         </li>
       {{ end }}
     </ol>
 
-    <p class="rail-more"><a href="{{ "/tracker/" | relURL }}">All entries →</a></p>
+    <p class="rail-more"><a href="{{ "/tracker/" | relURL }}">The whole series →</a></p>
   </aside>
 {{ end }}

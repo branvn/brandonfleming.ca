@@ -288,6 +288,85 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
   letter-spacing: .04em;
 }
 
+/* --------------------------------------------------------------------------
+   Multiplex permit tracker
+   Bars are plain divs with an inline width percentage, computed in the
+   template. No chart library: the whole site is 127 KB and a bar chart of
+   eight numbers is not worth changing that.
+   -------------------------------------------------------------------------- */
+
+.mx-figures {
+  display: flex; flex-wrap: wrap; gap: 2.5rem;
+  margin: 2rem 0 2.5rem;
+}
+.mx-fig { max-width: 18rem; }
+.mx-num {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: clamp(2.25rem, 6vw, 3.25rem);
+  line-height: 1; color: var(--sand);
+}
+.mx-lab {
+  display: block; margin-top: .5rem;
+  font-size: .875rem; color: var(--text-dim);
+}
+
+.mx-years, .mx-areas { list-style: none; padding: 0; margin: 1rem 0 1.5rem; }
+
+.mx-year, .mx-area {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr) 3rem;
+  align-items: center; gap: .75rem;
+  padding: .2rem 0;
+}
+.mx-area { grid-template-columns: 11rem minmax(0, 1fr) 3rem; }
+
+.mx-year-label, .mx-area-label, .mx-year-count, .mx-area-count {
+  font-family: var(--font-mono); font-size: .8125rem; color: var(--text-dim);
+}
+.mx-area-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mx-year-count, .mx-area-count { text-align: right; color: var(--text); }
+
+.mx-bar {
+  display: block; height: .7rem; min-width: 1px;
+  background: var(--sand); border-radius: 1px;
+}
+
+/* An empty year still gets a visible tick, because the zeros are the point.
+   A bar of width 0 would read as missing data rather than as no permits. */
+.mx-year.is-zero .mx-bar { background: var(--text-faint); opacity: .45; }
+.mx-year.is-zero .mx-year-count { color: var(--text-faint); }
+
+/* The same bars, shrunk, in the home page rail. */
+.rail-figure { font-size: .875rem; color: var(--text-dim); margin: 0 0 1rem; }
+.rail-figure strong {
+  font-family: var(--font-mono); font-size: 1.5rem;
+  color: var(--sand); font-weight: 400;
+}
+.rail-bars { list-style: none; padding: 0; margin: 0 0 1rem; }
+.rail-bars li {
+  display: grid; grid-template-columns: 2.25rem minmax(0, 1fr) 1.75rem;
+  align-items: center; gap: .5rem; padding: .15rem 0;
+}
+.rail-bar-label, .rail-bar-count {
+  font-family: var(--font-mono); font-size: .75rem; color: var(--text-faint);
+}
+.rail-bar-count { text-align: right; }
+.rail-bars .mx-bar { height: .5rem; }
+
+.mx-note, .mx-caveats { font-size: .9375rem; color: var(--text-dim); }
+.mx-note { margin-bottom: 2.5rem; }
+.mx-caveats p { margin: 0 0 1rem; }
+.mx-caveats strong { color: var(--text); font-weight: 600; }
+.mx-method {
+  font-family: var(--font-mono); font-size: .75rem;
+  color: var(--text-faint); overflow-wrap: anywhere;
+}
+
+@media (max-width: 34rem) {
+  .mx-area { grid-template-columns: 7.5rem minmax(0, 1fr) 2.5rem; }
+}
+
 /* Shown only when the page's coordinates fall outside the bounding box of the
    contour plate, which today means only the Netherlands page. A real map sheet
    would say as much in the margin. Deliberately quieter than the numbers above

@@ -122,10 +122,54 @@ def check_image_sizes() -> None:
 
 # ----------------------------------------------------------------------- tracker
 
+def check_multiplex() -> None:
+    """The permit counts behind /tracker/.
+
+    Written by scripts/track_multiplex.py, refreshed weekly by a GitHub Action.
+    The checks worth having are about the shape of the claim, not the shape of
+    the JSON: the pre-R1-1 years must be present and must be zero, because
+    those five zeros are the only evidence on the page that the filter is
+    measuring this policy rather than apartment construction in general.
+    """
+    data = ROOT / "data" / "multiplex.json"
+    if not data.exists():
+        warn("data/multiplex.json is missing. Run scripts/track_multiplex.py. "
+             "The tracker page renders a placeholder without it.")
+        return
+    try:
+        store = json.loads(data.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        fail(f"data/multiplex.json is not valid JSON: {exc}")
+        return
+
+    for field in ("updated", "total_since_in_force", "per_year", "years", "filter"):
+        if field not in store:
+            fail(f"data/multiplex.json has no {field!r}")
+
+    years = {y.get("year"): y.get("permits") for y in store.get("years", [])}
+    missing = [y for y in ("2019", "2020", "2021", "2022", "2023") if y not in years]
+    if missing:
+        fail(f"data/multiplex.json is missing the control years {', '.join(missing)}. "
+             f"They are what show the filter is not catching apartment blocks.")
+    nonzero = {y: n for y, n in years.items() if y < "2024" and n}
+    if nonzero:
+        fail(f"multiplex permits reported before R1-1 existed: {nonzero}. "
+             f"The filter has stopped isolating multiplexes; re-run --compare.")
+
+    print(f"  multiplex: {store.get('total_since_in_force')} permits since R1-1, "
+          f"{store.get('per_year')} a year")
+
+
 def check_tracker() -> None:
+    """The retired Bill 44 collector. Kept for the Surrey land-value comparison.
+
+    Its schedule is off and the site no longer publishes it, so a missing file
+    is a warning rather than a failure.
+    """
     data = ROOT / "data" / "tracker.json"
     if not data.exists():
-        fail("data/tracker.json is missing")
+        warn("data/tracker.json is missing. The Bill 44 collector is retired, "
+             "so this only matters if you still want its Surrey material.")
         return
     try:
         store = json.loads(data.read_text(encoding="utf-8"))
@@ -243,6 +287,7 @@ def main() -> int:
     check_photography()
     check_image_sizes()
     check_tracker()
+    check_multiplex()
     check_coordinates()
 
     if warns:

@@ -1,28 +1,30 @@
 +++
-title = "Bill 44 Tracker"
-summary = "A running record of how Metro Vancouver municipalities are implementing small-scale multi-unit housing under BC's Bill 44."
+title = "Multiplex Permits"
+summary = "How many multiplex permits Vancouver has issued since its R1-1 rezoning came into force, refreshed weekly from the City's own open data."
 
-# Header coordinates: Surrey City Hall, 13450 104 Avenue. The tracker reads the
-# agendas that come out of this building every week, so the page points at it.
-# CHECK the exact point.
-lat  =   49.1889
-lng  = -122.8478
-elev =   80.0
+aliases = ["/tracker/bill-44/"]
+
+# Header coordinates: Vancouver City Hall, where R1-1 was approved after the
+# public hearing of 14 September 2023.
+lat  =   49.2606
+lng  = -123.1139
+elev =   40.0
 +++
 
-Bill 44 requires BC municipalities to permit small-scale multi-unit housing on
-most single-family lots. Implementation is happening one staff report at a time,
-across 21 municipalities in Metro Vancouver, and very little of it is reported.
+In October 2023 Vancouver replaced nine single-family zones with one, and most
+of the city's single-family lots became eligible for a multiplex of three to six
+units. The City expected about 150 multiplex projects a year.
 
-This page tracks it, starting with Surrey. A script reads the city's corporate
-reports and planning reports, along with regional and provincial news, and
-surfaces anything that touches SSMUH. Report titles are usually just an
-application number, so the search runs against the documents themselves rather
-than their headings.
+This page counts what has actually been permitted since, straight from the
+City's issued building permits dataset. It refreshes itself every week and
+nobody writes anything here by hand.
 
-Every entry published here has been read and annotated by me. The note is the
-point. An unreviewed feed would just be noise.
+That last part is deliberate. This replaced a tracker that collected Surrey
+council reports and published each one only once I had read and annotated it.
+The collector never missed a week. The annotations stopped after two months,
+which is what happens when a side project needs homework. A number that keeps
+itself true is worth more than a curated list that goes stale.
 
-Related: [my thesis on Vancouver's R1-1 multiplex
-reform](/work/vancouver-r1-1/). R1-1 is the City's own zoning change rather than
-a Bill 44 implementation, but the two run in parallel and the questions overlap.
+Related: [my thesis on the same reform](/work/vancouver-r1-1/), which measures
+net homes added rather than permits issued, and can say considerably more about
+what the numbers below mean.

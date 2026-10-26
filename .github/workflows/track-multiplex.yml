@@ -1,0 +1,54 @@
+name: Multiplex permits
+
+# Refreshes data/multiplex.json from City of Vancouver open data and commits it.
+#
+# Deliberately simpler than the Bill 44 workflow it replaces. There is no
+# Telegram step and no notification of any kind, because there is nothing for
+# anyone to do when this runs. It counts permits and commits the count. The old
+# tracker messaged Brandon every Friday to tell him entries were waiting for
+# notes, and the notes stopped coming after two months. A job that asks nothing
+# is a job that keeps working.
+#
+# No secrets are needed: the City's open data API is public and unauthenticated.
+
+on:
+  schedule:
+    - cron: "0 17 * * 1"      # Mondays, 17:00 UTC (09:00 or 10:00 Pacific)
+  workflow_dispatch:
+
+# Without this the job can only read the repo and the push below fails. The
+# failure surfaces a week later in a log nobody is watching, which is exactly
+# how it was missed last time.
+permissions:
+  contents: write
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # No pip install. The collector uses nothing outside the standard
+      # library, so there is no dependency that can break this on a Monday.
+
+      - name: Count permits
+        run: python scripts/track_multiplex.py
+
+      - name: Commit if the numbers moved
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/multiplex.json
+          if git diff --cached --quiet; then
+            echo "No change this week."
+            exit 0
+          fi
+          # [skip ci] keeps this from triggering a Cloudflare rebuild on its
+          # own; the site picks the new numbers up on the next real push.
+          # Remove it if you would rather the page refresh itself weekly.
+          git commit -m "multiplex: refresh permit counts [skip ci]"
+          git push
