@@ -208,6 +208,87 @@ def probe() -> int:
     return 0
 
 
+# -------------------------------------------------------------------- compare
+
+FINALISTS = {
+    "A  category only":
+        "typeofwork = 'New Building' AND specificusecategory LIKE 'Multiple Dwelling'",
+    "B  description only":
+        'typeofwork = \'New Building\' AND search(projectdescription, "multiplex")',
+    "C  low density + description":
+        'typeofwork = \'New Building\' AND permitcategory = \'New Build - Low Density Housing\''
+        ' AND search(projectdescription, "multiplex")',
+    "D  low density + category":
+        "typeofwork = 'New Building' AND permitcategory = 'New Build - Low Density Housing'"
+        " AND specificusecategory LIKE 'Multiple Dwelling'",
+}
+
+DIFFS = {
+    "in A but not B (category says Multiple Dwelling, description never says multiplex)":
+        'typeofwork = \'New Building\' AND specificusecategory LIKE \'Multiple Dwelling\''
+        ' AND NOT search(projectdescription, "multiplex")',
+    "in B but not A (description says multiplex, category does not)":
+        'typeofwork = \'New Building\' AND search(projectdescription, "multiplex")'
+        ' AND NOT specificusecategory LIKE \'Multiple Dwelling\'',
+}
+
+YEARS = list(range(2019, datetime.now(timezone.utc).year + 1))
+
+
+def count(where: str) -> int | str:
+    # Errors come back as a short token, not a sentence. A full exception
+    # string here is wider than the column and turns the table into soup.
+    try:
+        return api({"where": where, "limit": 1}).get("total_count")
+    except Exception:
+        return "err"
+
+
+def compare() -> int:
+    """Count each finalist per year, including years before R1-1 existed.
+
+    This is the real test. R1-1 came into force in October 2023, so a filter
+    that genuinely isolates R1-1 multiplexes should be close to nothing in
+    2019-2022 and climb through 2024-2025. A filter showing a steady stream
+    across every year is catching something else, most likely apartment
+    buildings, which Vancouver also calls a Multiple Dwelling.
+    """
+    print("Permits per year. R1-1 came into force 17 October 2023, so the years\n"
+          "before that are the control. Low numbers there mean the filter works.\n")
+
+    head = "  " + "".join(f"{y:>7}" for y in YEARS) + "     total"
+    print(head)
+    print("  " + "-" * (len(head) - 2))
+
+    for label, clause in FINALISTS.items():
+        cells = []
+        for y in YEARS:
+            cells.append(count(f"{clause} AND issueyear = {y}"))
+        total = count(f"{clause} AND issuedate >= date'{IN_FORCE}'")
+        row = "".join(f"{str(c):>7}" for c in cells)
+        print(f"  {row}  {str(total):>8}   {label}")
+
+    print("\n  (total column counts only permits issued since R1-1 came into force)\n")
+
+    for label, clause in DIFFS.items():
+        print(f"\n--- {label}")
+        n = count(f"issuedate >= date'{IN_FORCE}' AND ({clause})")
+        print(f"    {n} permits")
+        try:
+            page = api({"where": f"issuedate >= date'{IN_FORCE}' AND ({clause})", "limit": 4,
+                        "select": "issuedate,geolocalarea,specificusecategory,projectdescription"})
+            for r in page.get("results") or []:
+                print(f"      {r.get('issuedate')}  {r.get('geolocalarea')}  "
+                      f"{r.get('specificusecategory')}")
+                print(f"         {str(r.get('projectdescription') or '')[:110]}")
+        except Exception as e:
+            print(f"    could not sample: {str(e)[:80]}")
+
+    print("\nSend me the table. The filter whose pre-2023 numbers are near zero is\n"
+          "the one that is actually measuring R1-1.")
+    return 0
+
+
 # ----------------------------------------------------------------- collection
 
 def fetch_all(where: str) -> list[dict]:
@@ -266,6 +347,8 @@ def main(argv: list[str]) -> int:
                     help="print the distinct field values, to work out the filter")
     ap.add_argument("--probe", action="store_true",
                     help="count several candidate filters and show sample rows")
+    ap.add_argument("--compare", action="store_true",
+                    help="count the finalists per year, including before R1-1 existed")
     ap.add_argument("--dry-run", action="store_true",
                     help="print the result instead of writing data/multiplex.json")
     args = ap.parse_args(argv)
@@ -275,6 +358,9 @@ def main(argv: list[str]) -> int:
 
     if args.probe:
         return probe()
+
+    if args.compare:
+        return compare()
 
     if not MULTIPLEX_FILTER:
         print("MULTIPLEX_FILTER is not set yet, so there is nothing to count.\n"
