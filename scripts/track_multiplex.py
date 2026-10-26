@@ -44,6 +44,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import urllib.error
 import urllib.parse
 import urllib.request
 from collections import Counter
@@ -103,10 +104,25 @@ TIMEOUT = 45
 
 
 def api(params: dict) -> dict:
+    """Query the API, and on failure say what the API actually complained about.
+
+    Opendatasoft returns a JSON body on a 400 naming the offending clause.
+    urllib raises HTTPError and throws that body away unless you read it, which
+    turns a precise message into a bare "400 Bad Request" and costs a round of
+    guessing.
+    """
     url = API + "?" + urllib.parse.urlencode(params)
     req = urllib.request.Request(url, headers={"User-Agent": "brandonfleming.ca tracker"})
-    with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
-        return json.loads(r.read().decode("utf-8"))
+    try:
+        with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
+            return json.loads(r.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        try:
+            detail = json.loads(e.read().decode("utf-8"))
+            detail = detail.get("message") or detail.get("error_code") or detail
+        except Exception:
+            detail = "(no readable body)"
+        raise RuntimeError(f"HTTP {e.code} from the API: {detail}\n    query: {params}") from None
 
 
 # ------------------------------------------------------------------- discovery
@@ -314,51 +330,43 @@ def compare() -> int:
 
 # ----------------------------------------------------------------- collection
 
-def fetch_all(where: str) -> list[dict]:
-    """Page through every matching record. Opendatasoft caps limit at 100."""
-    out, offset = [], 0
-    while True:
-        page = api({
-            "where": where,
-            "limit": 100,
-            "offset": offset,
-            "order_by": "issuedate",
-        })
-        rows = page.get("results") or []
-        out.extend(rows)
-        if len(rows) < 100:
-            return out
-        offset += 100
-        if offset > 20000:        # a stop, so a bad filter cannot run forever
-            print("  ! stopped at 20,000 records. The filter is probably too broad.")
-            return out
+def tally(where: str, field: str) -> dict[str, int]:
+    """Count records grouped by one field, server side.
+
+    The first version of this paged through every matching record and counted
+    them here, which meant eight requests, an offset loop, and an order_by that
+    the API rejected outright. The API will group and count for us in one
+    request, so it does.
+    """
+    page = api({
+        "where": where,
+        "group_by": field,
+        "select": f"{field}, count(*) as permits",
+        "limit": 100,
+    })
+    out = {}
+    for row in page.get("results") or []:
+        key = row.get(field)
+        if key is None:
+            continue
+        out[str(key)] = int(row.get("permits") or 0)
+    return out
 
 
 def build() -> dict:
     # Everything from 2019, not just from the policy date. The five empty years
     # before R1-1 are the most convincing thing on the page: they are what turn
     # a number into evidence that the number is about this policy.
-    where = f"issueyear >= 2019 AND ({MULTIPLEX_FILTER})"
-    print(f"  where: {where}")
-    rows = fetch_all(where)
-    print(f"  {len(rows)} permits from 2019 onwards")
+    all_years = f"issueyear >= 2019 AND ({MULTIPLEX_FILTER})"
+    since_policy = f"issuedate >= date'{IN_FORCE}' AND ({MULTIPLEX_FILTER})"
 
-    by_year: Counter = Counter()
-    by_month: Counter = Counter()
-    by_area: Counter = Counter()
+    print(f"  filter: {MULTIPLEX_FILTER}")
+    by_year = tally(all_years, "issueyear")
+    by_month = tally(since_policy, "yearmonth")
+    by_area = tally(since_policy, "geolocalarea")
 
-    for r in rows:
-        issued = str(r.get("issuedate") or "")
-        if not issued:
-            continue
-        by_year[issued[:4]] += 1
-        if issued >= IN_FORCE:
-            by_month[issued[:7]] += 1
-            area = r.get("geolocalarea")
-            if area:
-                by_area[area] += 1
-
-    since = sum(n for m, n in by_month.items())
+    since = sum(by_month.values())
+    print(f"  {since} permits since R1-1, {sum(by_year.values())} from 2019 onwards")
     first = datetime.strptime(IN_FORCE, "%Y-%m-%d").replace(tzinfo=timezone.utc)
     elapsed = (datetime.now(timezone.utc) - first).days / 365.25
 
@@ -373,7 +381,8 @@ def build() -> dict:
         "city_expectation_per_year": CITY_EXPECTATION_PER_YEAR,
         "years": [{"year": y, "permits": by_year[y]} for y in sorted(by_year)],
         "months": [{"month": m, "permits": by_month[m]} for m in sorted(by_month)],
-        "areas": [{"area": a, "permits": n} for a, n in by_area.most_common()],
+        "areas": [{"area": a, "permits": n}
+                  for a, n in sorted(by_area.items(), key=lambda kv: -kv[1])],
     }
 
 
