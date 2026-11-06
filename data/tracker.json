@@ -1,6 +1,155 @@
 {
-  "updated": "2026-10-30",
+  "updated": "2026-11-06",
   "entries": [
+    {
+      "id": "f588664b3684",
+      "title": "Planning Report 7926-0163-00, 13655 - 104 Avenue",
+      "url": "https://www.surrey.ca/sites/default/files/planning-reports/PLR_7926-0163-00.pdf",
+      "date": "2026-11-09",
+      "hits": 1,
+      "matched": [
+        "transit-oriented area"
+      ],
+      "source": "City of Surrey: Planning Reports",
+      "jurisdiction": "Surrey",
+      "type": "council",
+      "note": ""
+    },
+    {
+      "id": "2f200e3e4454",
+      "title": "Planning Report 7925-0331-00, 16315 Fraser Highway",
+      "url": "https://www.surrey.ca/sites/default/files/planning-reports/PLR_7925-0331-00.pdf",
+      "date": "2026-11-09",
+      "hits": 4,
+      "matched": [
+        "bill 44",
+        "transit-oriented area",
+        "transit oriented area"
+      ],
+      "source": "City of Surrey: Planning Reports",
+      "jurisdiction": "Surrey",
+      "type": "council",
+      "note": ""
+    },
+    {
+      "id": "b60761f52416",
+      "title": "Planning Report 7925-0305-00, 17365 - 60 Avenue",
+      "url": "https://www.surrey.ca/sites/default/files/planning-reports/PLR_7925-0305-00.pdf",
+      "date": "2026-11-09",
+      "hits": 4,
+      "matched": [
+        "ssmuh"
+      ],
+      "source": "City of Surrey: Planning Reports",
+      "jurisdiction": "Surrey",
+      "type": "council",
+      "note": ""
+    },
+    {
+      "id": "9e89a04a3123",
+      "title": "Planning Report 7925-0226-00 and 7925-0226-01, 9883 – 140 Street",
+      "url": "https://www.surrey.ca/sites/default/files/planning-reports/PLR_7925-0226-00%2C-7925-0226-01.pdf",
+      "date": "2026-11-09",
+      "hits": 1,
+      "matched": [
+        "transit oriented area"
+      ],
+      "source": "City of Surrey: Planning Reports",
+      "jurisdiction": "Surrey",
+      "type": "council",
+      "note": ""
+    },
+    {
+      "id": "0edc99d59dee",
+      "title": "Planning Report 7925-0016-00, 3877 – 156 Street",
+      "url": "https://www.surrey.ca/sites/default/files/planning-reports/PLR_7925-0016-00_0.pdf",
+      "date": "2026-11-09",
+      "hits": 1,
+      "matched": [
+        "bill 44"
+      ],
+      "source": "City of Surrey: Planning Reports",
+      "jurisdiction": "Surrey",
+      "type": "council",
+      "note": ""
+    },
+    {
+      "id": "e1099211ea00",
+      "title": "Planning Report 7924-0031-00, 13532 King George Boulevard 13534 King George Boulevard 13536 King George Boulevard 13542 King George Boulevard 13552 King...",
+      "url": "https://www.surrey.ca/sites/default/files/planning-reports/PLR_7924-0031-00_0.pdf",
+      "date": "2026-11-09",
+      "hits": 4,
+      "matched": [
+        "transit oriented area"
+      ],
+      "source": "City of Surrey: Planning Reports",
+      "jurisdiction": "Surrey",
+      "type": "council",
+      "note": ""
+    },
+    {
+      "id": "3346aca132c0",
+      "title": "Planning Report 7923-0185-00, 7923-0185-01 and 7923-0185-02 10068 ‐ 133 Street 10078 ‐ 133 Street 10088 - 133 Street 10098 ‐ 133 Street Portion of 133...",
+      "url": "https://www.surrey.ca/sites/default/files/planning-reports/PLR_7923-0185-00_0.pdf",
+      "date": "2026-11-09",
+      "hits": 20,
+      "matched": [
+        "ssmuh",
+        "small-scale multi-unit",
+        "bill 44"
+      ],
+      "source": "City of Surrey: Planning Reports",
+      "jurisdiction": "Surrey",
+      "type": "council",
+      "note": ""
+    },
+    {
+      "id": "2bd4a7a1c9cb",
+      "title": "Planning Report 7923-0109-00, 14488 - 105A Avenue 14498 - 105A Avenue 14500 - 105A Avenue 14510 - 105A Avenue",
+      "url": "https://www.surrey.ca/sites/default/files/planning-reports/PLR_7923-0109-00_0.pdf",
+      "date": "2026-11-09",
+      "hits": 1,
+      "matched": [
+        "bill 44"
+      ],
+      "source": "City of Surrey: Planning Reports",
+      "jurisdiction": "Surrey",
+      "type": "council",
+      "note": ""
+    },
+    {
+      "id": "902b8dae29fe",
+      "title": "Planning Report 7922-0085-00, 13760 - 101A Avenue 13770 - 101A Avenue 13780 - 101A Avenue 13790 - 101A Avenue 13806 - 101A Avenue",
+      "url": "https://www.surrey.ca/sites/default/files/planning-reports/PLR_7922-0085-00_0.pdf",
+      "date": "2026-11-09",
+      "hits": 1,
+      "matched": [
+        "transit oriented area"
+      ],
+      "source": "City of Surrey: Planning Reports",
+      "jurisdiction": "Surrey",
+      "type": "council",
+      "note": ""
+    },
+    {
+      "id": "ec73f8317712",
+      "title": "R210: Proposed Amendments to Schedule F – Frequent Bus Stop Areas of Surrey Zoning By-law, 1993, No. 12000",
+      "url": "https://www.surrey.ca/sites/default/files/corporate-reports/CR_2026-R210.pdf",
+      "date": "2026-11-09",
+      "hits": 61,
+      "matched": [
+        "ssmuh",
+        "small-scale multi-unit",
+        "houseplex",
+        "bill 44",
+        "transit-oriented area",
+        "transit oriented area"
+      ],
+      "source": "City of Surrey: Corporate Reports",
+      "jurisdiction": "Surrey",
+      "type": "council",
+      "note": ""
+    },
     {
       "title": "Colleen Hardwick's TEAM seeks to protect affordable rental housing with 'upzoning' moratorium",
       "url": "https://dailyhive.com/urbanized/colleen-hardwick-team-vancouver-upzoning-moratorium",
