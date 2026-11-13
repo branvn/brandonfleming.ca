@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-06",
+  "updated": "2026-11-13",
   "entries": [
     {
       "id": "f588664b3684",
@@ -146,6 +146,34 @@
         "transit oriented area"
       ],
       "source": "City of Surrey: Corporate Reports",
+      "jurisdiction": "Surrey",
+      "type": "council",
+      "note": ""
+    },
+    {
+      "id": "5b56b8b49662",
+      "title": "Planning Report 7925-0016-00, 3877 - 156 Street",
+      "url": "https://www.surrey.ca/sites/default/files/planning-reports/PLR_7925-0016-00.pdf",
+      "date": "2026-11-09",
+      "hits": 1,
+      "matched": [
+        "bill 44"
+      ],
+      "source": "City of Surrey: Planning Reports",
+      "jurisdiction": "Surrey",
+      "type": "council",
+      "note": ""
+    },
+    {
+      "id": "31dc977311e8",
+      "title": "Planning Report 7922-0085-00, 13760 - 101A Avenue 13770 - 101A Avenue 13780 - 101A Avenue 13790 - 101A Avenue 13806 - 101A Avenue",
+      "url": "https://www.surrey.ca/sites/default/files/planning-reports/PLR_7922-0085-00.pdf",
+      "date": "2026-11-09",
+      "hits": 1,
+      "matched": [
+        "transit oriented area"
+      ],
+      "source": "City of Surrey: Planning Reports",
       "jurisdiction": "Surrey",
       "type": "council",
       "note": ""
