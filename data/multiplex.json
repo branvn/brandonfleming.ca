@@ -1,0 +1,237 @@
+{
+  "updated": "2026-11-14",
+  "source": "City of Vancouver open data, issued building permits",
+  "source_url": "https://opendata.vancouver.ca/explore/dataset/issued-building-permits/",
+  "in_force": "2023-10-17",
+  "filter": "typeofwork = 'New Building' AND search(projectdescription, \"multiplex\")",
+  "total_since_in_force": 649,
+  "per_year": 210.9,
+  "city_expectation_per_year": 150,
+  "first_permit_month": "2024-06",
+  "years": [
+    {
+      "year": "2019",
+      "permits": 0
+    },
+    {
+      "year": "2020",
+      "permits": 0
+    },
+    {
+      "year": "2021",
+      "permits": 0
+    },
+    {
+      "year": "2022",
+      "permits": 0
+    },
+    {
+      "year": "2023",
+      "permits": 0
+    },
+    {
+      "year": "2024",
+      "permits": 60
+    },
+    {
+      "year": "2025",
+      "permits": 328
+    },
+    {
+      "year": "2026",
+      "permits": 261
+    }
+  ],
+  "months": [
+    {
+      "month": "2024-06",
+      "permits": 2
+    },
+    {
+      "month": "2024-07",
+      "permits": 2
+    },
+    {
+      "month": "2024-08",
+      "permits": 11
+    },
+    {
+      "month": "2024-09",
+      "permits": 4
+    },
+    {
+      "month": "2024-10",
+      "permits": 4
+    },
+    {
+      "month": "2024-11",
+      "permits": 12
+    },
+    {
+      "month": "2024-12",
+      "permits": 25
+    },
+    {
+      "month": "2025-01",
+      "permits": 21
+    },
+    {
+      "month": "2025-02",
+      "permits": 8
+    },
+    {
+      "month": "2025-03",
+      "permits": 24
+    },
+    {
+      "month": "2025-04",
+      "permits": 26
+    },
+    {
+      "month": "2025-05",
+      "permits": 16
+    },
+    {
+      "month": "2025-06",
+      "permits": 36
+    },
+    {
+      "month": "2025-07",
+      "permits": 37
+    },
+    {
+      "month": "2025-08",
+      "permits": 25
+    },
+    {
+      "month": "2025-09",
+      "permits": 35
+    },
+    {
+      "month": "2025-10",
+      "permits": 35
+    },
+    {
+      "month": "2025-11",
+      "permits": 25
+    },
+    {
+      "month": "2025-12",
+      "permits": 40
+    },
+    {
+      "month": "2026-01",
+      "permits": 17
+    },
+    {
+      "month": "2026-02",
+      "permits": 24
+    },
+    {
+      "month": "2026-03",
+      "permits": 25
+    },
+    {
+      "month": "2026-04",
+      "permits": 27
+    },
+    {
+      "month": "2026-05",
+      "permits": 14
+    },
+    {
+      "month": "2026-06",
+      "permits": 7
+    },
+    {
+      "month": "2026-07",
+      "permits": 38
+    },
+    {
+      "month": "2026-08",
+      "permits": 32
+    },
+    {
+      "month": "2026-09",
+      "permits": 23
+    },
+    {
+      "month": "2026-10",
+      "permits": 39
+    },
+    {
+      "month": "2026-11",
+      "permits": 15
+    }
+  ],
+  "areas": [
+    {
+      "area": "Hastings-Sunrise",
+      "permits": 105
+    },
+    {
+      "area": "Kensington-Cedar Cottage",
+      "permits": 66
+    },
+    {
+      "area": "Kerrisdale",
+      "permits": 54
+    },
+    {
+      "area": "Dunbar-Southlands",
+      "permits": 49
+    },
+    {
+      "area": "Renfrew-Collingwood",
+      "permits": 45
+    },
+    {
+      "area": "Arbutus Ridge",
+      "permits": 43
+    },
+    {
+      "area": "Victoria-Fraserview",
+      "permits": 42
+    },
+    {
+      "area": "Shaughnessy",
+      "permits": 39
+    },
+    {
+      "area": "Sunset",
+      "permits": 38
+    },
+    {
+      "area": "Riley Park",
+      "permits": 32
+    },
+    {
+      "area": "Killarney",
+      "permits": 31
+    },
+    {
+      "area": "West Point Grey",
+      "permits": 30
+    },
+    {
+      "area": "Kitsilano",
+      "permits": 24
+    },
+    {
+      "area": "Marpole",
+      "permits": 23
+    },
+    {
+      "area": "Oakridge",
+      "permits": 13
+    },
+    {
+      "area": "South Cambie",
+      "permits": 5
+    },
+    {
+      "area": "Mount Pleasant",
+      "permits": 3
+    }
+  ]
+}
