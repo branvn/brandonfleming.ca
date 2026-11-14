@@ -8,6 +8,9 @@
      replaced the Bill 44 tracker: that one needed a note typed against every
      entry before it would publish, and the notes stopped in July.
 
+     Headlines come from the same file and are matched by keyword, never
+     chosen by hand. Only title, link, outlet and date are stored.
+
      The chart that matters is the per-year one. Five zeros before the policy
      and a rise after is what makes this evidence rather than a statistic, so
      the pre-2024 years are rendered even though they are empty. Do not
@@ -88,6 +91,29 @@
           </li>
         {{ end }}
       </ol>
+    {{ end }}
+
+    {{/* Headlines. Hidden entirely when there are none: R1-1 makes the news a
+         few times a year, and an empty "In the news" heading would read as a
+         broken feed rather than a quiet month. */}}
+    {{ with $d.news }}
+      <h2 class="section-label">In the news</h2>
+      <ol class="mx-news">
+        {{ range first 10 . }}
+          <li>
+            <p class="mx-news-meta">
+              {{ with .date }}<time datetime="{{ . }}">{{ dateFormat "2 Jan 2006" . }}</time>{{ end }}
+              <span>{{ .outlet }}</span>
+            </p>
+            <a href="{{ .url }}" rel="noopener">{{ .title }}</a>
+          </li>
+        {{ end }}
+      </ol>
+      <p class="mx-note">
+        Headlines link to the original publisher. Nothing here is my reporting,
+        and nothing is selected by hand: a story appears when it mentions R1-1
+        or multiplexes in Vancouver.
+      </p>
     {{ end }}
 
     <h2 class="section-label">What this is not</h2>

@@ -337,6 +337,17 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
 .mx-year.is-zero .mx-bar { background: var(--text-faint); opacity: .45; }
 .mx-year.is-zero .mx-year-count { color: var(--text-faint); }
 
+/* Headlines under the charts. */
+.mx-news { list-style: none; padding: 0; margin: 1rem 0 1rem; }
+.mx-news li { padding: .7rem 0; border-top: 1px solid rgba(127, 212, 193, .12); }
+.mx-news li:first-child { border-top: 0; }
+.mx-news-meta {
+  display: flex; gap: .75rem; margin: 0 0 .2rem;
+  font-family: var(--font-mono); font-size: .75rem; color: var(--text-faint);
+}
+.mx-news a { color: var(--text); text-decoration: none; }
+.mx-news a:hover { color: var(--sand); text-decoration: underline; }
+
 /* The same bars, shrunk, in the home page rail. */
 .rail-figure { font-size: .875rem; color: var(--text-dim); margin: 0 0 1rem; }
 .rail-figure strong {

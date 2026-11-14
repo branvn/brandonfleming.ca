@@ -156,45 +156,23 @@ def check_multiplex() -> None:
         fail(f"multiplex permits reported before R1-1 existed: {nonzero}. "
              f"The filter has stopped isolating multiplexes; re-run --compare.")
 
+    # Headlines are other people's reporting. Only the headline, link, outlet
+    # and date may be stored; anything more is copied article text and does
+    # not belong in this repo. A headline over 300 characters is not a
+    # headline.
+    allowed = {"title", "url", "outlet", "date"}
+    for n in store.get("news") or []:
+        extra = set(n) - allowed
+        if extra:
+            fail(f"news item stores {sorted(extra)}, which may be article text: {n.get('url')}")
+        if len(n.get("title") or "") > 300:
+            fail(f"news title is suspiciously long, is this body text? {n.get('url')}")
+        for field in ("title", "url", "outlet"):
+            if not n.get(field):
+                fail(f"news item missing {field!r}: {n.get('url')}")
+
     print(f"  multiplex: {store.get('total_since_in_force')} permits since R1-1, "
-          f"{store.get('per_year')} a year")
-
-
-def check_tracker() -> None:
-    """The retired Bill 44 collector. Kept for the Surrey land-value comparison.
-
-    Its schedule is off and the site no longer publishes it, so a missing file
-    is a warning rather than a failure.
-    """
-    data = ROOT / "data" / "tracker.json"
-    if not data.exists():
-        warn("data/tracker.json is missing. The Bill 44 collector is retired, "
-             "so this only matters if you still want its Surrey material.")
-        return
-    try:
-        store = json.loads(data.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as exc:
-        fail(f"data/tracker.json is not valid JSON: {exc}")
-        return
-
-    entries = store.get("entries", [])
-    for e in entries:
-        for field in ("id", "title", "url", "date", "note"):
-            if field not in e:
-                fail(f"tracker entry missing {field!r}: {e.get('title', e.get('id', '?'))}")
-        # Only headline, URL, date and match metadata are ever stored. Anything
-        # longer than a title suggests document text crept in.
-        if len(e.get("title", "")) > 300:
-            fail(f"tracker title is suspiciously long, is this body text? {e.get('id')}")
-
-    annotated = sum(1 for e in entries if e.get("note"))
-    print(f"  tracker: {len(entries)} candidates, {annotated} annotated")
-
-    if (ROOT / "data").glob("tracker_sources.yaml"):
-        for stray in (ROOT / "data").glob("tracker_*"):
-            if stray.name != "tracker.json":
-                fail(f"{stray.relative_to(ROOT)} should live in scripts/, not data/. "
-                     f"Hugo parses everything in data/ on every build.")
+          f"{store.get('per_year')} a year, {len(store.get('news') or [])} headlines")
 
 
 # ------------------------------------------------------------------- coordinates
@@ -286,7 +264,6 @@ def main() -> int:
     check_boms()
     check_photography()
     check_image_sizes()
-    check_tracker()
     check_multiplex()
     check_coordinates()
 

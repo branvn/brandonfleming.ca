@@ -1,4 +1,4 @@
-name: Multiplex permits
+name: R1-1 Tracker
 
 # Refreshes data/multiplex.json from City of Vancouver open data and commits it.
 #
@@ -47,8 +47,8 @@ jobs:
             echo "No change this week."
             exit 0
           fi
-          # [skip ci] keeps this from triggering a Cloudflare rebuild on its
-          # own; the site picks the new numbers up on the next real push.
-          # Remove it if you would rather the page refresh itself weekly.
-          git commit -m "multiplex: refresh permit counts [skip ci]"
+          # No [skip ci]: the page now carries headlines, and a news section
+          # that only updates when Brandon happens to push is not a news
+          # section. One Cloudflare build a week is nowhere near the limit.
+          git commit -m "R1-1 tracker: weekly refresh"
           git push

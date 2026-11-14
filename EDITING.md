@@ -40,8 +40,7 @@ There is a short list at the bottom of things that unavoidably live in
 | The blurb at the top of the Writing page | `content/writing/_index.md` |
 | Everything on the Photography page | `content/photography/_index.md` |
 | Photo captions, categories, filters | `content/photography/_index.md` |
-| The Bill 44 tracker intro text | `content/tracker/_index.md` |
-| Tracker entry notes | `data/tracker.json` |
+| The R1-1 Tracker intro text | `content/tracker/_index.md` |
 | Your name, tagline, email, LinkedIn | `hugo.toml` |
 | The menu at the top (Work, Writing, ...) | `hugo.toml` |
 
@@ -271,34 +270,6 @@ Add the name to `categories` in `content/photography/_index.md`, then set
 `category` on at least one photo to match. **A category with no photos shows an
 empty tab**, which is the one thing this page was designed to avoid.
 
-### Write a tracker note
-
-`data/tracker.json` is the one file here that is not Markdown. It looks like:
-
-```json
-{
-  "title": "R162: Small-Scale Multi-Unit Housing Review Framework",
-  "note": ""
-}
-```
-
-Type your note between the quotes of `"note"`. **An entry only appears on the
-site once its note is not empty.** That is deliberate.
-
-Two things to watch, because JSON is fussier than Markdown:
-
-- If your note contains a double quote, write it as `\"`.
-- Do not remove or add commas between entries.
-
-After editing, check it before publishing:
-
-```powershell
-python -c "import json;json.load(open('data/tracker.json',encoding='utf-8'));print('valid')"
-```
-
-If that prints `valid`, you are fine. If it prints an error, it tells you the
-line number.
-
 ### Change your tagline, email, or LinkedIn
 
 These are in `hugo.toml` under `[params]`, and they appear in several places at
@@ -431,7 +402,7 @@ careful. Preview with `hugo server` before publishing any of them.
 | "Off the map" and the 404 text | `layouts/404.html` |
 | "Year", "Context", "Role", "Tools", "Status" labels | `layouts/work/single.html` |
 | "In progress" tag | `layouts/partials/work-card.html` |
-| "Bill 44 Tracker" in the menu | `layouts/partials/header.html` |
+| "R1-1 Tracker" in the menu | `layouts/partials/header.html` |
 
 Each of these is plain text sitting between HTML tags. Change the words, leave
 the surrounding `<p>`, `<h2>` and `{{ }}` alone.

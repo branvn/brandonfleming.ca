@@ -14,7 +14,7 @@ content/          the words — edit these
   work/             one .md per project
   writing/          blog posts
   photography/      one page; drop .jpg files straight in here
-  tracker/          Bill 44 tracker intro text
+  tracker/          R1-1 Tracker intro text
 layouts/          the HTML templates
 assets/
   css/main.css      the entire stylesheet
@@ -23,7 +23,7 @@ assets/
   img/plate.svg     contour plate (generated)
 static/           files served as-is (PDFs, images, favicon)
 data/             tracker entries and source list
-scripts/          plate generator + Bill 44 tracker
+scripts/          plate generator, R1-1 tracker, photo prep
 ```
 
 ## Common tasks

@@ -42,13 +42,17 @@ them.
 from __future__ import annotations
 
 import argparse
+import html as htmllib
 import json
+import re
 import sys
 import urllib.error
 import urllib.parse
 import urllib.request
 from collections import Counter
+import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -405,6 +409,250 @@ def build() -> dict:
     }
 
 
+# ---------------------------------------------------------------------- units
+#
+# How many homes each permit is for. There is no units field in the dataset, so
+# the number has to come out of the City's free-text project description. That
+# is only worth doing if the descriptions say it consistently, which is what
+# --units is for: it shows what this pattern finds and, more usefully, what it
+# misses. Do not put a unit breakdown on the page until that has been run.
+
+UNIT_WORDS = {"three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8}
+UNIT_RE = re.compile(
+    r"\b(\d{1,2}|three|four|five|six|seven|eight)\b"      # the number
+    r"(?:\s*\(\d{1,2}\))?"                                  # "six (6)"
+    r"[\s-]*(?:new\s+)?(?:strata\s+|secured\s+rental\s+|rental\s+)?"
+    r"(?:dwelling\s+|residential\s+)?units?\b", re.I)
+PLEX_RE = re.compile(r"\b(three|four|five|six|seven|eight)plex\b", re.I)
+
+
+def extract_units(desc: str | None) -> int | None:
+    """Homes on one R1-1 permit, or None when the description does not say.
+
+    R1-1 allows three to eight, so anything outside that range is something
+    else in the text (a storey count, a parking count, a secondary suite) and
+    is ignored rather than trusted.
+    """
+    text = desc or ""
+    for m in UNIT_RE.finditer(text):
+        raw = m.group(1).lower()
+        n = UNIT_WORDS.get(raw) or (int(raw) if raw.isdigit() else None)
+        if n and 3 <= n <= 8:
+            return n
+    m = PLEX_RE.search(text)
+    return UNIT_WORDS[m.group(1).lower()] if m else None
+
+
+def units_probe() -> int:
+    where = f"issuedate >= date'{IN_FORCE}' AND ({MULTIPLEX_FILTER})"
+    page = api({"where": where, "limit": 100,
+                "select": "permitnumber,issuedate,projectdescription"})
+    rows = page.get("results") or []
+    found = [(r, extract_units(r.get("projectdescription"))) for r in rows]
+
+    tally = Counter(n for _, n in found)
+    print(f"Unit counts read from {len(rows)} of {page.get('total_count')} multiplex permits:\n")
+    for n in sorted(k for k in tally if k):
+        print(f"    {n} homes   {tally[n]:4d}")
+    print(f"    not stated {tally[None]:4d}   <- the number that decides whether this is usable\n")
+
+    print("FOUND, to check the pattern read them correctly:")
+    for r, n in [x for x in found if x[1]][:4]:
+        print(f"  [{n}]  {str(r.get('projectdescription'))[:220]}\n")
+    print("MISSED, to see how else the City writes it:")
+    for r, n in [x for x in found if not x[1]][:8]:
+        print(f"  [-]  {str(r.get('projectdescription'))[:220]}\n")
+    return 0
+
+
+# ----------------------------------------------------------------------- news
+#
+# Headlines about R1-1 and multiplexes, gathered from three sources and stored
+# as title, link, outlet and date. Never the article text: copying other
+# people's reporting into this repo would be both a copyright problem and the
+# wrong thing to publish. The description is read to decide whether a story
+# matches, then discarded.
+#
+# Expect this to be sparse. On 14 November 2026 not one current Daily Hive
+# Urbanized headline and not one BC Government housing release mentioned
+# multiplexes. R1-1 makes the news in bursts, a few times a year. That is why
+# matches accumulate across runs instead of being replaced each week: the feeds
+# only ever show their latest twenty or thirty items, and a story that matched
+# in March is still worth listing in November.
+#
+# Sources considered and rejected, so nobody re-adds them:
+#   Google News search RSS  robots.txt disallows automated fetching
+#   Business in Vancouver   /rss refused the request outright
+#   CBC British Columbia    the old feed URL refused the request
+
+NEWS_SOURCES = [
+    # The City's own announcements. Not a feed, a server-rendered listing of
+    # every news release, so links are read straight from the page. Everything
+    # on it is about Vancouver, so no place check.
+    {"name": "City of Vancouver", "kind": "html",
+     "url": "https://vancouver.ca/news-calendar/all-news-listing.aspx",
+     "link_contains": "/news-calendar/", "need_place": False},
+    {"name": "Daily Hive", "kind": "rss",
+     "url": "https://dailyhive.com/feed/urbanized", "need_place": True},
+    {"name": "BC Government", "kind": "rss",
+     "url": "https://news.gov.bc.ca/ministries/housing-and-municipal-affairs/feed",
+     "need_place": True},
+]
+
+NEWS_KEEP = 30
+
+TOPIC = re.compile(r"\br1-1\b|multiplex|missing[- ]middle|small[- ]scale multi[- ]unit"
+                   r"|\bssmuh\b|fourplex|sixplex", re.I)
+R1_1 = re.compile(r"\br1-1\b", re.I)
+PLACE = re.compile(r"vancouver", re.I)
+# A multiplex is also a cinema. Without this, a story about a new theatre
+# complex would land on a page about housing.
+NOT_HOUSING = re.compile(r"cinema|movie|theatre|theater|cineplex|imax", re.I)
+
+UA = "Mozilla/5.0 (compatible; brandonfleming.ca R1-1 tracker; +https://brandonfleming.ca/tracker/)"
+
+
+def fetch(url: str) -> bytes:
+    req = urllib.request.Request(url, headers={"User-Agent": UA})
+    with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
+        return r.read()
+
+
+def clean(text: str | None) -> str:
+    text = re.sub(r"<[^>]+>", " ", text or "")
+    return re.sub(r"\s+", " ", htmllib.unescape(text)).strip()
+
+
+def iso_date(raw: str | None) -> str | None:
+    if not raw:
+        return None
+    raw = raw.strip()
+    try:
+        return parsedate_to_datetime(raw).strftime("%Y-%m-%d")      # RSS
+    except Exception:
+        pass
+    try:
+        return datetime.fromisoformat(raw.replace("Z", "+00:00")).strftime("%Y-%m-%d")  # Atom
+    except Exception:
+        return None
+
+
+def first_child(el, *names):
+    """The first child whose local tag name is in names.
+
+    Written out longhand because `el.find('a') or el.find('b')` is a trap: an
+    ElementTree element with no children is falsy, so a perfectly good <title>
+    with text in it fails the `or` and the fallback wins.
+    """
+    for name in names:
+        for c in el:
+            if c.tag.rsplit("}", 1)[-1] == name:
+                return c
+    return None
+
+
+def parse_rss(raw: bytes) -> list[dict]:
+    # The BC Government feed opens with a byte-order mark, which the parser
+    # rejects as content before the XML declaration.
+    root = ET.fromstring(raw.lstrip(b"\xef\xbb\xbf"))
+    out = []
+    for el in root.iter():
+        if el.tag.rsplit("}", 1)[-1] not in ("item", "entry"):
+            continue
+        t = first_child(el, "title")
+        l = first_child(el, "link")
+        d = first_child(el, "pubDate", "published", "updated")
+        s = first_child(el, "description", "summary")
+        link = ""
+        if l is not None:
+            link = (l.text or l.get("href") or "").strip()
+        if not link:
+            continue
+        out.append({
+            "title": clean(t.text if t is not None else ""),
+            "url": link,
+            "date": iso_date(d.text if d is not None else None),
+            "_desc": clean(s.text if s is not None else ""),   # matching only
+        })
+    return out
+
+
+def parse_listing(raw: bytes, base: str, link_contains: str) -> list[dict]:
+    html = raw.decode("utf-8", "replace")
+    out, seen = [], set()
+    for href, inner in re.findall(r'<a\b[^>]*href="([^"]+)"[^>]*>(.*?)</a>', html, re.S | re.I):
+        title = clean(inner)
+        if len(title) < 12 or link_contains not in href:
+            continue
+        url = urllib.parse.urljoin(base, href)
+        if url in seen:
+            continue
+        seen.add(url)
+        # The listing carries no dates. See seed handling in collect_news.
+        out.append({"title": title, "url": url, "date": None, "_desc": ""})
+    return out
+
+
+def matches(item: dict, need_place: bool) -> bool:
+    text = f"{item['title']} {item['_desc']}"
+    if NOT_HOUSING.search(text) or not TOPIC.search(text):
+        return False
+    if need_place and not (PLACE.search(text) or R1_1.search(text)):
+        return False
+    return True
+
+
+def collect_news(previous: list[dict], seeding: bool) -> tuple[list[dict], list[str]]:
+    """Merge this week's matches into everything matched before.
+
+    Dates. RSS items carry their own. The City listing does not, so a City
+    headline is dated the week it first appears here, which is accurate to
+    within the week for anything new. The exception is the very first run,
+    which picks up the City's whole back catalogue at once: stamping a 2023
+    announcement with today's date would be a lie, so those are stored
+    undated and shown without a date, at the bottom.
+    """
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    kept = {n["url"]: n for n in previous}
+    report = []
+
+    for src in NEWS_SOURCES:
+        try:
+            raw = fetch(src["url"])
+            items = (parse_rss(raw) if src["kind"] == "rss"
+                     else parse_listing(raw, src["url"], src["link_contains"]))
+        except Exception as e:
+            report.append(f"{src['name']:18s} FAILED  {str(e)[:90]}")
+            continue
+
+        hits = [i for i in items if matches(i, src["need_place"])]
+        new = 0
+        for i in hits:
+            if i["url"] in kept:
+                continue     # keep the first record, and the date it was first seen
+            date = i["date"] or (None if seeding else today)
+            kept[i["url"]] = {"title": i["title"], "url": i["url"],
+                              "outlet": src["name"], "date": date}
+            new += 1
+        report.append(f"{src['name']:18s} {len(items):4d} items  {len(hits):3d} match  {new:3d} new")
+
+    news = sorted(kept.values(), key=lambda n: n.get("date") or "0000", reverse=True)
+    return news[:NEWS_KEEP], report
+
+
+def news_only() -> int:
+    """Check every source and show what matched, without writing anything."""
+    print("Checking news sources (nothing is written)...\n")
+    news, report = collect_news([], seeding=True)
+    for line in report:
+        print("  " + line)
+    print(f"\n{len(news)} matching headlines:\n")
+    for n in news:
+        print(f"  {n.get('date') or 'undated':10s}  {n['outlet']:18s}  {n['title'][:80]}")
+    return 0
+
+
+
 def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -414,6 +662,10 @@ def main(argv: list[str]) -> int:
                     help="count several candidate filters and show sample rows")
     ap.add_argument("--compare", action="store_true",
                     help="count the finalists per year, including before R1-1 existed")
+    ap.add_argument("--units", action="store_true",
+                    help="test reading unit counts out of the permit descriptions")
+    ap.add_argument("--news", action="store_true",
+                    help="check the news sources and list matches, writing nothing")
     ap.add_argument("--dry-run", action="store_true",
                     help="print the result instead of writing data/multiplex.json")
     args = ap.parse_args(argv)
@@ -427,6 +679,12 @@ def main(argv: list[str]) -> int:
     if args.compare:
         return compare()
 
+    if args.news:
+        return news_only()
+
+    if args.units:
+        return units_probe()
+
     if not MULTIPLEX_FILTER:
         print("MULTIPLEX_FILTER is not set yet, so there is nothing to count.\n"
               "Run `python scripts/track_multiplex.py --facets` first and send me\n"
@@ -434,6 +692,15 @@ def main(argv: list[str]) -> int:
               "public page that nobody could check.")
         return 2
 
+    previous = {}
+    if DATA_FILE.exists():
+        try:
+            previous = json.loads(DATA_FILE.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            previous = {}
+
+    # Permits are the substance. If the City's API is down, stop without
+    # touching the file, so last week's numbers stay up rather than vanishing.
     print("Counting Vancouver multiplex permits...")
     try:
         data = build()
@@ -441,17 +708,29 @@ def main(argv: list[str]) -> int:
         print(f"Failed: {e}")
         return 1
 
+    # News is a garnish and its sources come and go. A failure in one source,
+    # or all of them, keeps the headlines already collected and carries on.
+    print("\nGathering R1-1 headlines...")
+    try:
+        news, report = collect_news(previous.get("news") or [],
+                                    seeding="news" not in previous)
+        for line in report:
+            print("  " + line)
+        data["news"] = news
+    except Exception as e:
+        print(f"  news failed, keeping the previous {len(previous.get('news') or [])}: {e}")
+        data["news"] = previous.get("news") or []
+
     if args.dry_run:
-        print(json.dumps(data, indent=2)[:2000])
+        print(json.dumps(data, indent=2)[:3000])
         return 0
 
     DATA_FILE.parent.mkdir(exist_ok=True)
     DATA_FILE.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
-    print(f"Wrote {DATA_FILE.relative_to(ROOT)}: {data['total_since_in_force']} permits "
+    print(f"\nWrote {DATA_FILE.relative_to(ROOT)}: {data['total_since_in_force']} permits "
           f"since R1-1, about {data['per_year']} a year against the City's "
-          f"{CITY_EXPECTATION_PER_YEAR}.")
+          f"{CITY_EXPECTATION_PER_YEAR}; {len(data['news'])} headlines.")
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main(sys.argv[1:]))

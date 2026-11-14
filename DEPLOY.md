@@ -180,34 +180,27 @@ project → **Deployments**.
 
 ---
 
-## 9. Turn on the Bill 44 tracker
+## 9. The R1-1 Tracker
 
-The tracker runs already. It polls Fridays in GitHub's cloud, commits new
-candidates back to the repo, and messages you on Telegram. It is only absent
-from the site's navigation.
+`/tracker/` counts Vancouver multiplex permits and lists R1-1 headlines. It
+needs nothing from you: a GitHub Action runs every Monday, refreshes
+`data/multiplex.json`, and commits it, which rebuilds the site.
 
-1. `python scripts\track_bill44.py --review` lists everything awaiting a note.
-2. Open `data\tracker.json`, delete what isn't worth keeping, and write a `note`
-   for the rest. **Only entries with a note appear on the site.** That is the
-   whole design: the script finds things to read, you do the reading.
-3. Check the JSON is still valid before you push, because a stray comma stops
-   the site rebuilding:
+1. Generate the data once by hand, so the page is not empty before Monday:
    ```powershell
-   python -c "import json;json.load(open('data/tracker.json',encoding='utf-8'));print('valid')"
+   python scripts\track_multiplex.py
    ```
-4. Preview with `hugo server` at <http://localhost:1313/tracker/>.
-5. In `hugo.toml`, set `showTracker = true` to add it to the nav.
-6. Commit and push.
+2. Preview at <http://localhost:1313/tracker/>.
+3. In `hugo.toml`, set `showTracker = true` to put it in the nav. The page is
+   live at `/tracker/` either way; the flag only controls the link.
 
-A note makes an entry live whether or not `showTracker` is true, because
-`/tracker/` is a real page either way. That flag only controls the nav link.
+To check the news sources without writing anything:
+`python scripts\track_multiplex.py --news`
 
 **Expect the occasional rejected push.** The Action commits to `main` too, so if
 it runs between your last pull and your next push you'll get "Updates were
 rejected". `git pull --rebase` then push. It only ever touches
-`data/tracker.json` and `scripts/tracker_cache.json`.
-
-`TRACKER-HANDOFF.md` covers the internals.
+`data/multiplex.json`.
 
 ---
 

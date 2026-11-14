@@ -1,6 +1,6 @@
 +++
-title = "Multiplex Permits"
-summary = "How many multiplex permits Vancouver has issued since its R1-1 rezoning came into force, refreshed weekly from the City's own open data."
+title = "R1-1 Tracker"
+summary = "Vancouver multiplex permits since the R1-1 rezoning came into force, and the headlines about it, refreshed weekly from the City's own data."
 
 aliases = ["/tracker/bill-44/"]
 
@@ -16,8 +16,9 @@ of the city's single-family lots became eligible for a multiplex of three to six
 units. The City expected about 150 multiplex projects a year.
 
 This page counts what has actually been permitted since, straight from the
-City's issued building permits dataset. It refreshes itself every week and
-nobody writes anything here by hand.
+City's issued building permits dataset, and collects the news coverage of it as
+it appears. It refreshes itself every week and nobody writes anything here by
+hand.
 
 That last part is deliberate. This replaced a tracker that collected Surrey
 council reports and published each one only once I had read and annotated it.

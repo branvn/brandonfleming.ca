@@ -27,16 +27,16 @@
       {{ end }}
     {{ end }}
     {{ if site.Params.showTracker }}
-      <a href="{{ "/tracker/" | relURL }}"{{ if hasPrefix .RelPermalink "/tracker" }} class="is-active" aria-current="page"{{ end }}>Multiplex Permits</a>
+      <a href="{{ "/tracker/" | relURL }}"{{ if hasPrefix .RelPermalink "/tracker" }} class="is-active" aria-current="page"{{ end }}>R1-1 Tracker</a>
     {{ end }}
   </nav>
 
   {{/* Map marginalia, and the closest thing this site has to an easter egg.
 
        The coordinates are not decoration. Each page names a real place that the
-       page is about: the ALC project points at the ALC's own office, the thesis
-       points at Newton, the tracker points at the building whose agendas it
-       reads. Nobody is told this. You either notice the numbers change as you
+       page is about: the ALC project points at the ALC's own office, and the
+       thesis and the R1-1 Tracker point at Vancouver City Hall, where R1-1 was
+       approved. Nobody is told this. You either notice the numbers change as you
        move through the site, or you don't, and the site works either way.
 
        Set lat / lng / elev in a page's front matter to override. Decimal

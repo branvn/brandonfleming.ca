@@ -25,11 +25,11 @@ programmer; he built the first version with an LLM. He *is* strong at GIS
 **Live at https://brandonfleming.ca**, built by Cloudflare Pages from
 `github.com/branvn/brandonfleming.ca` on push to `main`.
 
-- **Home** — hero, four work cards, Bill 44 tracker rail (hidden below 1100px)
+- **Home** — hero, four work cards, R1-1 Tracker rail (hidden below 1100px)
 - **Work** — 4 project pages, all written
 - **Photography** — one page, 19 photographs, filtered by subject and by medium
 - **About**, **404**, RSS, sitemap, JSON-LD, Open Graph
-- **Bill 44 tracker** — scaffolded, switched off (`showTracker = false`)
+- **R1-1 Tracker** — multiplex permit counts plus headlines, fully automatic; see below
 - **Email** — `contact@brandonfleming.ca` forwarding confirmed working. Settled.
 - **Per-page coordinates** — the header readout is Brandon's idea, built
   18 August 2026. Each page names a real place it is about; pages outside the
@@ -81,7 +81,6 @@ programmer; he built the first version with an LLM. He *is* strong at GIS
    - `content/colophon.md` and `content/work/affordability-calculator.md`, both
      draft. Better to rewrite before shipping than after.
    - `layouts/partials/footer.html` — the "Focus" line.
-   - Tracker notes in `data/tracker.json`, two of which end in my sentences.
 
    Method that works: read a paragraph, close it, and say the same thing out loud
    to a friend. Write down what you actually said. It will be shorter, less
@@ -89,10 +88,11 @@ programmer; he built the first version with an LLM. He *is* strong at GIS
    against sources and the accuracy is not the problem.
 
    `scripts/check_site.py` cannot catch this. Nothing can. It is a read-through.
-3. **Bill 44 tracker works but is switched off.** `showTracker = false`, so it is
-   reachable at `/tracker/` and absent from the nav. 26 candidates collected from
-   6 sources, 3 annotated. It runs unattended on Fridays and messages Telegram.
-   See `TRACKER-HANDOFF.md`.
+3. **The Bill 44 tracker is retired, deleted on 14 November 2026.** It worked
+   mechanically but needed a hand-written note per entry, and the notes stopped
+   in July. Replaced by the R1-1 Tracker, which needs nothing from anyone. The
+   last commit containing the old collector is the parent of the retirement
+   commit, if it is ever wanted back. The Telegram secrets on GitHub can go.
 4. **Two pages sit finished at `draft = true`**, waiting on Brandon rather than
    on any more building:
    - `content/colophon.md` — explains the contour plate. Needs a read-through
@@ -106,7 +106,6 @@ programmer; he built the first version with an LLM. He *is* strong at GIS
 5. **Smaller, none urgent:**
    - Four photographs have no `place` set: `lake-camp`, `milky-way`,
      `balanced-stones`, `driftwood`. Their captions are also mine, not his.
-   - Two tracker notes end with sentences I wrote. He meant to replace them.
    - The résumé still says "GIS spatial analysis of corporate land assembly",
      which thesis proposal 2.1 demoted to a stretch goal.
    - `HUGO_VERSION` in Cloudflare is `0.147.7`; his laptop runs `0.164`. It
@@ -125,7 +124,7 @@ content/          the words
   writing/          empty
   photography/      one page. All 19 .jpg live here as page resources,
                     with captions, categories and shooting data in _index.md
-  tracker/          Bill 44 tracker intro
+  tracker/          R1-1 Tracker intro
 layouts/          hand-written templates, no theme
 assets/
   css/main.css      the entire stylesheet, heavily commented
@@ -135,11 +134,11 @@ assets/
 static/
   fonts/            Jost + Michroma (+ unused Basteleur)
   documents/        résumé and two PDFs
-data/             tracker.json only. Hugo parses everything in here on every
+data/             multiplex.json only. Hugo parses everything in here on every
                   build, so nothing script-only belongs in it
 scripts/
   make_plate.py     the contour plate generator
-  track_bill44.py   Bill 44 news/agenda collector
+  track_multiplex.py  R1-1 permit counts and headlines
 _preview/         gitignored; build.py renders static previews without Hugo
 _originals/       gitignored; full-resolution sources. Anything dropped inside
                   a page bundle gets published verbatim, so originals live here
@@ -199,7 +198,7 @@ that page is about.
 | Land Lost to ALC | 4940 Canada Way, the ALC's own office | 50 m |
 | Vancouver's Multiplex Reform | Vancouver City Hall, where R1-1 was approved | 40 m |
 | Townhouses Before Transit | Grandview Heights | 90 m |
-| Bill 44 Tracker | Surrey City Hall | 80 m |
+| R1-1 Tracker | Vancouver City Hall, where R1-1 was approved | 40 m |
 
 The elevations are doing work. Amsterdam at -2 m sitting two cards away from
 Grandview Heights at 90 m is the whole op-ed in two numbers.
@@ -355,29 +354,39 @@ carried over to the new level list unchanged and needed no retuning.
 
 ---
 
-## Bill 44 tracker
+## R1-1 Tracker
 
-`scripts/track_bill44.py` polls the news feeds and Surrey report listings in
-`scripts/tracker_sources.yaml`, and writes candidates into `data/tracker.json`
-with an **empty `note`**. Nothing publishes until Brandon writes that note by
-hand: the annotation is the point, and an unreviewed feed reads as a robot
-nobody watches. Only title, URL, date, hit count and matched terms are stored,
-never document text.
+`scripts/track_multiplex.py` writes `data/multiplex.json`, which `/tracker/` and
+the home page rail read. Stdlib only, no pip install. A GitHub Action
+(`.github/workflows/track-multiplex.yml`) runs it Mondays and commits.
 
-Council report titles are just application numbers, so keyword matching runs
-against the linked PDFs rather than the headings. That needs `pypdf`.
+**Permits.** City of Vancouver open data, `issued-building-permits`. The filter
+is `typeofwork = 'New Building' AND search(projectdescription, "multiplex")`,
+chosen with `--compare` because it is the only candidate that reads zero in
+every year before R1-1 existed. The obvious alternative, `specificusecategory`
+of Multiple Dwelling, reports 78 to 157 permits a year in 2019 to 2023 because
+Vancouver calls apartment blocks that too. The evidence table is in the script.
+`check_site.py` fails if the pre-2024 years go missing or stop being zero.
 
-**`data/` holds `tracker.json` and nothing else.** Hugo parses every file in
-`data/` on every build, whether a template reads it or not, so the scraper's
-config and its URL-hash cache live in `scripts/`. They were in `data/` once,
-and a stray byte at the top of the YAML took down the whole site build.
+These are **issued permits, not applications**, so recent months undercount.
+Do not let the page imply they match Brandon's "600+ applications" figure; they
+are different measures that happen to land near each other.
 
-`.github/workflows/track-bill44.yml` runs it weekly and commits back. Currently
-inert: `data/tracker.json` is empty and `showTracker = false` in `hugo.toml`.
+**Headlines.** City of Vancouver news listing (HTML, the core source), Daily
+Hive Urbanized and BC Government housing releases (RSS). Matched on R1-1,
+multiplex, missing middle, small-scale multi-unit; the RSS sources must also
+mention Vancouver; cinema stories are excluded. Stored as title, link, outlet
+and date only, never article text. Matches accumulate across runs because
+R1-1 news is sparse: on 14 November 2026 none of the current feed items
+matched. The City listing has no dates, so its back catalogue was stored
+undated on the first run rather than stamped with that day.
 
-The rail on the home page renders **nothing** when there are no reviewed entries,
-so it can never show as an empty box. The entries visible in `_preview/` are
-sample data injected by `_preview/build.py` only.
+Rejected sources, so nobody re-adds them: Google News search RSS (robots.txt
+disallows it), Business in Vancouver and the old CBC BC feed (both refuse).
+
+**`data/` holds `multiplex.json` and nothing else.** Hugo parses every file in
+`data/` on every build; a stray byte in a YAML file there once took down the
+whole site.
 
 ---
 
