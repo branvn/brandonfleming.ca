@@ -20,6 +20,6 @@
       <p class="card-tools">{{ delimit . " · " }}</p>
     {{ end }}
 
-    <p class="card-link"><a href="{{ .RelPermalink }}">Read more →</a></p>
+    <p class="card-link"><a href="{{ .RelPermalink }}">Read more<span class="visually-hidden">: {{ .Title }}</span> →</a></p>
   </div>
 </article>

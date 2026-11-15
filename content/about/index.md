@@ -25,7 +25,7 @@ elev =  3.2
 
 I'm a graduate researcher in urban studies based in Surrey, British Columbia,
 where I've lived my whole life. My work bridges the gap between spatial analysis and public
-policy, using GIS and financial modelling to test whether land use policy does
+policy, using GIS and quantitative analysis to test whether land use policy does
 what it claims to do.
 
 Right now that means a Master of Urban Studies at **Simon Fraser University**, an

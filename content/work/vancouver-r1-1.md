@@ -7,7 +7,7 @@ draft = false
 summary = "How many net homes did Vancouver's R1-1 rezoning actually add in its first 18 months, how did that vary with the capacity each lot gained, and how did builders respond?"
 
 year    = "2025 – present"
-context = "MA thesis, Master of Urban Studies, Simon Fraser University"
+context = "Master's thesis, Master of Urban Studies, Simon Fraser University"
 role    = "Sole researcher"
 tools   = ["City of Vancouver open data", "BC Assessment data", "Difference-in-differences", "Machine learning", "Semi-structured interviews"]
 status  = "in-progress"

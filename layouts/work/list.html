@@ -4,6 +4,7 @@
     {{ with .Content }}<div class="page-intro">{{ . }}</div>{{ end }}
   </header>
 
+  <h2 class="visually-hidden">Projects</h2>
   <div class="cards">
     {{ range .Pages.ByParam "weight" }}
       {{ partial "work-card.html" . }}

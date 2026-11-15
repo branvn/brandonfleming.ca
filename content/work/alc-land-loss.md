@@ -6,6 +6,9 @@ draft = false
 
 summary = "A kernel density analysis of 157 Agricultural Land Commission applications, showing that farmland in Metro Vancouver is being consumed by approved houses rather than by exclusions from the reserve."
 
+# The summary is 197 characters, longer than the ~155 a search result shows.
+description = "A kernel density analysis of 157 ALC applications, showing Metro Vancouver farmland lost to approved houses rather than to exclusions from the reserve."
+
 year    = "2023"
 context = "GEOG 4380, Kwantlen Polytechnic University, following an internship at the Agricultural Land Commission"
 role    = "Sole analyst and cartographer"
@@ -28,7 +31,7 @@ heroCaption = "Conference poster, December 2023. Click to view full size."
 # header captures everything after it, so `sources` placed below [download]
 # silently becomes download.sources and the template never sees it.
 sources = [
-  "[ALC Application Portal](https://a100.gov.bc.ca/pub/oatsp/list?execution=e2s1), Agricultural Land Commission",
+  "[ALC Application and Decision Search](https://www.alc.gov.bc.ca/application-decision-search/), Agricultural Land Commission",
   "[ParcelMap BC Parcel Fabric](https://catalogue.data.gov.bc.ca/dataset/parcelmap-bc-parcel-fabric), Government of British Columbia",
   "[Agricultural Land Reserve Maps](https://www.alc.gov.bc.ca/alr-maps/), Provincial Agricultural Land Commission",
 ]

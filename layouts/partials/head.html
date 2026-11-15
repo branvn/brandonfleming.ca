@@ -20,7 +20,7 @@
 <meta property="og:url" content="{{ .Permalink }}">
 <meta property="og:image" content="{{ $ogimg }}">
 <meta property="og:locale" content="en_CA">
-{{ with .Date }}<meta property="article:published_time" content="{{ .Format "2006-01-02" }}">{{ end }}
+{{ if .IsPage }}{{ with .Date }}<meta property="article:published_time" content="{{ .Format "2006-01-02" }}">{{ end }}{{ end }}
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{{ $title }}">
@@ -51,7 +51,9 @@
 <link rel="alternate icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
 <meta name="theme-color" content="#051014">
 
-{{/* Structured data — helps Google show your name, role and links correctly. */}}
+{{/* Structured data: helps Google show your name, role and links correctly.
+     alumniOf is for completed degrees only, so SFU and BCIT, where Brandon is
+     still studying, are listed under affiliation until he graduates. */}}
 {{ if .IsHome }}
 <script type="application/ld+json">
 {{ dict
@@ -63,9 +65,10 @@
   "jobTitle" "Urban Studies Graduate Researcher"
   "address" (dict "@type" "PostalAddress" "addressLocality" "Surrey" "addressRegion" "BC" "addressCountry" "CA")
   "alumniOf" (slice
-      (dict "@type" "CollegeOrUniversity" "name" "Simon Fraser University")
-      (dict "@type" "CollegeOrUniversity" "name" "British Columbia Institute of Technology")
       (dict "@type" "CollegeOrUniversity" "name" "Kwantlen Polytechnic University"))
+  "affiliation" (slice
+      (dict "@type" "CollegeOrUniversity" "name" "Simon Fraser University")
+      (dict "@type" "CollegeOrUniversity" "name" "British Columbia Institute of Technology"))
   "sameAs" (append (site.Params.profiles | default slice) (slice site.Params.linkedin))
   | jsonify (dict "indent" "  ")
   | safeJS }}

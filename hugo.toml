@@ -4,6 +4,11 @@ title = "Brandon Fleming"
 enableRobotsTXT = true
 enableGitInfo = false
 
+# No taxonomy pages. Nothing uses tags, and an unused tags taxonomy was
+# publishing an empty /tags/ page into the sitemap. Hugo's defaults would also
+# turn the photography page's `categories` into /categories/urban/ and so on.
+disableKinds = ["taxonomy", "term"]
+
 # Drafts are hidden in production builds. Use `hugo server -D` to preview them.
 buildDrafts = false
 buildFuture  = false
@@ -95,7 +100,6 @@ summaryLength = 30
     endLevel   = 3
 
 [taxonomies]
-  tag = "tags"
 
 [imaging]
   quality = 84
