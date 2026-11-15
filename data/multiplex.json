@@ -234,5 +234,10 @@
       "permits": 3
     }
   ],
+  "news_seeded": [
+    "BC Government",
+    "Daily Hive",
+    "The Tyee"
+  ],
   "news": []
 }
