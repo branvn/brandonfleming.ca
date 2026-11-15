@@ -372,21 +372,31 @@ These are **issued permits, not applications**, so recent months undercount.
 Do not let the page imply they match Brandon's "600+ applications" figure; they
 are different measures that happen to land near each other.
 
-**Headlines.** City of Vancouver news listing (HTML, the core source), Daily
-Hive Urbanized and BC Government housing releases (RSS). Matched on R1-1,
-multiplex, missing middle, small-scale multi-unit; the RSS sources must also
-mention Vancouver; cinema stories are excluded. Stored as title, link, outlet
-and date only, never article text. Matches accumulate across runs because
-R1-1 news is sparse: on 14 November 2026 none of the current feed items
-matched. The City listing has no dates, so its back catalogue was stored
-undated on the first run rather than stamped with that day.
+**Headlines.** The Tyee, Daily Hive Urbanized and BC Government housing
+releases, all RSS. Matched on R1-1, multiplex, missing middle, small-scale
+multi-unit, read from the headline, the description and The Tyee's subject
+tags; every source must also mention Vancouver unless the story says R1-1;
+cinema stories are excluded. Stored as title, link, outlet and date only, never
+article text, and `check_site.py` fails if anything more is stored.
 
-Rejected sources, so nobody re-adds them: Google News search RSS (robots.txt
-disallows it), Business in Vancouver and the old CBC BC feed (both refuse).
+Expect it to be quiet. On 14 and 15 November 2026 not one current item across
+all three matched. Matches accumulate across runs, and the section hides itself
+when empty rather than showing a blank heading.
+
+The City of Vancouver's own news listing would be the best source and is not
+used: it returns 403 to the script, and the only way past that is disguising
+the script as a browser, which is evading a site's bot blocking. Don't. The
+full list of rejected sources, and why, is in the script.
 
 **`data/` holds `multiplex.json` and nothing else.** Hugo parses every file in
 `data/` on every build; a stray byte in a YAML file there once took down the
 whole site.
+
+**Hugo deprecations, do not fix yet.** Hugo 0.164 warns that `languageCode`
+should be `locale` and `.Site.Data` should be `hugo.Data`. Cloudflare builds
+with 0.147.7, which may not know either replacement, so changing them now could
+break the live build. Bump `HUGO_VERSION` in Cloudflare to `0.164.0` first,
+confirm a deploy, then make both changes.
 
 ---
 

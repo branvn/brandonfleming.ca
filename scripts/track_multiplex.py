@@ -481,17 +481,24 @@ def units_probe() -> int:
 # in March is still worth listing in November.
 #
 # Sources considered and rejected, so nobody re-adds them:
+#   City of Vancouver news  the best source in principle. Its listing allows
+#                           crawling but returns 403 to this script. Getting
+#                           past that means disguising the script as a web
+#                           browser, which is evading a site's bot blocking,
+#                           so it is not done. Re-add only if the City
+#                           publishes a feed.
 #   Google News search RSS  robots.txt disallows automated fetching
 #   Business in Vancouver   /rss refused the request outright
 #   CBC British Columbia    the old feed URL refused the request
+#   Vancouver Is Awesome    refused the request
+#   CityNews Vancouver      blocked
 
 NEWS_SOURCES = [
-    # The City's own announcements. Not a feed, a server-rendered listing of
-    # every news release, so links are read straight from the page. Everything
-    # on it is about Vancouver, so no place check.
-    {"name": "City of Vancouver", "kind": "html",
-     "url": "https://vancouver.ca/news-calendar/all-news-listing.aspx",
-     "link_contains": "/news-calendar/", "need_place": False},
+    # The Tyee tags every story with subject keywords (dc:subject), which are
+    # read alongside the headline. A story tagged "Vancouver condo market" is
+    # caught by the place check even when its headline never says Vancouver.
+    {"name": "The Tyee", "kind": "rss",
+     "url": "https://thetyee.ca/rss2.xml", "need_place": True},
     {"name": "Daily Hive", "kind": "rss",
      "url": "https://dailyhive.com/feed/urbanized", "need_place": True},
     {"name": "BC Government", "kind": "rss",
@@ -563,6 +570,10 @@ def parse_rss(raw: bytes) -> list[dict]:
         l = first_child(el, "link")
         d = first_child(el, "pubDate", "published", "updated")
         s = first_child(el, "description", "summary")
+        # Subject and category tags. The Tyee's are precise ("BC Bill 44",
+        # "Vancouver condo market"); BC Government's are just the ministry.
+        tags = " ".join((c.text or "") for c in el
+                        if c.tag.rsplit("}", 1)[-1] in ("subject", "category"))
         link = ""
         if l is not None:
             link = (l.text or l.get("href") or "").strip()
@@ -572,7 +583,7 @@ def parse_rss(raw: bytes) -> list[dict]:
             "title": clean(t.text if t is not None else ""),
             "url": link,
             "date": iso_date(d.text if d is not None else None),
-            "_desc": clean(s.text if s is not None else ""),   # matching only
+            "_desc": clean((s.text if s is not None else "") + " " + tags),  # matching only
         })
     return out
 
@@ -602,7 +613,7 @@ def matches(item: dict, need_place: bool) -> bool:
     return True
 
 
-def collect_news(previous: list[dict], seeding: bool) -> tuple[list[dict], list[str]]:
+def collect_news(previous: list[dict], seeded: set[str]) -> tuple[list[dict], list[str]]:
     """Merge this week's matches into everything matched before.
 
     Dates. RSS items carry their own. The City listing does not, so a City
@@ -611,6 +622,13 @@ def collect_news(previous: list[dict], seeding: bool) -> tuple[list[dict], list[
     which picks up the City's whole back catalogue at once: stamping a 2023
     announcement with today's date would be a lie, so those are stored
     undated and shown without a date, at the bottom.
+
+    "First run" is per source, tracked in `seeded`. It used to be per file,
+    which broke the first time a source failed on the first run: the file
+    then existed, so when that source came back its whole back catalogue
+    would have been stamped with the day it recovered. Only undated sources
+    are affected, and all the current ones carry dates, but the next one
+    added might not.
     """
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     kept = {n["url"]: n for n in previous}
@@ -630,10 +648,11 @@ def collect_news(previous: list[dict], seeding: bool) -> tuple[list[dict], list[
         for i in hits:
             if i["url"] in kept:
                 continue     # keep the first record, and the date it was first seen
-            date = i["date"] or (None if seeding else today)
+            date = i["date"] or (None if src["name"] not in seeded else today)
             kept[i["url"]] = {"title": i["title"], "url": i["url"],
                               "outlet": src["name"], "date": date}
             new += 1
+        seeded.add(src["name"])
         report.append(f"{src['name']:18s} {len(items):4d} items  {len(hits):3d} match  {new:3d} new")
 
     news = sorted(kept.values(), key=lambda n: n.get("date") or "0000", reverse=True)
@@ -643,7 +662,7 @@ def collect_news(previous: list[dict], seeding: bool) -> tuple[list[dict], list[
 def news_only() -> int:
     """Check every source and show what matched, without writing anything."""
     print("Checking news sources (nothing is written)...\n")
-    news, report = collect_news([], seeding=True)
+    news, report = collect_news([], seeded=set())
     for line in report:
         print("  " + line)
     print(f"\n{len(news)} matching headlines:\n")
@@ -712,8 +731,9 @@ def main(argv: list[str]) -> int:
     # or all of them, keeps the headlines already collected and carries on.
     print("\nGathering R1-1 headlines...")
     try:
-        news, report = collect_news(previous.get("news") or [],
-                                    seeding="news" not in previous)
+        seeded = set(previous.get("news_seeded") or [])
+        news, report = collect_news(previous.get("news") or [], seeded)
+        data["news_seeded"] = sorted(seeded)
         for line in report:
             print("  " + line)
         data["news"] = news
@@ -726,7 +746,9 @@ def main(argv: list[str]) -> int:
         return 0
 
     DATA_FILE.parent.mkdir(exist_ok=True)
-    DATA_FILE.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+    # newline="\n": Windows would otherwise write CRLF, Git would warn on every
+    # commit, and a local run and the weekly Linux run would differ by bytes.
+    DATA_FILE.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8", newline="\n")
     print(f"\nWrote {DATA_FILE.relative_to(ROOT)}: {data['total_since_in_force']} permits "
           f"since R1-1, about {data['per_year']} a year against the City's "
           f"{CITY_EXPECTATION_PER_YEAR}; {len(data['news'])} headlines.")
