@@ -15,8 +15,8 @@ In October 2023 Vancouver replaced nine single-family zones with one, and most
 of the city's single-family lots became eligible for a multiplex of three to six
 units. The City expected about 150 multiplex projects a year.
 
-This page counts what has actually been permitted since, straight from the
-City's issued building permits dataset, and collects the news coverage of it as
+This page counts the building permits issued for multiplexes since, straight
+from the City's own dataset, and collects the news coverage of it as
 it appears. It refreshes itself every week and nobody writes anything here by
 hand.
 

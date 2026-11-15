@@ -17,8 +17,12 @@
      "tidy up" by dropping them. */}}
 
 {{ define "main" }}
-  {{ $d := site.Data.multiplex }}
+  {{ $d := hugo.Data.multiplex }}
 
+  {{/* One near-opaque panel behind the whole page. This is the only reading
+       page that sat straight on the contour plate, and with charts on it the
+       plate showed through as noise. */}}
+  <div class="tracker-panel">
   <header class="page-head">
     <h1>{{ .Title }}</h1>
     {{ with .Content }}<div class="page-intro">{{ . }}</div>{{ end }}
@@ -39,12 +43,14 @@
     <div class="mx-figures">
       <div class="mx-fig">
         <span class="mx-num">{{ $d.total_since_in_force }}</span>
-        <span class="mx-lab">multiplex permits issued since R1-1 came into force</span>
+        <span class="mx-lab">building permits issued for multiplexes since R1-1
+          came into force</span>
       </div>
       <div class="mx-fig">
         <span class="mx-num">{{ $d.per_year }}</span>
-        <span class="mx-lab">a year, against the City's expectation of
-          about {{ $d.city_expectation_per_year }}</span>
+        <span class="mx-lab">a year. A multiplex often needs two permits, one for
+          the front building and one for the rear, so this counts buildings
+          rather than projects</span>
       </div>
     </div>
 
@@ -127,6 +133,14 @@
         different measures and should not be read against each other.
       </p>
       <p>
+        <strong>A permit is one building, not one multiplex.</strong> The City
+        issues a building permit per building, and a typical multiplex has a
+        front building and a rear one, so the counts here run higher than the
+        number of projects. That is also why they are not set against the
+        City's expectation of about {{ $d.city_expectation_per_year }} projects
+        a year: the two count different things.
+      </p>
+      <p>
         <strong>The filter is text matching.</strong> A permit counts here when
         the City's own project description mentions a multiplex. That is
         accurate to within a few percent, not exact: it catches a small number
@@ -144,4 +158,5 @@
     </div>
 
   {{ end }}
+  </div>
 {{ end }}

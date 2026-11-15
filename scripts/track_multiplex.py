@@ -465,6 +465,64 @@ def units_probe() -> int:
     return 0
 
 
+# ------------------------------------------------------------------- projects
+#
+# Building permits are per building. The --units run on 15 November showed it
+# plainly: DP-2024-00603 had one permit for "a three-storey 3-unit front
+# building and a two-storey 1-unit rear building" and a second for "a
+# two-storey 1-unit rear building". A typical multiplex is a front building
+# plus a rear one, so counting permits counts buildings, and setting that
+# against the City's expectation of 150 *projects* a year overstated uptake.
+#
+# --projects measures the gap two independent ways: distinct addresses (one
+# lot, one project) and distinct development permit numbers (DP-YYYY-NNNNN,
+# which the City uses for the project as a whole). If they agree, either can
+# replace the permit count.
+
+EXPORT = API.replace("/records", "/exports/json")
+DP_RE = re.compile(r"\bDP-\d{4}-\d{5}\b")
+
+
+def projects_probe() -> int:
+    where = f"issuedate >= date'{IN_FORCE}' AND ({MULTIPLEX_FILTER})"
+    url = EXPORT + "?" + urllib.parse.urlencode({
+        "where": where, "select": "address,projectdescription,issuedate,permitnumber"})
+    rows = json.loads(fetch(url).decode("utf-8"))
+    print(f"{len(rows)} multiplex building permits since R1-1.\n")
+
+    by_addr: dict[str, list] = {}
+    for r in rows:
+        by_addr.setdefault((r.get("address") or "?").strip().upper(), []).append(r)
+    dps = [DP_RE.search(r.get("projectdescription") or "") for r in rows]
+    dp_ids = {m.group(0) for m in dps if m}
+
+    per = Counter(len(v) for v in by_addr.values())
+    print(f"  distinct addresses             {len(by_addr):5d}")
+    print(f"  permits naming a DP number     {sum(1 for m in dps if m):5d} of {len(rows)}")
+    print(f"  distinct DP numbers named      {len(dp_ids):5d}\n")
+    print("  permits per address:")
+    for k in sorted(per):
+        print(f"    {k} permit{'s' if k > 1 else ' '}  {per[k]:5d} addresses")
+
+    # Projects per year, dated by each address's first permit.
+    first = Counter(min(str(r.get("issuedate"))[:4] for r in v) for v in by_addr.values())
+    print("\n  projects (distinct addresses) by year of first permit:")
+    for y in sorted(first):
+        print(f"    {y}  {first[y]:4d}")
+
+    print("\nTHREE ADDRESSES WITH MORE THAN ONE PERMIT, to check they are one project:")
+    shown = 0
+    for addr, v in by_addr.items():
+        if len(v) < 2 or shown == 3:
+            continue
+        shown += 1
+        print(f"\n  {addr}")
+        for r in v:
+            print(f"    {r.get('issuedate')}  {str(r.get('projectdescription'))[:150]}")
+    print("\nNothing here is written or published. Addresses stay on your machine.")
+    return 0
+
+
 # ----------------------------------------------------------------------- news
 #
 # Headlines about R1-1 and multiplexes, gathered from three sources and stored
@@ -681,6 +739,8 @@ def main(argv: list[str]) -> int:
                     help="count several candidate filters and show sample rows")
     ap.add_argument("--compare", action="store_true",
                     help="count the finalists per year, including before R1-1 existed")
+    ap.add_argument("--projects", action="store_true",
+                    help="count distinct multiplex projects, not building permits")
     ap.add_argument("--units", action="store_true",
                     help="test reading unit counts out of the permit descriptions")
     ap.add_argument("--news", action="store_true",
@@ -703,6 +763,9 @@ def main(argv: list[str]) -> int:
 
     if args.units:
         return units_probe()
+
+    if args.projects:
+        return projects_probe()
 
     if not MULTIPLEX_FILTER:
         print("MULTIPLEX_FILTER is not set yet, so there is nothing to count.\n"

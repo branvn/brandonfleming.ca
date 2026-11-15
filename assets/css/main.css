@@ -337,6 +337,18 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
 .mx-year.is-zero .mx-bar { background: var(--text-faint); opacity: .45; }
 .mx-year.is-zero .mx-year-count { color: var(--text-faint); }
 
+/* The tracker page on a near-opaque panel. .82, the alpha the cards use, was
+   still too see-through behind bar charts: the contour lines read as part of
+   the data. */
+.tracker-panel {
+  max-width: 62rem;
+  background: rgba(11, 30, 36, .95);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: clamp(1.25rem, 3vw, 2.25rem) clamp(1.1rem, 3vw, 2.5rem);
+}
+.tracker-panel .page-head { margin-top: 0; }
+
 /* Headlines under the charts. */
 .mx-news { list-style: none; padding: 0; margin: 1rem 0 1rem; }
 .mx-news li { padding: .7rem 0; border-top: 1px solid rgba(127, 212, 193, .12); }

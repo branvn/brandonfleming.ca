@@ -1,5 +1,5 @@
 baseURL = "https://brandonfleming.ca/"
-languageCode = "en-ca"
+locale = "en-ca"
 title = "Brandon Fleming"
 enableRobotsTXT = true
 enableGitInfo = false
