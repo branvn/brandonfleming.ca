@@ -184,6 +184,24 @@ and the two stories conflict.
 
 ---
 
+## Research page
+
+`/research/` is a curated timeline plus an automatic list. The timeline lives in
+the front matter of `content/research/_index.md` as `[[timeline]]` blocks,
+printed in the order written; `check_site.py` keeps them in date order. Entries
+marked VERIFIED in that file were checked against OpenAlex on 15 November 2026.
+The rest come from Brandon's research brief and still need full titles and
+links; Dong (2025) is hidden with `draft = true` until it has a title. Notes on
+studies are his own descriptions from the brief. Links go to a free version
+where one exists, and `access` says which kind.
+
+`scripts/track_research.py` writes `data/research.json` from OpenAlex, weekly,
+in the same Action as the permit counts but allowed to fail without stopping
+them. Journal articles only, published version free to read, title, authors,
+journal, date and link only. **A malformed OpenAlex query returns everything in
+the index instead of an error**; the script refuses any result set over 5,000,
+which is the only thing standing between the page and veterinary case reports.
+
 ## The header coordinates
 
 Brandon's idea, and the best thing on the site that nobody is told about. The
@@ -388,7 +406,7 @@ used: it returns 403 to the script, and the only way past that is disguising
 the script as a browser, which is evading a site's bot blocking. Don't. The
 full list of rejected sources, and why, is in the script.
 
-**`data/` holds `multiplex.json` and nothing else.** Hugo parses every file in
+**`data/` holds `multiplex.json` and `research.json`, both written by scripts, and nothing else.** Hugo parses every file in
 `data/` on every build; a stray byte in a YAML file there once took down the
 whole site.
 

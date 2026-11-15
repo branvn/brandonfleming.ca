@@ -1,0 +1,70 @@
+{{ define "bodyclass" }}reading{{ end }}
+
+{{/* Upzoning research: a curated timeline, then an automatic list.
+
+     The timeline lives in content/research/_index.md front matter and is
+     printed in the order written, with a year heading whenever the year
+     changes. check_site.py keeps the entries in date order, which is what
+     makes that safe. Entries with draft = true are skipped.
+
+     The list underneath comes from data/research.json, written weekly by
+     scripts/track_research.py. It hides itself if the file is missing. */}}
+
+{{ define "main" }}
+  <div class="research-panel">
+  <header class="page-head">
+    <h1>{{ .Title }}</h1>
+    {{ with .Content }}<div class="page-intro">{{ . }}</div>{{ end }}
+  </header>
+
+  <h2 class="section-label">Timeline</h2>
+  <ol class="rt">
+    {{ $year := 0 }}
+    {{ range .Params.timeline }}
+      {{ if not .draft }}
+        {{ if ne .year $year }}
+          {{ $year = .year }}
+          <li class="rt-year" aria-hidden="true">{{ .year }}</li>
+        {{ end }}
+        {{ $kind := .kind | default "study" }}
+        <li class="rt-item rt-{{ $kind }}">
+          <p class="rt-meta">
+            <span class="rt-kind">{{ if eq $kind "policy" }}Policy{{ else if eq $kind "thesis" }}This thesis{{ else }}Study{{ end }}</span>
+            {{ with .place }}<span>{{ . }}</span>{{ end }}
+            {{ with .access }}<span class="rt-access rt-access-{{ . | urlize }}">{{ . }}</span>{{ end }}
+          </p>
+          <h3 class="rt-title">
+            {{ with .url }}<a href="{{ . }}"{{ if hasPrefix . "http" }} rel="noopener"{{ end }}>{{ end }}{{ .title }}{{ with .url }}</a>{{ end }}
+          </h3>
+          {{ if or .who .where }}
+            <p class="rt-cite">{{ with .who }}{{ . }}{{ end }}{{ if and .who .where }}, {{ end }}{{ with .where }}<em>{{ . }}</em>{{ end }}</p>
+          {{ end }}
+          {{ with .note }}<p class="rt-note">{{ . }}</p>{{ end }}
+        </li>
+      {{ end }}
+    {{ end }}
+  </ol>
+
+  {{ with hugo.Data.research }}{{ with .papers }}
+    <h2 class="section-label">Newest open-access research</h2>
+    <ol class="rt-papers">
+      {{ range . }}
+        <li>
+          <p class="rt-meta">
+            {{ with .date }}<time datetime="{{ . }}">{{ dateFormat "2 Jan 2006" . }}</time>{{ end }}
+            {{ with .journal }}<span>{{ . }}</span>{{ end }}
+          </p>
+          <a href="{{ .url }}" rel="noopener">{{ .title }}</a>
+          {{ with .authors }}<p class="rt-cite">{{ . }}</p>{{ end }}
+        </li>
+      {{ end }}
+    </ol>
+    <p class="mx-note">
+      Matched automatically, not chosen by me: peer-reviewed journal articles
+      with upzoning in the title or abstract, where the published version is
+      free to read. Refreshed weekly from
+      <a href="https://openalex.org" rel="noopener">OpenAlex</a>.
+    </p>
+  {{ end }}{{ end }}
+  </div>
+{{ end }}

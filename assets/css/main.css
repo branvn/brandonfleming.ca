@@ -349,6 +349,60 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
 }
 .tracker-panel .page-head { margin-top: 0; }
 
+/* --------------------------------------------------------------------------
+   Research timeline
+   A single vertical rule with a dot per entry. Policies are sand, studies are
+   teal, the thesis is filled: three kinds a reader can tell apart at a glance
+   without a legend.
+   -------------------------------------------------------------------------- */
+
+.research-panel {
+  max-width: 62rem;
+  background: rgba(11, 30, 36, .95);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: clamp(1.25rem, 3vw, 2.25rem) clamp(1.1rem, 3vw, 2.5rem);
+}
+.research-panel .page-head { margin-top: 0; }
+
+.rt, .rt-papers { list-style: none; padding: 0; margin: 1rem 0 2.5rem; }
+.rt { position: relative; padding-left: 1.4rem; }
+.rt::before {
+  content: ""; position: absolute; left: .3rem; top: .4rem; bottom: .4rem;
+  width: 1px; background: rgba(127, 212, 193, .25);
+}
+.rt-year {
+  font-family: var(--font-mono); font-size: .8125rem; letter-spacing: .1em;
+  color: var(--text-faint); margin: 1.6rem 0 .4rem -1.4rem;
+}
+.rt-year:first-child { margin-top: 0; }
+.rt-item { position: relative; padding: .45rem 0 .8rem; }
+.rt-item::before {
+  content: ""; position: absolute; left: -1.38rem; top: .9rem;
+  width: .55rem; height: .55rem; border-radius: 50%;
+  border: 1.5px solid #7fd4c1; background: rgba(11, 30, 36, 1);
+}
+.rt-policy::before { border-color: var(--sand); }
+.rt-thesis::before { background: var(--sand); border-color: var(--sand); }
+
+.rt-meta {
+  display: flex; flex-wrap: wrap; gap: .25rem .75rem; margin: 0 0 .2rem;
+  font-family: var(--font-mono); font-size: .72rem; letter-spacing: .04em;
+  color: var(--text-faint);
+}
+.rt-kind { text-transform: uppercase; letter-spacing: .12em; }
+.rt-policy .rt-kind, .rt-thesis .rt-kind { color: var(--sand); }
+.rt-access-paywalled { opacity: .7; }
+
+.rt-title { font-size: 1.02rem; font-weight: 500; line-height: 1.4; margin: 0; }
+.rt-title a, .rt-papers a { color: var(--text); text-decoration: none; }
+.rt-title a:hover, .rt-papers a:hover { color: var(--sand); text-decoration: underline; }
+.rt-cite { font-size: .8125rem; color: var(--text-dim); margin: .15rem 0 0; }
+.rt-note { font-size: .875rem; color: var(--text-dim); margin: .3rem 0 0; max-width: 46rem; }
+
+.rt-papers li { padding: .7rem 0; border-top: 1px solid rgba(127, 212, 193, .12); }
+.rt-papers li:first-child { border-top: 0; }
+
 /* Headlines under the charts. */
 .mx-news { list-style: none; padding: 0; margin: 1rem 0 1rem; }
 .mx-news li { padding: .7rem 0; border-top: 1px solid rgba(127, 212, 193, .12); }

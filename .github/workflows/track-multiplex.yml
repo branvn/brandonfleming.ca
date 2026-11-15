@@ -1,4 +1,4 @@
-name: R1-1 Tracker
+name: Weekly refresh
 
 # Refreshes data/multiplex.json from City of Vancouver open data and commits it.
 #
@@ -38,11 +38,18 @@ jobs:
       - name: Count permits
         run: python scripts/track_multiplex.py
 
+      # Allowed to fail. OpenAlex being down, or its filter being silently
+      # dropped (which the script detects and refuses), should cost a week of
+      # research list, not a week of permit counts.
+      - name: Fetch research
+        continue-on-error: true
+        run: python scripts/track_research.py
+
       - name: Commit if the numbers moved
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/multiplex.json
+          git add data/
           if git diff --cached --quiet; then
             echo "No change this week."
             exit 0
@@ -50,5 +57,5 @@ jobs:
           # No [skip ci]: the page now carries headlines, and a news section
           # that only updates when Brandon happens to push is not a news
           # section. One Cloudflare build a week is nowhere near the limit.
-          git commit -m "R1-1 tracker: weekly refresh"
+          git commit -m "Weekly refresh: permits and research"
           git push

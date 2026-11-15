@@ -257,6 +257,60 @@ def check_coordinates() -> None:
         check_point(str(path.relative_to(ROOT)), matter, required=False)
 
 
+# ------------------------------------------------------------------- research
+
+def check_research() -> None:
+    """The timeline in content/research/_index.md and the weekly paper list.
+
+    The timeline is printed in the order it is written, with a heading each
+    time the year changes, so an entry added out of order would put a 2019
+    study under 2026. Hence the order check.
+    """
+    page = ROOT / "content" / "research" / "_index.md"
+    if page.exists():
+        matter = front_matter(page)
+        prev_key, prev_label = (0, 0), None
+        for e in matter.get("timeline", []):
+            label = e.get("title", "?")[:50]
+            if not isinstance(e.get("year"), int):
+                fail(f"research timeline: {label!r} needs a year written as a number")
+                continue
+            if e.get("kind", "study") not in ("policy", "study", "thesis"):
+                fail(f"research timeline: {label!r} kind must be policy, study or thesis")
+            if e.get("access", "") not in ("", "free", "free copy", "paywalled"):
+                fail(f"research timeline: {label!r} access must be free, free copy or paywalled")
+            url = e.get("url", "")
+            if url and not (url.startswith("http") or url.startswith("/")):
+                fail(f"research timeline: {label!r} url must start with http or /")
+            # Compared with the entry just before it, not the latest seen, so
+            # one misplaced entry produces one message instead of a cascade.
+            key = (e["year"], e.get("month", 0))
+            if key < prev_key:
+                fail(f"research timeline: {label!r} ({key[0]}) comes after "
+                     f"{prev_label!r} ({prev_key[0]}); entries go oldest first")
+            prev_key, prev_label = key, label
+
+    data = ROOT / "data" / "research.json"
+    if not data.exists():
+        warn("data/research.json is missing. Run scripts/track_research.py; the "
+             "research page hides its paper list without it.")
+        return
+    try:
+        store = json.loads(data.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        fail(f"data/research.json is not valid JSON: {exc}")
+        return
+    allowed = {"title", "authors", "journal", "date", "url"}
+    for p in store.get("papers") or []:
+        extra = set(p) - allowed
+        if extra:
+            fail(f"research paper stores {sorted(extra)}; abstracts belong to their "
+                 f"publishers: {p.get('url')}")
+        if not (p.get("title") and p.get("url")):
+            fail(f"research paper missing title or url: {p}")
+    print(f"  research: {len(store.get('papers') or [])} papers")
+
+
 # -------------------------------------------------------------------------- main
 
 def main() -> int:
@@ -265,6 +319,7 @@ def main() -> int:
     check_photography()
     check_image_sizes()
     check_multiplex()
+    check_research()
     check_coordinates()
 
     if warns:

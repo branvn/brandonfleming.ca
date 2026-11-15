@@ -259,6 +259,29 @@ rather than leaving a gap.
 `alt` is not optional in spirit. It is what a screen reader announces and what
 Google indexes, and the checker treats a missing one as a failure.
 
+### Add something to the research timeline
+
+Open `content/research/_index.md` and copy any `[[timeline]]` block. Put the new
+one **in date order**, oldest at the top; the page prints them as written, and
+`check_site.py` will refuse an entry that is out of place.
+
+```toml
+[[timeline]]
+  year   = 2027
+  kind   = "study"            # policy, study or thesis
+  title  = "The full title"
+  who    = "Surname and Surname"
+  where  = "Journal name"
+  place  = "Vancouver"
+  url    = "https://doi.org/..."
+  access = "free"             # free, free copy, or paywalled
+  note   = "One line on why it matters."
+```
+
+Link the free version if there is one. If the journal's copy is paywalled but
+the author has posted a version (on SSRN, figshare or their own site), link
+that and set `access = "free copy"`.
+
 ### Reorder the photographs
 
 Change `order`. Lowest appears first. Renumber freely, and leave gaps so you can
