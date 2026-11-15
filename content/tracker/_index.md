@@ -1,6 +1,6 @@
 +++
 title = "R1-1 Tracker"
-summary = "Vancouver multiplex permits since the R1-1 rezoning came into force, and the headlines about it, refreshed weekly from the City's own data."
+summary = "How many multiplex projects Vancouver has permitted since its R1-1 rezoning, against the City's own expectation, refreshed weekly from its open data."
 
 aliases = ["/tracker/bill-44/"]
 
@@ -15,8 +15,8 @@ In October 2023 Vancouver replaced nine single-family zones with one, and most
 of the city's single-family lots became eligible for a multiplex of three to six
 units. The City expected about 150 multiplex projects a year.
 
-This page counts the building permits issued for multiplexes since, straight
-from the City's own dataset, and collects the news coverage of it as
+This page counts the multiplex projects permitted since, straight from the
+City's own building permit data, and collects the news coverage of it as
 it appears. It refreshes itself every week and nobody writes anything here by
 hand.
 
@@ -27,5 +27,5 @@ which is what happens when a side project needs homework. A number that keeps
 itself true is worth more than a curated list that goes stale.
 
 Related: [my thesis on the same reform](/work/vancouver-r1-1/), which measures
-net homes added rather than permits issued, and can say considerably more about
+net homes added rather than projects permitted, and can say considerably more about
 what the numbers below mean.
