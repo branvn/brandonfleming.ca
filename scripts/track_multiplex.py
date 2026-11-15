@@ -543,6 +543,111 @@ def projects_probe() -> int:
     return 0
 
 
+# ------------------------------------------------------------------- grouping
+#
+# --projects on 15 November settled what a project looks like in this data:
+# of 49 development permits with more than one building permit, 48 had their
+# permits at DIFFERENT addresses. The City gives each building its own civic
+# number, so one multiplex at 5963-5969 Granville is four permits at four
+# addresses. Address counting cannot see that.
+#
+# Only 161 of 650 permits name their DP number, so DP grouping alone cannot
+# count projects either. --grouping tests a rule that can: same street,
+# civic numbers within NUM_GAP of each other, issued within DAY_GAP days. It
+# is scored against the 101 DP projects whose answer is already known, before
+# it is trusted on the 489 permits that name no DP.
+
+ADDR_RE = re.compile(r"^\s*(\d+)[A-Z]?\s+([^,]+)", re.I)
+
+
+def parse_addr(addr: str | None) -> tuple[int, str] | None:
+    m = ADDR_RE.match(addr or "")
+    return (int(m.group(1)), " ".join(m.group(2).upper().split())) if m else None
+
+
+def adjacency_groups(rows: list[dict], num_gap: int, day_gap: int,
+                     use_dp: bool) -> list[int]:
+    """Group permits into projects. Returns a project id per row.
+
+    Union-find: two permits join when they share a DP number (if use_dp), or
+    sit on the same street within num_gap civic numbers and day_gap days.
+    """
+    parent = list(range(len(rows)))
+
+    def find(i):
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+
+    def union(a, b):
+        parent[find(a)] = find(b)
+
+    if use_dp:
+        seen = {}
+        for i, r in enumerate(rows):
+            m = DP_RE.search(r.get("projectdescription") or "")
+            if m:
+                if m.group(0) in seen:
+                    union(i, seen[m.group(0)])
+                else:
+                    seen[m.group(0)] = i
+
+    by_street: dict[str, list] = {}
+    for i, r in enumerate(rows):
+        a = parse_addr(r.get("address"))
+        if a:
+            d = datetime.strptime(str(r.get("issuedate"))[:10], "%Y-%m-%d")
+            by_street.setdefault(a[1], []).append((a[0], d, i))
+    for items in by_street.values():
+        items.sort()
+        for j, (n1, d1, i1) in enumerate(items):
+            for n2, d2, i2 in items[j + 1:]:
+                if n2 - n1 > num_gap:
+                    break
+                if abs((d2 - d1).days) <= day_gap:
+                    union(i1, i2)
+    return [find(i) for i in range(len(rows))]
+
+
+def pairs(ids: list) -> set:
+    by: dict = {}
+    for k, g in enumerate(ids):
+        by.setdefault(g, []).append(k)
+    return {(a, b) for v in by.values() for x, a in enumerate(v) for b in v[x + 1:]}
+
+
+def grouping_probe() -> int:
+    where = f"issuedate >= date'{IN_FORCE}' AND ({MULTIPLEX_FILTER})"
+    url = EXPORT + "?" + urllib.parse.urlencode({
+        "where": where, "select": "address,projectdescription,issuedate"})
+    rows = json.loads(fetch(url).decode("utf-8"))
+
+    known = [r for r in rows if DP_RE.search(r.get("projectdescription") or "")]
+    truth_ids = [DP_RE.search(r["projectdescription"]).group(0) for r in known]
+    truth = pairs(truth_ids)
+    print(f"{len(rows)} permits. Scoring the address rule against {len(known)} permits "
+          f"whose project is known from their DP number ({len(set(truth_ids))} projects).\n")
+    print("  civic gap  days    projects found   precision  recall    all-650 estimate")
+    print("             apart   (truth {:>3})".format(len(set(truth_ids))))
+
+    for num_gap in (2, 4, 8, 12):
+        for day_gap in (30, 120, 365):
+            guess = adjacency_groups(known, num_gap, day_gap, use_dp=False)
+            pred = pairs(guess)
+            hit = len(pred & truth)
+            prec = hit / len(pred) if pred else 1.0
+            rec = hit / len(truth) if truth else 1.0
+            total = len(set(adjacency_groups(rows, num_gap, day_gap, use_dp=True)))
+            print(f"  {num_gap:>6}    {day_gap:>4}    {len(set(guess)):>8}        "
+                  f"{prec:6.0%}    {rec:6.0%}       {total:>5}")
+
+    print("\nPrecision: of the pairs the rule joins, how many really are one project.")
+    print("Recall: of the real one-project pairs, how many the rule finds.")
+    print("Pick the row where both are high; its last column is the project count.")
+    return 0
+
+
 # ----------------------------------------------------------------------- news
 #
 # Headlines about R1-1 and multiplexes, gathered from three sources and stored
@@ -759,6 +864,8 @@ def main(argv: list[str]) -> int:
                     help="count several candidate filters and show sample rows")
     ap.add_argument("--compare", action="store_true",
                     help="count the finalists per year, including before R1-1 existed")
+    ap.add_argument("--grouping", action="store_true",
+                    help="score the address-adjacency rule against known DP projects")
     ap.add_argument("--projects", action="store_true",
                     help="count distinct multiplex projects, not building permits")
     ap.add_argument("--units", action="store_true",
@@ -786,6 +893,9 @@ def main(argv: list[str]) -> int:
 
     if args.projects:
         return projects_probe()
+
+    if args.grouping:
+        return grouping_probe()
 
     if not MULTIPLEX_FILTER:
         print("MULTIPLEX_FILTER is not set yet, so there is nothing to count.\n"
