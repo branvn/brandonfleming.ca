@@ -202,33 +202,35 @@ media = ["Film", "Digital"]
     alt      = "Looking west from the Cambie Bridge over Granville Island's red roofs and a crowded marina on False Creek, the Granville Bridge crossing the water and West End towers beyond, with snow-dusted North Shore mountains under a blue autumn sky"
 
   # The night walk: three frames from one roll, sequenced wide, mid, detail.
-  # Kentmere Pan 400 pushed two stops to 1600, per Brandon. TODO camera and
-  # lens: the files carry D750 EXIF from the scanning setup (28mm f/2.8 1/25),
-  # so neither is recorded. The 3:2 frame fits both the FE and the Bessa.
+  # Nikon FE, Kentmere Pan 400 pushed two stops to 1600, per Brandon. Lens
+  # not recalled, so left out; the hover line simply skips it. The D750 EXIF
+  # in the files (28mm f/2.8 1/25) is the scanning setup and is not used.
   [captions."safeway-night.jpg"]
     caption  = "After hours"
     # TODO place
     category = "Urban"
     medium   = "Film"
+    camera   = "Nikon FE"
     film     = "Kentmere Pan 400, pushed to 1600"
     order    = 140
     alt      = "A supermarket at night in black and white, a row of downlights scalloping its long wall above an empty parking lot"
 
   [captions."pharmacy-neon.jpg"]
     caption  = "Pharmacy, gated"
-    # TODO place
+    place    = "Johnston Road, White Rock"
     category = "Urban"
     medium   = "Film"
+    camera   = "Nikon FE"
     film     = "Kentmere Pan 400, pushed to 1600"
     order    = 150
     alt      = "A neon PHARMACY sign glowing behind a diamond-lattice security gate at night, the shop window's lettering half visible through the grille"
 
   [captions."dominion-cartouche.jpg"]
     caption  = "Dominion, 1910"
-    # TODO place. The crest reads Dominion 1910, which would make it the
-    # Dominion Building on Hastings, but confirm before it goes in.
+    place    = "Dominion Building, Vancouver"
     category = "Urban"
     medium   = "Film"
+    camera   = "Nikon FE"
     film     = "Kentmere Pan 400, pushed to 1600"
     order    = 160
     alt      = "A carved stone cartouche over a doorway at night, two cherubs flanking a crest that reads Dominion 1910, lit from above by a single lamp"
