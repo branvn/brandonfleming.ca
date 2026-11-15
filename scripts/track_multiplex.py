@@ -519,6 +519,26 @@ def projects_probe() -> int:
         print(f"\n  {addr}")
         for r in v:
             print(f"    {r.get('issuedate')}  {str(r.get('projectdescription'))[:150]}")
+    # The decisive test. Address grouping and DP grouping disagreed on
+    # 15 November (644 addresses for 650 permits, but 101 DP numbers for 161
+    # permits). If one DP's permits sit at different addresses, the address
+    # count is hiding multi-building projects and the DP ratio is the truth.
+    by_dp: dict[str, list] = {}
+    for r in rows:
+        m = DP_RE.search(r.get("projectdescription") or "")
+        if m:
+            by_dp.setdefault(m.group(0), []).append(r)
+    multi = {dp: v for dp, v in by_dp.items() if len(v) > 1}
+    same = sum(1 for v in multi.values()
+               if len({(r.get("address") or "?").strip().upper() for r in v}) == 1)
+    print(f"\nDP NUMBERS WITH MORE THAN ONE PERMIT: {len(multi)}")
+    print(f"  all permits at the same address   {same:4d}")
+    print(f"  permits at different addresses    {len(multi) - same:4d}   <- if large, addresses undercount projects")
+    for dp, v in list(multi.items())[:5]:
+        print(f"\n  {dp}")
+        for r in v:
+            print(f"    {(r.get('address') or '(no address)')[:48]:48s}  {str(r.get('projectdescription'))[60:140]}")
+
     print("\nNothing here is written or published. Addresses stay on your machine.")
     return 0
 
