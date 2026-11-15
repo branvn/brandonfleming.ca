@@ -48,7 +48,7 @@
      directly behind the cards, and at rgba(255,255,255,.035) every contour line
      read straight through the card and competed with the small text on it.
      Measured contrast barely moved — the problem was visual noise, not ratio. */
-  --surface:   rgba(11, 30, 36, .82);
+  --surface:   var(--panel);
   --line:      rgba(232, 241, 242, .12);
   --line-firm: rgba(232, 241, 242, .22);
 
@@ -81,11 +81,18 @@
   --text-label: var(--text);
 
   /* Paper — long-form reading surface */
-  --paper:      #f5f2ea;
-  --paper-edge: #e2dcce;
-  --ink:        #15211f;
-  --ink-dim:    #48544f;
-  --ink-link:   #0d5b58;
+  /* One backing panel for every page: cards, the hero box, the tracker, the
+     research page and every work page. Until 15 November 2026 the reading
+     pages sat on a cream "paper" sheet with dark ink while everything else
+     was dark; they now share this one value, so they cannot drift apart.
+     The paper and ink names are kept so the reading-page rules below did
+     not all need rewriting; they now resolve to the dark palette. */
+  --panel:      rgba(11, 30, 36, .95);
+  --paper:      var(--panel);
+  --paper-edge: var(--line);
+  --ink:        var(--text);
+  --ink-dim:    var(--text-dim);
+  --ink-link:   var(--sand);
 
   /* Type
      --font-hero    Michroma. The home page headline only. One weight, very
@@ -342,7 +349,7 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
    the data. */
 .tracker-panel {
   max-width: 62rem;
-  background: rgba(11, 30, 36, .95);
+  background: var(--panel);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: clamp(1.25rem, 3vw, 2.25rem) clamp(1.1rem, 3vw, 2.5rem);
@@ -358,7 +365,7 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
 
 .research-panel {
   max-width: 62rem;
-  background: rgba(11, 30, 36, .95);
+  background: var(--panel);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: clamp(1.25rem, 3vw, 2.25rem) clamp(1.1rem, 3vw, 2.5rem);
@@ -667,7 +674,7 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
 .card:hover {
   transform: translateY(-4px);
   border-color: rgba(221, 161, 94, .55);
-  background: rgba(17, 42, 49, .88);
+  background: rgba(17, 42, 49, .97);
 }
 
 .card-thumb { display: block; background: var(--bg-raised); }
@@ -737,8 +744,8 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
 .empty { color: var(--text-faint); font-style: italic; }
 
 /* --------------------------------------------------------------------------
-   Reading surface — a paper sheet laid on the map.
-   Long-form text is dark-on-light; the shell stays dark.
+   Reading surface: the same dark panel as everything else, laid on the
+   map. Long-form text keeps its serif face and its narrower measure.
    -------------------------------------------------------------------------- */
 
 .doc, .project {
@@ -833,7 +840,7 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
 }
 .prose h3 { font-size: 1.15rem; margin: 1.75rem 0 .4rem; }
 .prose a { color: var(--ink-link); }
-.prose a:hover { color: #0a423f; }
+.prose a:hover { color: var(--sand-hi); }
 .prose blockquote {
   margin: 1.5rem 0; padding-left: 1.25rem;
   border-left: 3px solid var(--sand);
@@ -841,7 +848,7 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
 }
 .prose code {
   font-family: var(--font-mono); font-size: .875em;
-  background: rgba(0,0,0,.055); padding: .1em .35em; border-radius: 3px;
+  background: rgba(232, 241, 242, .08); padding: .1em .35em; border-radius: 3px;
 }
 .prose table { width: 100%; border-collapse: collapse; font-family: var(--font-ui); font-size: .9375rem; margin: 1.5rem 0; }
 .prose th, .prose td { text-align: left; padding: .55rem .6rem; border-bottom: 1px solid var(--paper-edge); }
@@ -851,12 +858,12 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
 /* Buttons and downloads */
 .btn {
   display: inline-block;
-  background: var(--ink); color: var(--paper);
+  background: var(--sand); color: #14100a;
   padding: .7rem 1.35rem; border-radius: 6px;
   font-family: var(--font-ui); font-size: .875rem; font-weight: 600;
   text-decoration: none;
 }
-.btn:hover { background: var(--ink-link); color: #fff; }
+.btn:hover { background: var(--sand-hi); color: #14100a; }
 
 .download { margin: 2.5rem 0 0; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
 .download-note { font-size: .8125rem; color: var(--ink-dim); font-family: var(--font-mono); }
@@ -1121,7 +1128,7 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
   gap: 1.25rem;
   margin-top: 2rem;
   padding: 1.5rem;
-  background: #ece7dc;
+  background: rgba(232, 241, 242, .05);
   border-radius: var(--radius);
 }
 .pf-fig { display: flex; flex-direction: column; gap: .15rem; }
@@ -1139,27 +1146,11 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
 .pf-total strong { font-family: var(--font-mono); font-weight: 400; color: var(--ink); }
 
 /* --------------------------------------------------------------------------
-   Bill 44 tracker
+   R1-1 Tracker: the refresh line. The rest of the tracker's styles are with
+   the multiplex charts above.
    -------------------------------------------------------------------------- */
 
-.tracker-updated { font-family: var(--font-mono); font-size: .75rem; color: var(--ink-dim); }
-.tracker { list-style: none; padding: 0; margin: 2rem 0 0; }
-.tracker-item { padding: 1.5rem 0; border-top: 1px solid var(--paper-edge); }
-.tracker-item h2 { font-size: 1.2rem; margin: .35rem 0 .5rem; }
-.tracker-item h2 a { color: var(--ink); text-decoration: none; }
-.tracker-item h2 a:hover { color: var(--ink-link); text-decoration: underline; }
-.tracker-meta { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin: 0; }
-.tracker-meta time { font-family: var(--font-mono); font-size: .75rem; color: var(--ink-dim); }
-.pill {
-  font-family: var(--font-mono); font-size: .625rem;
-  text-transform: uppercase; letter-spacing: .08em;
-  padding: .15rem .55rem; border-radius: 999px;
-  background: rgba(7,87,91,.12); color: var(--ink-link);
-  border: 1px solid rgba(7,87,91,.28);
-}
-.pill-type { background: rgba(221,161,94,.16); color: #7a5320; border-color: rgba(221,161,94,.4); }
-.tracker-source { font-size: .8125rem; color: var(--ink-dim); margin: 0 0 .5rem; }
-.tracker-note { margin: 0; font-family: var(--font-read); max-width: var(--measure); }
+.tracker-updated { font-family: var(--font-mono); font-size: .75rem; color: var(--text-dim); }
 
 /* --------------------------------------------------------------------------
    404
@@ -1253,6 +1244,14 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
   /* The halo exists to lift type off the plate, and the plate isn't printed. */
   * { text-shadow: none !important; }
   body { background: #fff; color: #000; }
+  /* The screen palette is light text on a dark panel. On paper that would
+     print as nothing, so the variables flip back for print. */
+  :root {
+    --text: #000; --text-dim: #333; --text-faint: #555; --text-label: #000;
+    --ink: #000; --ink-dim: #333; --ink-link: #000; --paper-edge: #ccc;
+    --line: #ccc; --sand: #000;
+  }
+  .tracker-panel, .research-panel { background: #fff; border: 0; padding: 0; max-width: none; }
   .shell { max-width: none; padding: 0; }
   .doc, .project { box-shadow: none; border: 0; background: #fff; max-width: none; padding: 0; }
   .prose { max-width: none; }
