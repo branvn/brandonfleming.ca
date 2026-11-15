@@ -1,0 +1,90 @@
+{
+  "updated": "2026-11-15",
+  "source": "OpenAlex",
+  "papers": [
+    {
+      "title": "Wealth, homeownership, and land use regulatory changes",
+      "authors": "Gil et al.",
+      "journal": "Urban Studies",
+      "date": "2026-11-11",
+      "url": "https://doi.org/10.1177/00420980261498609"
+    },
+    {
+      "title": "Securing public amenities and city infrastructure: the case of value capture and municipal property formation in private-led development",
+      "authors": "Mualam",
+      "journal": "International Journal of Urban Sustainable Development",
+      "date": "2026-10-29",
+      "url": "https://doi.org/10.1080/19463138.2026.2750607"
+    },
+    {
+      "title": "Upzoning Without Inclusion: Tracing Sydney’s Inclusionary Zoning History and its Implications for Affordable Supply",
+      "authors": "Gilbert and Gurran",
+      "journal": "Urban Policy and Research",
+      "date": "2026-10-29",
+      "url": "https://doi.org/10.1080/08111146.2026.2727920"
+    },
+    {
+      "title": "Neighborhood Preservation for Whom? Tensions Between Historic District Designation and Zoning Reform in Seattle",
+      "authors": "Choi and Chalana",
+      "journal": "Journal of the American Planning Association",
+      "date": "2026-09-22",
+      "url": "https://doi.org/10.1080/01944363.2026.2710417"
+    },
+    {
+      "title": "Socio-geographic mobility and widespread zoning reform in Auckland",
+      "authors": "Greenaway‐McGrevy et al.",
+      "journal": "Urban Studies",
+      "date": "2026-07-23",
+      "url": "https://doi.org/10.1177/00420980261456915"
+    },
+    {
+      "title": "Can zoning reform reduce housing costs? Evidence from rents in Auckland",
+      "authors": "Greenaway‐McGrevy and So",
+      "journal": "Economic Inquiry",
+      "date": "2026-07-11",
+      "url": "https://doi.org/10.1111/ecin.70075"
+    },
+    {
+      "title": "Negotiating Transit-Oriented Development: Targets, Planning and Place",
+      "authors": "Sisson et al.",
+      "journal": "Urban Policy and Research",
+      "date": "2026-06-22",
+      "url": "https://doi.org/10.1080/08111146.2026.2685506"
+    },
+    {
+      "title": "Upzoning the YIMBY rent gap: A transit‐oriented spatial fix",
+      "authors": "Kramer",
+      "journal": "Canadian Geographies / Géographies canadiennes",
+      "date": "2026-06-01",
+      "url": "https://doi.org/10.1111/cag.70081"
+    },
+    {
+      "title": "The interaction of parcel geometry and zoning in land value capitalisation: evidence from auckland",
+      "authors": "Liu",
+      "journal": "New Zealand Economic Papers",
+      "date": "2026-05-29",
+      "url": "https://doi.org/10.1080/00779954.2026.2674733"
+    },
+    {
+      "title": "Urban economics for sustainable transitions: grand challenges in urban structure, the urban–rural gradient and city systems",
+      "authors": "Gallo",
+      "journal": "Frontiers in Sustainable Cities",
+      "date": "2026-04-22",
+      "url": "https://doi.org/10.3389/frsc.2026.1835029"
+    },
+    {
+      "title": "Misaligned Policy and Practice: Does Upzoning’s Implicit Reliance on Land Assembly Undermine Densification Goals?",
+      "authors": "Gallagher",
+      "journal": "Urban Policy and Research",
+      "date": "2026-04-22",
+      "url": "https://doi.org/10.1080/08111146.2026.2656667"
+    },
+    {
+      "title": "How Does Upzoning Impact Residential Mobility Among Low-Income Households? Evidence from New York City",
+      "authors": "Davis et al.",
+      "journal": "Housing Policy Debate",
+      "date": "2026-04-16",
+      "url": "https://doi.org/10.1080/10511482.2026.2649483"
+    }
+  ]
+}
