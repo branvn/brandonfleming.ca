@@ -234,6 +234,183 @@
       "permits": 3
     }
   ],
+  "projects_since_in_force": 373,
+  "projects_per_year": 121.1,
+  "last_full_year": {
+    "year": "2025",
+    "projects": 182
+  },
+  "project_years": [
+    {
+      "year": "2019",
+      "projects": 0,
+      "running_total": 0
+    },
+    {
+      "year": "2020",
+      "projects": 0,
+      "running_total": 0
+    },
+    {
+      "year": "2021",
+      "projects": 0,
+      "running_total": 0
+    },
+    {
+      "year": "2022",
+      "projects": 0,
+      "running_total": 0
+    },
+    {
+      "year": "2023",
+      "projects": 0,
+      "running_total": 0
+    },
+    {
+      "year": "2024",
+      "projects": 31,
+      "running_total": 31
+    },
+    {
+      "year": "2025",
+      "projects": 182,
+      "running_total": 213
+    },
+    {
+      "year": "2026",
+      "projects": 160,
+      "running_total": 373
+    }
+  ],
+  "project_months": [
+    {
+      "month": "2024-06",
+      "projects": 1
+    },
+    {
+      "month": "2024-07",
+      "projects": 1
+    },
+    {
+      "month": "2024-08",
+      "projects": 5
+    },
+    {
+      "month": "2024-09",
+      "projects": 3
+    },
+    {
+      "month": "2024-10",
+      "projects": 1
+    },
+    {
+      "month": "2024-11",
+      "projects": 7
+    },
+    {
+      "month": "2024-12",
+      "projects": 13
+    },
+    {
+      "month": "2025-01",
+      "projects": 12
+    },
+    {
+      "month": "2025-02",
+      "projects": 5
+    },
+    {
+      "month": "2025-03",
+      "projects": 13
+    },
+    {
+      "month": "2025-04",
+      "projects": 14
+    },
+    {
+      "month": "2025-05",
+      "projects": 10
+    },
+    {
+      "month": "2025-06",
+      "projects": 18
+    },
+    {
+      "month": "2025-07",
+      "projects": 24
+    },
+    {
+      "month": "2025-08",
+      "projects": 9
+    },
+    {
+      "month": "2025-09",
+      "projects": 18
+    },
+    {
+      "month": "2025-10",
+      "projects": 21
+    },
+    {
+      "month": "2025-11",
+      "projects": 16
+    },
+    {
+      "month": "2025-12",
+      "projects": 22
+    },
+    {
+      "month": "2026-01",
+      "projects": 10
+    },
+    {
+      "month": "2026-02",
+      "projects": 14
+    },
+    {
+      "month": "2026-03",
+      "projects": 14
+    },
+    {
+      "month": "2026-04",
+      "projects": 18
+    },
+    {
+      "month": "2026-05",
+      "projects": 7
+    },
+    {
+      "month": "2026-06",
+      "projects": 4
+    },
+    {
+      "month": "2026-07",
+      "projects": 24
+    },
+    {
+      "month": "2026-08",
+      "projects": 22
+    },
+    {
+      "month": "2026-09",
+      "projects": 13
+    },
+    {
+      "month": "2026-10",
+      "projects": 25
+    },
+    {
+      "month": "2026-11",
+      "projects": 9
+    }
+  ],
+  "project_rule": {
+    "num_gap": 4,
+    "day_gap": 120,
+    "known_projects": 101,
+    "precision": 1.0,
+    "recall": 0.882
+  },
   "news_seeded": [
     "BC Government",
     "Daily Hive",
