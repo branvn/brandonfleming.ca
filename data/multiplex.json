@@ -1,11 +1,11 @@
 {
-  "updated": "2026-11-14",
+  "updated": "2026-11-15",
   "source": "City of Vancouver open data, issued building permits",
   "source_url": "https://opendata.vancouver.ca/explore/dataset/issued-building-permits/",
   "in_force": "2023-10-17",
   "filter": "typeofwork = 'New Building' AND search(projectdescription, \"multiplex\")",
-  "total_since_in_force": 649,
-  "per_year": 210.9,
+  "total_since_in_force": 650,
+  "per_year": 211.0,
   "city_expectation_per_year": 150,
   "first_permit_month": "2024-06",
   "years": [
@@ -39,7 +39,7 @@
     },
     {
       "year": "2026",
-      "permits": 261
+      "permits": 262
     }
   ],
   "months": [
@@ -161,7 +161,7 @@
     },
     {
       "month": "2026-11",
-      "permits": 15
+      "permits": 16
     }
   ],
   "areas": [
@@ -175,7 +175,7 @@
     },
     {
       "area": "Kerrisdale",
-      "permits": 54
+      "permits": 55
     },
     {
       "area": "Dunbar-Southlands",
@@ -199,7 +199,7 @@
     },
     {
       "area": "Sunset",
-      "permits": 38
+      "permits": 39
     },
     {
       "area": "Riley Park",
@@ -233,5 +233,6 @@
       "area": "Mount Pleasant",
       "permits": 3
     }
-  ]
+  ],
+  "news": []
 }
