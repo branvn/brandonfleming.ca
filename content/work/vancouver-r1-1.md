@@ -192,3 +192,8 @@ one with a natural limit.
 
 Prospectus December 2026. Interviews and data reruns through 2027, with the
 defence targeted for the autumn.
+
+Two side projects follow the same reform: a [running count of the multiplexes
+Vancouver has permitted](/tracker/), and, mostly for fun, a [timeline of the
+upzoning reforms and studies](/research/) this thesis builds on, from Auckland
+in 2016 onwards.

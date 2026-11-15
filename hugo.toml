@@ -75,10 +75,6 @@ summaryLength = 30
     pageRef = "/work"
     weight = 10
   [[menu.main]]
-    name = "Research"
-    pageRef = "/research"
-    weight = 15
-  [[menu.main]]
     name = "Writing"
     pageRef = "/writing"
     weight = 20
