@@ -193,23 +193,24 @@ media = ["Film", "Digital"]
   # --- Added 15 November 2026. Captions are mine; places marked TODO.
   [captions."false-creek.jpg"]
     caption  = "False Creek, first snow on the North Shore"
-    # TODO place: where you stood. Looks like the Granville Street Bridge
-    # looking west, but confirm.
+    place    = "Cambie Bridge"
     category = "Urban"
     medium   = "Digital"
     camera   = "Nikon D750"
     settings = "28mm · f/11 · 1/200 · ISO 160"
     order    = 135
-    alt      = "Looking over Granville Island's red roofs and a crowded marina on False Creek, a bridge crossing the water and West End towers beyond, with snow-dusted North Shore mountains under a blue autumn sky"
+    alt      = "Looking west from the Cambie Bridge over Granville Island's red roofs and a crowded marina on False Creek, the Granville Bridge crossing the water and West End towers beyond, with snow-dusted North Shore mountains under a blue autumn sky"
 
   # The night walk: three frames from one roll, sequenced wide, mid, detail.
-  # TODO camera, lens and film stock for all three. The files carry D750 EXIF
-  # from the scanning setup (28mm f/2.8 1/25), so none of it is recorded.
+  # Kentmere Pan 400 pushed two stops to 1600, per Brandon. TODO camera and
+  # lens: the files carry D750 EXIF from the scanning setup (28mm f/2.8 1/25),
+  # so neither is recorded. The 3:2 frame fits both the FE and the Bessa.
   [captions."safeway-night.jpg"]
     caption  = "After hours"
     # TODO place
     category = "Urban"
     medium   = "Film"
+    film     = "Kentmere Pan 400, pushed to 1600"
     order    = 140
     alt      = "A supermarket at night in black and white, a row of downlights scalloping its long wall above an empty parking lot"
 
@@ -218,6 +219,7 @@ media = ["Film", "Digital"]
     # TODO place
     category = "Urban"
     medium   = "Film"
+    film     = "Kentmere Pan 400, pushed to 1600"
     order    = 150
     alt      = "A neon PHARMACY sign glowing behind a diamond-lattice security gate at night, the shop window's lettering half visible through the grille"
 
@@ -227,6 +229,7 @@ media = ["Film", "Digital"]
     # Dominion Building on Hastings, but confirm before it goes in.
     category = "Urban"
     medium   = "Film"
+    film     = "Kentmere Pan 400, pushed to 1600"
     order    = 160
     alt      = "A carved stone cartouche over a doorway at night, two cherubs flanking a crest that reads Dominion 1910, lit from above by a single lamp"
 
