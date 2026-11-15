@@ -190,6 +190,46 @@ media = ["Film", "Digital"]
     order    = 130
     alt      = "The concrete wall of the Nikkei Centre in black and white, an angular canopy jutting out from its upper storey beside a row of tall cedars"
 
+  # --- Added 15 November 2026. Captions are mine; places marked TODO.
+  [captions."false-creek.jpg"]
+    caption  = "False Creek, first snow on the North Shore"
+    # TODO place: where you stood. Looks like the Granville Street Bridge
+    # looking west, but confirm.
+    category = "Urban"
+    medium   = "Digital"
+    camera   = "Nikon D750"
+    settings = "28mm · f/11 · 1/200 · ISO 160"
+    order    = 135
+    alt      = "Looking over Granville Island's red roofs and a crowded marina on False Creek, a bridge crossing the water and West End towers beyond, with snow-dusted North Shore mountains under a blue autumn sky"
+
+  # The night walk: three frames from one roll, sequenced wide, mid, detail.
+  # TODO camera, lens and film stock for all three. The files carry D750 EXIF
+  # from the scanning setup (28mm f/2.8 1/25), so none of it is recorded.
+  [captions."safeway-night.jpg"]
+    caption  = "After hours"
+    # TODO place
+    category = "Urban"
+    medium   = "Film"
+    order    = 140
+    alt      = "A supermarket at night in black and white, a row of downlights scalloping its long wall above an empty parking lot"
+
+  [captions."pharmacy-neon.jpg"]
+    caption  = "Pharmacy, gated"
+    # TODO place
+    category = "Urban"
+    medium   = "Film"
+    order    = 150
+    alt      = "A neon PHARMACY sign glowing behind a diamond-lattice security gate at night, the shop window's lettering half visible through the grille"
+
+  [captions."dominion-cartouche.jpg"]
+    caption  = "Dominion, 1910"
+    # TODO place. The crest reads Dominion 1910, which would make it the
+    # Dominion Building on Hastings, but confirm before it goes in.
+    category = "Urban"
+    medium   = "Film"
+    order    = 160
+    alt      = "A carved stone cartouche over a doorway at night, two cherubs flanking a crest that reads Dominion 1910, lit from above by a single lamp"
+
   [captions."boundary-bay.jpg"]
     caption  = "Catamaran coming in on the tide"
     place    = "Boundary Bay"
