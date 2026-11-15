@@ -17,7 +17,10 @@
            About are never sections, so they are never hidden. */}}
       {{ $empty := false }}
       {{ with .Page }}
-        {{ if and (eq .Kind "section") (eq (len .RegularPages) 0) (eq (len .Resources) 0) }}
+        {{/* Research keeps its whole timeline in its own front matter, so it
+             has no child pages and would read as empty. alwaysInNav opts a
+             section out of the check. */}}
+        {{ if and (eq .Kind "section") (eq (len .RegularPages) 0) (eq (len .Resources) 0) (not .Params.alwaysInNav) }}
           {{ $empty = true }}
         {{ end }}
       {{ end }}

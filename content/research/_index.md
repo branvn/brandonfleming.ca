@@ -2,6 +2,10 @@
 title = "Upzoning Research"
 summary = "A timeline of the zoning reforms and studies behind my thesis, with the newest open-access research on upzoning added automatically each week."
 
+# This section has no child pages, so the header would hide it as empty
+# without this. See layouts/partials/header.html.
+alwaysInNav = true
+
 # ---------------------------------------------------------------------------
 # THE TIMELINE
 #
