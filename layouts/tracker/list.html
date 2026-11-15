@@ -40,63 +40,73 @@
       <a href="{{ $d.source_url }}" rel="noopener">City of Vancouver open data</a>.
     </p>
 
-    <div class="mx-figures">
-      <div class="mx-fig">
-        <span class="mx-num">{{ $d.total_since_in_force }}</span>
-        <span class="mx-lab">building permits issued for multiplexes since R1-1
-          came into force</span>
+    {{/* Projects, if this data file has them; permits otherwise, so a file
+         written by an older version of the script still renders. */}}
+    {{ if $d.projects_since_in_force }}
+      {{ $lf := $d.last_full_year }}
+      <div class="mx-figures">
+        <div class="mx-fig">
+          <span class="mx-num">{{ $d.projects_since_in_force }}</span>
+          <span class="mx-lab">multiplex projects permitted since R1-1 came into
+            force, from {{ $d.total_since_in_force }} building permits</span>
+        </div>
+        <div class="mx-fig">
+          <span class="mx-num">{{ $lf.projects }}</span>
+          <span class="mx-lab">in {{ $lf.year }}, the first full year of permits,
+            against the City's expectation of about
+            {{ $d.city_expectation_per_year }} a year</span>
+        </div>
       </div>
-      <div class="mx-fig">
-        <span class="mx-num">{{ $d.per_year }}</span>
-        <span class="mx-lab">a year. A multiplex often needs two permits, one for
-          the front building and one for the rear, so this counts buildings
-          rather than projects</span>
-      </div>
-    </div>
 
-    <h2 class="section-label">Permits a year</h2>
+      <h2 class="section-label">Projects, running total</h2>
 
-    {{/* Scale every bar to the busiest year. */}}
-    {{ $max := 1 }}
-    {{ range $d.years }}
-      {{ if gt .permits $max }}{{ $max = .permits }}{{ end }}
-    {{ end }}
-
-    <ol class="mx-years">
-      {{ range $d.years }}
-        {{ $pct := div (mul .permits 100.0) $max }}
-        <li class="mx-year{{ if eq .permits 0 }} is-zero{{ end }}">
-          <span class="mx-year-label">{{ .year }}</span>
-          <span class="mx-bar" style="width: {{ printf "%.1f" $pct }}%"></span>
-          <span class="mx-year-count">{{ .permits }}</span>
-        </li>
-      {{ end }}
-    </ol>
-
-    <p class="mx-note">
-      R1-1 came into force on 17 October 2023. The empty years before it are
-      the control: a filter that caught apartment buildings rather than
-      multiplexes would show permits in all of them.
-      {{ with $d.first_permit_month }}
-        The first multiplex permit was issued in
-        {{ dateFormat "January 2006" (printf "%s-01" .) }}.
-      {{ end }}
-    </p>
-
-    {{ with $d.areas }}
-      <h2 class="section-label">Where they went</h2>
-      {{ $amax := 1 }}
-      {{ range . }}{{ if gt .permits $amax }}{{ $amax = .permits }}{{ end }}{{ end }}
-      <ol class="mx-areas">
-        {{ range . }}
-          {{ $pct := div (mul .permits 100.0) $amax }}
-          <li class="mx-area">
-            <span class="mx-area-label">{{ .area }}</span>
+      {{/* A running total by year, from 2019. The flat years before R1-1 are
+           the control: a filter that caught apartment blocks rather than
+           multiplexes would climb through all of them. */}}
+      {{ $max := 1 }}
+      {{ range $d.project_years }}{{ if gt .running_total $max }}{{ $max = .running_total }}{{ end }}{{ end }}
+      <ol class="mx-years">
+        {{ range $d.project_years }}
+          {{ $pct := div (mul .running_total 100.0) $max }}
+          <li class="mx-year{{ if eq .running_total 0 }} is-zero{{ end }}">
+            <span class="mx-year-label">{{ .year }}</span>
             <span class="mx-bar" style="width: {{ printf "%.1f" $pct }}%"></span>
-            <span class="mx-area-count">{{ .permits }}</span>
+            <span class="mx-year-count">{{ .running_total }}</span>
           </li>
         {{ end }}
       </ol>
+
+      <p class="mx-note">
+        R1-1 came into force on 17 October 2023.
+        {{ with $d.first_permit_month }}The first multiplex permit was issued in
+        {{ dateFormat "January 2006" (printf "%s-01" .) }}, which is why the
+        fair comparison with the City's expectation is a full calendar year
+        rather than an average from the date the rules changed.{{ end }}
+      </p>
+
+      {{ with $d.project_rule }}
+        <h2 class="section-label">How a project is counted</h2>
+        <p class="mx-note">
+          The City issues one building permit per building and gives each its
+          own civic number, so one multiplex can appear as several permits at
+          several addresses. Permits are joined into a single project when they
+          share a development permit number, or sit within {{ .num_gap }} civic
+          numbers of each other on the same street and were issued within
+          {{ .day_gap }} days. Tested against the {{ .known_projects }} projects
+          whose permits name their development permit, that rule joined
+          {{ if ge .precision 1.0 }}no permits from different projects{{ else }}permits correctly {{ math.Round (mul .precision 100) }}% of the time{{ end }}
+          and found {{ math.Round (mul .recall 100) }}% of those that belong
+          together. So the count runs slightly high, never low.
+        </p>
+      {{ end }}
+    {{ else }}
+      <div class="mx-figures">
+        <div class="mx-fig">
+          <span class="mx-num">{{ $d.total_since_in_force }}</span>
+          <span class="mx-lab">building permits issued for multiplexes since R1-1
+            came into force</span>
+        </div>
+      </div>
     {{ end }}
 
     {{/* Headlines. Hidden entirely when there are none: R1-1 makes the news a
@@ -131,14 +141,6 @@
         most recent months are undercounted and always will be. Counts of
         multiplex <em>applications</em> run higher and earlier. The two are
         different measures and should not be read against each other.
-      </p>
-      <p>
-        <strong>A permit is one building, not one multiplex.</strong> The City
-        issues a building permit per building, and a typical multiplex has a
-        front building and a rear one, so the counts here run higher than the
-        number of projects. That is also why they are not set against the
-        City's expectation of about {{ $d.city_expectation_per_year }} projects
-        a year: the two count different things.
       </p>
       <p>
         <strong>The filter is text matching.</strong> A permit counts here when

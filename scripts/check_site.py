@@ -156,6 +156,27 @@ def check_multiplex() -> None:
         fail(f"multiplex permits reported before R1-1 existed: {nonzero}. "
              f"The filter has stopped isolating multiplexes; re-run --compare.")
 
+    # Projects. The grouping rule is re-scored against the projects whose
+    # permits name their DP number on every run. If the City changes how it
+    # numbers buildings, that score falls, and the project count on the page
+    # stops being trustworthy without anything else looking wrong.
+    rule = store.get("project_rule")
+    if not rule:
+        warn("data/multiplex.json has no project counts yet. Run "
+             "scripts/track_multiplex.py; the page shows permits until then.")
+    else:
+        if rule.get("precision", 0) < 0.97:
+            fail(f"project grouping precision fell to {rule['precision']:.0%} "
+                 f"(was 100% when chosen): it is now joining different projects. "
+                 f"Re-run --grouping before trusting the count.")
+        if rule.get("recall", 0) < 0.75:
+            fail(f"project grouping recall fell to {rule['recall']:.0%} "
+                 f"(was 88% when chosen). Re-run --grouping.")
+        early = [y for y in store.get("project_years") or []
+                 if y.get("year", "9999") < "2024" and y.get("projects")]
+        if early:
+            fail(f"multiplex projects counted before R1-1 existed: {early}")
+
     # Headlines are other people's reporting. Only the headline, link, outlet
     # and date may be stored; anything more is copied article text and does
     # not belong in this repo. A headline over 300 characters is not a

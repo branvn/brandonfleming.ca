@@ -379,6 +379,24 @@ def build() -> dict:
     since = sum(by_month.values())
     print(f"  {since} permits since R1-1, {sum(by_year.values())} from 2019 onwards")
 
+    # Projects, not permits: a multiplex gets one permit per building, and the
+    # City gives each building its own civic number. See the grouping section.
+    rows = json.loads(fetch(EXPORT + "?" + urllib.parse.urlencode({
+        "where": since_policy,
+        "select": "address,projectdescription,issuedate"})).decode("utf-8"))
+    ids = adjacency_groups(rows, PROJECT_NUM_GAP, PROJECT_DAY_GAP, use_dp=True)
+    start: dict = {}
+    for r, g in zip(rows, ids):
+        d = str(r.get("issuedate"))[:10]
+        if g not in start or d < start[g]:
+            start[g] = d            # a project is dated by its first permit
+    proj_year = Counter(d[:4] for d in start.values())
+    proj_month = Counter(d[:7] for d in start.values())
+    rule = {"num_gap": PROJECT_NUM_GAP, "day_gap": PROJECT_DAY_GAP,
+            **score_rule(rows, PROJECT_NUM_GAP, PROJECT_DAY_GAP)}
+    print(f"  {len(start)} projects (rule precision {rule['precision']:.0%}, "
+          f"recall {rule['recall']:.0%} against {rule['known_projects']} known)")
+
     # group_by returns no row at all for a count of zero, so the pre-policy
     # years come back missing rather than empty. Those five zeros are the
     # entire argument that this number is about R1-1 and not about Vancouver
@@ -388,6 +406,17 @@ def build() -> dict:
         by_year.setdefault(str(y), 0)
     first = datetime.strptime(IN_FORCE, "%Y-%m-%d").replace(tzinfo=timezone.utc)
     elapsed = (datetime.now(timezone.utc) - first).days / 365.25
+
+    running, years_out = 0, []
+    for y in range(2019, this_year + 1):
+        running += proj_year.get(str(y), 0)
+        years_out.append({"year": str(y), "projects": proj_year.get(str(y), 0),
+                          "running_total": running})
+    # The fair comparison with the City's expectation is a complete calendar
+    # year. Averaging from October 2023 includes eight months before the first
+    # permit was issued, which drags the rate down for reasons that are about
+    # permit processing, not uptake.
+    full = str(this_year - 1)
 
     return {
         "updated": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
@@ -406,6 +435,12 @@ def build() -> dict:
         "months": [{"month": m, "permits": by_month[m]} for m in sorted(by_month)],
         "areas": [{"area": a, "permits": n}
                   for a, n in sorted(by_area.items(), key=lambda kv: -kv[1])],
+        "projects_since_in_force": len(start),
+        "projects_per_year": round(len(start) / elapsed, 1) if elapsed > 0 else None,
+        "last_full_year": {"year": full, "projects": proj_year.get(full, 0)},
+        "project_years": years_out,
+        "project_months": [{"month": m, "projects": proj_month[m]} for m in sorted(proj_month)],
+        "project_rule": rule,
     }
 
 
@@ -557,6 +592,23 @@ def projects_probe() -> int:
 # is scored against the 101 DP projects whose answer is already known, before
 # it is trusted on the 489 permits that name no DP.
 
+# Chosen by --grouping on 15 November 2026, scored against the 101 projects
+# whose permits name their development permit:
+#
+#   civic gap  days   precision  recall   all-permit estimate
+#        2      120      100%      78%         380
+#        4      120      100%      88%         373   <-- this
+#        8      120       99%      88%         368
+#       12      365       99%      88%         362
+#
+# Gap 4 is the widest that never joins two different projects; widening it
+# finds nothing more and starts making mistakes. Recall below 100% means some
+# multi-building projects stay split, so the project count runs slightly
+# high, never low. The rule is re-scored on every run and stored with the
+# data, and check_site.py fails if it degrades.
+PROJECT_NUM_GAP = 4
+PROJECT_DAY_GAP = 120
+
 ADDR_RE = re.compile(r"^\s*(\d+)[A-Z]?\s+([^,]+)", re.I)
 
 
@@ -615,6 +667,18 @@ def pairs(ids: list) -> set:
     for k, g in enumerate(ids):
         by.setdefault(g, []).append(k)
     return {(a, b) for v in by.values() for x, a in enumerate(v) for b in v[x + 1:]}
+
+
+def score_rule(rows: list[dict], num_gap: int, day_gap: int) -> dict:
+    """How well the address rule reproduces the projects known from DP numbers."""
+    known = [r for r in rows if DP_RE.search(r.get("projectdescription") or "")]
+    truth_ids = [DP_RE.search(r["projectdescription"]).group(0) for r in known]
+    truth = pairs(truth_ids)
+    pred = pairs(adjacency_groups(known, num_gap, day_gap, use_dp=False))
+    hit = len(pred & truth)
+    return {"known_projects": len(set(truth_ids)),
+            "precision": round(hit / len(pred), 3) if pred else 1.0,
+            "recall": round(hit / len(truth), 3) if truth else 1.0}
 
 
 def grouping_probe() -> int:
@@ -942,9 +1006,11 @@ def main(argv: list[str]) -> int:
     # newline="\n": Windows would otherwise write CRLF, Git would warn on every
     # commit, and a local run and the weekly Linux run would differ by bytes.
     DATA_FILE.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8", newline="\n")
-    print(f"\nWrote {DATA_FILE.relative_to(ROOT)}: {data['total_since_in_force']} permits "
-          f"since R1-1, about {data['per_year']} a year against the City's "
-          f"{CITY_EXPECTATION_PER_YEAR}; {len(data['news'])} headlines.")
+    lf = data["last_full_year"]
+    print(f"\nWrote {DATA_FILE.relative_to(ROOT)}: {data['projects_since_in_force']} projects "
+          f"from {data['total_since_in_force']} permits since R1-1; {lf['projects']} projects "
+          f"in {lf['year']} against the City's {CITY_EXPECTATION_PER_YEAR}; "
+          f"{len(data['news'])} headlines.")
     return 0
 
 if __name__ == "__main__":

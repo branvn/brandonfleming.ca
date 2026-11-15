@@ -390,6 +390,23 @@ These are **issued permits, not applications**, so recent months undercount.
 Do not let the page imply they match Brandon's "600+ applications" figure; they
 are different measures that happen to land near each other.
 
+**Projects, not permits.** The City issues one building permit per building
+and gives each building its own civic number: one multiplex at 5963 to 5969
+Granville is four permits at four addresses. Counting permits overstated
+uptake, and comparing them with the City's 150 *projects* a year was wrong;
+that comparison was live on the site until 15 November 2026.
+
+Projects are counted by joining permits that share a DP number, or sit within
+4 civic numbers on the same street and were issued within 120 days. Chosen
+with `--grouping`, scored against the 101 projects whose permits name their
+DP: 100% precision, 88% recall, so the count runs slightly high, never low.
+The score is recomputed every run and `check_site.py` fails if it degrades.
+On 15 November: about 373 projects from 650 permits.
+
+The City comparison uses the **last full calendar year**, not an average since
+October 2023, because the first permit was not issued until June 2024 and that
+start-up lag says nothing about uptake.
+
 **Headlines.** The Tyee, Daily Hive Urbanized and BC Government housing
 releases, all RSS. Matched on R1-1, multiplex, missing middle, small-scale
 multi-unit, read from the headline, the description and The Tyee's subject

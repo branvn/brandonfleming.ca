@@ -11,9 +11,12 @@
 {{ $d := hugo.Data.multiplex }}
 
 {{ with $d }}
-  {{ $recent := last 6 .months }}
+  {{/* Projects if the file has them, permits otherwise. */}}
+  {{ $months := .months }}{{ $key := "permits" }}
+  {{ if .project_months }}{{ $months = .project_months }}{{ $key = "projects" }}{{ end }}
+  {{ $recent := last 6 $months }}
   {{ $max := 1 }}
-  {{ range $recent }}{{ if gt .permits $max }}{{ $max = .permits }}{{ end }}{{ end }}
+  {{ range $recent }}{{ $n := index . $key }}{{ if gt $n $max }}{{ $max = $n }}{{ end }}{{ end }}
 
   <aside class="rail" aria-labelledby="rail-heading">
     <h2 id="rail-heading" class="rail-head">
@@ -22,17 +25,24 @@
     </h2>
 
     <p class="rail-figure">
-      <strong>{{ .total_since_in_force }}</strong> multiplex building permits
-      since R1-1, about {{ .per_year }} a year.
+      {{ if .projects_since_in_force }}
+        <strong>{{ .projects_since_in_force }}</strong> multiplex projects since
+        R1-1; {{ .last_full_year.projects }} in {{ .last_full_year.year }}
+        against the City's {{ .city_expectation_per_year }}.
+      {{ else }}
+        <strong>{{ .total_since_in_force }}</strong> multiplex building permits
+        since R1-1.
+      {{ end }}
     </p>
 
     <ol class="rail-bars">
       {{ range $recent }}
-        {{ $pct := div (mul .permits 100.0) $max }}
+        {{ $n := index . $key }}
+        {{ $pct := div (mul $n 100.0) $max }}
         <li>
           <span class="rail-bar-label">{{ dateFormat "Jan" (printf "%s-01" .month) }}</span>
           <span class="mx-bar" style="width: {{ printf "%.1f" $pct }}%"></span>
-          <span class="rail-bar-count">{{ .permits }}</span>
+          <span class="rail-bar-count">{{ $n }}</span>
         </li>
       {{ end }}
     </ol>
