@@ -192,14 +192,14 @@ media = ["Film", "Digital"]
 
   # --- Added 15 November 2026. Captions are mine; places marked TODO.
   [captions."false-creek.jpg"]
-    caption  = "False Creek, first snow on the North Shore"
+    caption  = "False Creek, low cloud on the North Shore"
     place    = "Cambie Bridge"
     category = "Urban"
     medium   = "Digital"
     camera   = "Nikon D750"
     settings = "28mm · f/11 · 1/200 · ISO 160"
     order    = 135
-    alt      = "Looking west from the Cambie Bridge over Granville Island's red roofs and a crowded marina on False Creek, the Granville Bridge crossing the water and West End towers beyond, with snow-dusted North Shore mountains under a blue autumn sky"
+    alt      = "Looking west from the Cambie Bridge over Granville Island's red roofs and a crowded marina on False Creek, the Granville Bridge crossing the water and West End towers beyond, and the North Shore mountains under low cloud and a blue autumn sky"
 
   # The night walk: three frames from one roll, sequenced wide, mid, detail.
   # Nikon FE, Kentmere Pan 400 pushed two stops to 1600, per Brandon. Lens
