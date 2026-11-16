@@ -491,10 +491,20 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
      minimum size still fits a 360px phone, but a future headline with a longer
      word shouldn't be able to break the layout. */
   overflow-wrap: break-word;
-  /* Lit contour bands run right through the hero. A wide halo in the
-     background colour keeps the letterforms whole no matter what the plate is
-     doing underneath. */
-  text-shadow: 0 0 10px var(--bg), 0 0 22px var(--bg);
+  /* A soft teal glow that slowly breathes, over a tight halo in the
+     background colour. The dark layer is last, so it sits underneath: it is
+     still what keeps the letterforms whole where lit contour bands run
+     through the hero. Seven seconds each way, so it reads as alive rather
+     than blinking. Steady for anyone who asks for reduced motion. */
+  text-shadow: 0 0 2px rgba(232, 241, 242, .48), 0 0 13px rgba(168, 236, 224, .4),
+               0 0 33px rgba(127, 212, 193, .22), 0 0 10px var(--bg);
+  animation: hero-glow 7s ease-in-out infinite alternate;
+}
+@keyframes hero-glow {
+  from { text-shadow: 0 0 2px rgba(232, 241, 242, .35), 0 0 10px rgba(168, 236, 224, .22),
+                      0 0 24px rgba(127, 212, 193, .1), 0 0 10px var(--bg); }
+  to   { text-shadow: 0 0 2px rgba(232, 241, 242, .6), 0 0 16px rgba(168, 236, 224, .55),
+                      0 0 42px rgba(127, 212, 193, .32), 0 0 10px var(--bg); }
 }
 .hero-accent {
   display: block;
@@ -512,7 +522,18 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
      it and use a filter instead: drop-shadow acts on the painted result, so it
      haloes the visible glyph the way text-shadow does on ordinary text. */
   text-shadow: none;
-  filter: drop-shadow(0 0 10px var(--bg)) drop-shadow(0 0 20px var(--bg));
+  filter: drop-shadow(0 0 2px rgba(232, 241, 242, .45)) drop-shadow(0 0 13px rgba(168, 236, 224, .45))
+          drop-shadow(0 0 33px rgba(127, 212, 193, .22));
+  animation: hero-glow-accent 7s ease-in-out infinite alternate;
+}
+@keyframes hero-glow-accent {
+  from { filter: drop-shadow(0 0 2px rgba(232, 241, 242, .3)) drop-shadow(0 0 10px rgba(168, 236, 224, .25))
+                 drop-shadow(0 0 24px rgba(127, 212, 193, .1)); }
+  to   { filter: drop-shadow(0 0 2px rgba(232, 241, 242, .55)) drop-shadow(0 0 16px rgba(168, 236, 224, .6))
+                 drop-shadow(0 0 42px rgba(127, 212, 193, .32)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero h1, .hero-accent { animation: none; }
 }
 /* The intro sits on the densest part of the plate, where contour lines run
    straight through the text. It gets the same panel as the work cards below,
@@ -1250,6 +1271,7 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
   .topo, .grain, .site-nav, .coords, .breadcrumb, .skip-link { display: none !important; }
   /* The halo exists to lift type off the plate, and the plate isn't printed. */
   * { text-shadow: none !important; }
+  .hero h1, .hero-accent { animation: none !important; filter: none !important; }
   body { background: #fff; color: #000; }
   /* The screen palette is light text on a dark panel. On paper that would
      print as nothing, so the variables flip back for print. */
