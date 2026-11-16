@@ -6,6 +6,10 @@ draft = false
 
 summary = "How many net homes did Vancouver's R1-1 rezoning actually add in its first 18 months, how did that vary with the capacity each lot gained, and how did builders respond?"
 
+# The summary is the full research question, 168 characters; search results
+# show about 155. This is what Google and link previews use instead.
+description = "How many net homes Vancouver's 2023 R1-1 multiplex rezoning added in its first 18 months, and how builders responded. Preliminary findings."
+
 year    = "2025 – present"
 context = "Master's thesis, Master of Urban Studies, Simon Fraser University"
 role    = "Sole researcher"

@@ -192,8 +192,10 @@ def check_multiplex() -> None:
             if not n.get(field):
                 fail(f"news item missing {field!r}: {n.get('url')}")
 
-    print(f"  multiplex: {store.get('total_since_in_force')} permits since R1-1, "
-          f"{store.get('per_year')} a year, {len(store.get('news') or [])} headlines")
+    lf = store.get("last_full_year") or {}
+    print(f"  multiplex: {store.get('projects_since_in_force', '?')} projects from "
+          f"{store.get('total_since_in_force')} permits since R1-1; {lf.get('projects', '?')} in "
+          f"{lf.get('year', '?')}; {len(store.get('news') or [])} headlines")
 
 
 # ------------------------------------------------------------------- coordinates
@@ -332,6 +334,71 @@ def check_research() -> None:
     print(f"  research: {len(store.get('papers') or [])} papers")
 
 
+# ------------------------------------------------------------- house rules
+
+def visible_text(path: Path) -> list[tuple[int, str]]:
+    """Lines a visitor could read, with comments stripped.
+
+    Content files: TOML comments and HTML comments removed. Templates: Hugo
+    template comments and HTML comments removed. Line numbers are kept so a
+    failure points at the right place.
+    """
+    import re
+    t = path.read_text(encoding="utf-8")
+    blank = lambda m: "\n" * m.group(0).count("\n")
+    t = re.sub(r"\{\{-?\s*/\*.*?\*/\s*-?\}\}", blank, t, flags=re.S)
+    t = re.sub(r"<!--.*?-->", blank, t, flags=re.S)
+    out = []
+    for n, line in enumerate(t.split("\n"), 1):
+        if path.suffix in (".md", ".toml") and line.lstrip().startswith("#"):
+            continue
+        if path.suffix in (".md", ".toml") and " #" in line and "=" in line:
+            line = line.split(" #", 1)[0]          # trailing TOML comment
+        out.append((n, line))
+    return out
+
+
+def check_house_rules() -> None:
+    """Brandon's standing rule: no em dashes, anywhere a visitor can see.
+
+    En dashes in ranges (2025 – present, 24–85mm) are correct and allowed.
+    Third-party text in data/ (headlines, paper titles) is not his writing and
+    is not checked.
+    """
+    files = (sorted((ROOT / "content").rglob("*.md")) + sorted((ROOT / "layouts").rglob("*.html"))
+             + [ROOT / "hugo.toml"])
+    for f in files:
+        for n, line in visible_text(f):
+            if "\u2014" in line:
+                fail(f"em dash in {f.relative_to(ROOT)} line {n}: {line.strip()[:70]}")
+
+
+# ------------------------------------------------------------- page facts
+
+WORK_FIELDS = ("summary", "year", "context", "role", "tools")
+
+
+def check_pages() -> None:
+    """Search descriptions that fit, and complete fact boxes on work pages."""
+    for f in sorted((ROOT / "content").rglob("*.md")):
+        try:
+            matter = front_matter(f)
+        except Exception:
+            continue
+        if matter.get("draft"):
+            continue
+        rel = f.relative_to(ROOT)
+        desc = matter.get("description") or matter.get("summary") or ""
+        if len(desc) > 160:
+            warn(f"{rel}: search description is {len(desc)} characters; Google shows "
+                 f"about 155. Add a shorter `description` to the front matter.")
+        if rel.parts[:2] == ("content", "work") and f.name != "_index.md":
+            missing = [k for k in WORK_FIELDS if not matter.get(k)]
+            if missing:
+                fail(f"{rel}: work page missing {', '.join(missing)}; the fact box "
+                     f"and the card on /work/ both read these.")
+
+
 # -------------------------------------------------------------------------- main
 
 def main() -> int:
@@ -342,6 +409,8 @@ def main() -> int:
     check_multiplex()
     check_research()
     check_coordinates()
+    check_house_rules()
+    check_pages()
 
     if warns:
         print("\nWarnings (not failures):")
