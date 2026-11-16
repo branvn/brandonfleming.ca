@@ -806,9 +806,10 @@ def first_child(el, *names):
 
 
 def parse_rss(raw: bytes) -> list[dict]:
-    # The BC Government feed opens with a byte-order mark, which the parser
-    # rejects as content before the XML declaration.
-    root = ET.fromstring(raw.lstrip(b"\xef\xbb\xbf"))
+    # The BC Government feed opens with a byte-order mark. ElementTree accepts
+    # it; an earlier version of this comment claimed otherwise and stripped it
+    # for nothing. test_trackers.py keeps a BOM-prefixed feed in the tests.
+    root = ET.fromstring(raw)
     out = []
     for el in root.iter():
         if el.tag.rsplit("}", 1)[-1] not in ("item", "entry"):

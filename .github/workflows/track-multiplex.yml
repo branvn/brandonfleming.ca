@@ -35,6 +35,12 @@ jobs:
       # No pip install. The collector uses nothing outside the standard
       # library, so there is no dependency that can break this on a Monday.
 
+      # Offline, about a second. If a change has broken a filter, the project
+      # grouping or one of the safety guards, stop here: better a stale week
+      # than a wrong number on the page.
+      - name: Test
+        run: python scripts/test_trackers.py
+
       - name: Count permits
         run: python scripts/track_multiplex.py
 
