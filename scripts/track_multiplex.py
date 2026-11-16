@@ -478,27 +478,130 @@ def extract_units(desc: str | None) -> int | None:
     return UNIT_WORDS[m.group(1).lower()] if m else None
 
 
+# Homes per PROJECT, not per permit. The first --units run (15 November)
+# read a count from only 26% of permits, because the City describes buildings:
+# "a three-storey 3-unit front building and a two-storey 1-unit rear building".
+# Some projects put every building in one permit; some file one permit per
+# building; some repeat the whole-project description on every permit. So
+# each permit is read as a set of buildings by position (front, rear, east,
+# west, or unplaced), and a project takes the largest figure seen for each
+# position across its permits. Identical repeats then count once, and a front
+# permit plus a rear permit add up.
+
+UNIT_N = r"(\d|one|two|three|four|five|six|seven|eight|single)"
+NUMS = {"one": 1, "single": 1, "two": 2, "three": 3, "four": 4, "five": 5,
+        "six": 6, "seven": 7, "eight": 8}
+POS = r"(front|rear|east|west|north|south)"
+
+BUILDING_RE = re.compile(
+    r"\b" + UNIT_N + r"[\s-]+units?\s+(?:" + POS + r"\s+)?(buildings?)", re.I)
+# How many of a plural building, read from just before it: "two, three-story
+# 2-unit front buildings". Found after the building, not as part of one
+# pattern: when it was a single pattern, the words allowed between the count
+# and the building could swallow the count itself, and DP-2024-00034 read as
+# 3 homes instead of 6. "two-storey" is a height, never a count.
+MULTIPLIER_RE = re.compile(
+    r"\b(two|three|four|2|3|4)\b(?!\s*-?\s*stor(?:e)?y),?\s+(?:[a-z0-9-]+\s+){0,3}$", re.I)
+FAMILY_RE = re.compile(
+    r"\b(one|two|single|1|2)[\s-]+family\s+dwelling(?:\s+building)?"
+    r"(?:\s+(?:building\s+)?(?:at|in)\s+the\s+" + POS + r")?", re.I)
+CONTAINING_RE = re.compile(
+    r"building\s+containing\s+" + UNIT_N + r"\s+(?:dwelling\s+|strata\s+)?units?"
+    r"(?:\s+(?:at|in)\s+the\s+" + POS + r")?", re.I)
+WHOLE_RE = re.compile(r"\b" + UNIT_N + r"[\s-]+units?\s+(?:multiple\s+dwelling|multiplex)", re.I)
+TOTAL_RE = re.compile(r"total\s+of\s+" + UNIT_N + r"\s+(?:dwelling\s+|strata\s+|residential\s+)?units?", re.I)
+
+
+def _n(word: str) -> int:
+    w = word.lower()
+    return NUMS.get(w) or (int(w) if w.isdigit() else 0)
+
+
+def read_buildings(desc: str | None) -> tuple[dict[str, int], int]:
+    """({position: homes}, stated total) for one permit description."""
+    text = " ".join((desc or "").replace("“", '"').replace("”", '"').split())
+    found: dict[str, int] = {}
+
+    def put(pos, homes):
+        key = (pos or "unplaced").lower()
+        found[key] = max(found.get(key, 0), homes)
+
+    for m in BUILDING_RE.finditer(text):
+        n, pos, plural = m.group(1), m.group(2), m.group(3)
+        k = 1
+        if plural.lower().endswith("s"):
+            before = MULTIPLIER_RE.search(text[max(0, m.start() - 45):m.start()])
+            if before:
+                k = _n(before.group(1))
+        put(pos, k * _n(n))
+    for m in FAMILY_RE.finditer(text):
+        put(m.group(2), _n(m.group(1)))
+    for m in CONTAINING_RE.finditer(text):
+        put(m.group(2), _n(m.group(1)))
+    if not found:
+        for m in WHOLE_RE.finditer(text):
+            put(None, _n(m.group(1)))
+    if not found:
+        n = extract_units(text)          # "with 5 units", "a sixplex"
+        if n:
+            put(None, n)
+    total = max([_n(m.group(1)) for m in TOTAL_RE.finditer(text)] or [0])
+    return found, total
+
+
+def project_homes(descs: list[str]) -> int:
+    """Homes in one project, from all of its permits' descriptions."""
+    by_pos: dict[str, int] = {}
+    stated = 0
+    for d in descs:
+        found, total = read_buildings(d)
+        stated = max(stated, total)
+        for pos, homes in found.items():
+            by_pos[pos] = max(by_pos.get(pos, 0), homes)
+    return max(stated, sum(by_pos.values()))
+
+
 def units_probe() -> int:
+    """How many homes per project, and how many projects that can be read for.
+
+    Probe only. Nothing here reaches the page until the share of projects
+    with a plausible reading (3 to 8 homes, R1-1's range) is known, and the
+    misses have been looked at.
+    """
     where = f"issuedate >= date'{IN_FORCE}' AND ({MULTIPLEX_FILTER})"
-    page = api({"where": where, "limit": 100,
-                "select": "permitnumber,issuedate,projectdescription"})
-    rows = page.get("results") or []
-    found = [(r, extract_units(r.get("projectdescription"))) for r in rows]
+    rows = json.loads(fetch(EXPORT + "?" + urllib.parse.urlencode({
+        "where": where, "select": "address,projectdescription,issuedate"})).decode("utf-8"))
+    ids = adjacency_groups(rows, PROJECT_NUM_GAP, PROJECT_DAY_GAP, use_dp=True)
+    projects: dict = {}
+    for r, g in zip(rows, ids):
+        projects.setdefault(g, []).append(r.get("projectdescription") or "")
+    homes = {g: project_homes(d) for g, d in projects.items()}
 
-    tally = Counter(n for _, n in found)
-    print(f"Unit counts read from {len(rows)} of {page.get('total_count')} multiplex permits:\n")
-    for n in sorted(k for k in tally if k):
-        print(f"    {n} homes   {tally[n]:4d}")
-    print(f"    not stated {tally[None]:4d}   <- the number that decides whether this is usable\n")
+    n = len(homes)
+    read = [h for h in homes.values() if h]
+    plausible = [h for h in read if 3 <= h <= 8]
+    dist = Counter(homes.values())
+    print(f"{len(rows)} permits, {n} projects.\n")
+    print(f"  projects with a home count read     {len(read):4d}  ({len(read)/n:.0%})")
+    print(f"  of those, 3 to 8 homes (plausible)   {len(plausible):4d}  ({len(plausible)/n:.0%} of all projects)")
+    print(f"  homes in the plausible projects      {sum(plausible):4d}\n")
+    print("  homes per project:")
+    for k in sorted(dist):
+        print(f"    {('not read' if k == 0 else str(k)):>8}  {dist[k]:4d}")
 
-    print("FOUND, to check the pattern read them correctly:")
-    for r, n in [x for x in found if x[1]][:4]:
-        print(f"  [{n}]  {str(r.get('projectdescription'))[:220]}\n")
-    print("MISSED, to see how else the City writes it:")
-    for r, n in [x for x in found if not x[1]][:8]:
-        print(f"  [-]  {str(r.get('projectdescription'))[:220]}\n")
+    def show(label, test, limit=6):
+        print(f"\n{label}")
+        shown = 0
+        for g, h in homes.items():
+            if test(h) and shown < limit:
+                shown += 1
+                for d in projects[g][:2]:
+                    print(f"   [{h}]  {' '.join(d.split())[:170]}")
+                print()
+    show("NOT READ, to see how else the City writes it:", lambda h: h == 0)
+    show("OUTSIDE 3 TO 8, to check whether the reading or the project is odd:", lambda h: h and not 3 <= h <= 8)
+    print("Send me this. Coverage decides whether homes per project goes on the page.")
     return 0
-
 
 # ------------------------------------------------------------------- projects
 #

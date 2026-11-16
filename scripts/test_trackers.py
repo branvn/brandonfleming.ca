@@ -180,6 +180,51 @@ class Units(unittest.TestCase):
                 self.assertEqual(tm.extract_units(text), want)
 
 
+class ProjectHomes(unittest.TestCase):
+    """Real descriptions from the City's data, pasted on 15 November 2026.
+
+    The City describes buildings, not projects, and files them three ways:
+    every building in one permit, one permit per building, or the whole
+    project repeated on every permit. Each case is a real project.
+    """
+    CASES = [
+        ("DP-2024-00034: whole project repeated on four permits", 6,
+         ['Building Permit for DP-2024-00034 MULTIPLEX R1-1 To develop a Multiple Dwelling "Multiplex" with two, '
+          'three-story 2-unit front buildings and two, two-story 1-unit rear buildings'] * 4),
+        ("DP-2024-00603: whole project, then the rear building again", 4,
+         ['To construct a Multiple Dwelling "Multiplex" with a three-storey 3-unit front building and a two-storey 1-unit rear building',
+          'To construct a two-storey 1-unit rear building ("multiplex") with two parking spaces under a carport']),
+        ("DP-2024-00552: one permit per building", 3,
+         ["To develop a Multiple Dwelling \u201cMultiplex\u201d with a 2 storey 1-unit REAR building",
+          "to construct a Multiple Dwelling \u201cMultiplex\u201d with a 3 storey 2-unit FRONT building"]),
+        ("DP-2024-00272: east and west buildings", 4,
+         ['with 2-unit EAST building', 'with 2-unit WEST building']),
+        ("5489 Larch: family-dwelling wording", 3,
+         ["To construct a two storey one-family dwelling building at the rear with 6 surface parking",
+          "To construct a three storey two-family dwelling building at the front of the site."]),
+        ("656 E 46th: two identical permits", 3,
+         ["with a 2 unit front building and a 1 unit rear building. With three"] * 2),
+        ("a stated total wins", 4,
+         ["with two three-storey one-unit front buildings and a two-storey two-unit rear building for a total of four dwelling units"]),
+        ("'two storey' is a height, not a count", 3,
+         ["with a two storey, three-unit building, with three surface parking spaces"]),
+        ("a single 4-unit building", 4,
+         ['To construct a PART 5 three-storey 4-unit Multiple Dwelling "Multiplex" with 4 surface parking spaces']),
+        ("words between the height and the units", 4,
+         ["with a three-storey plus roof deck two-unit front building and a two-storey two-unit rear building"]),
+        ("a price in the middle of the text", 3,
+         ['with a two-storey plus two-unit FRONT building ($700,665.00) with three surface parking',
+          'with a two-storey one-unit rear building']),
+        ("building containing N dwelling units", 2,
+         ["To construct a three-storey building containing two dwelling units at the front of the site"]),
+    ]
+
+    def test_real_projects(self):
+        for label, want, descs in self.CASES:
+            with self.subTest(label):
+                self.assertEqual(tm.project_homes(descs), want)
+
+
 # ---------------------------------------------------------------- news
 
 TYEE = '''<?xml version="1.0" encoding="utf-8"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel>
