@@ -9,7 +9,7 @@ summary = "How many net homes did Vancouver's R1-1 rezoning actually add in its 
 year    = "2025 – present"
 context = "Master's thesis, Master of Urban Studies, Simon Fraser University"
 role    = "Sole researcher"
-tools   = ["City of Vancouver open data", "BC Assessment data", "Difference-in-differences", "Machine learning", "Semi-structured interviews"]
+tools   = ["Python", "City of Vancouver open data", "BC Assessment data", "Difference-in-differences", "Machine learning", "Semi-structured interviews"]
 status  = "in-progress"
 
 # This page was "The Affordability Gap", a study of Bill 44 in Surrey, until

@@ -37,6 +37,18 @@ programmer; he built the first version with an LLM. He *is* strong at GIS
 
 ## State: what's outstanding
 
+**Settled 15 November 2026, do not re-raise:**
+- Cloudflare email obfuscation stays ON. Email links need JavaScript as a
+  result; Brandon prefers that to exposing the address to scrapers.
+- Protest to Policy's `subtitle` front matter is never rendered. Left as is
+  by choice.
+- Research is deliberately not in the nav; the thesis page links to it.
+
+**Résumé PDF is out of date** (`static/documents/brandon-fleming-resume.pdf`).
+It still describes the Surrey thesis and "GIS spatial analysis of corporate
+land assembly". Brandon will update it himself; remind him before co-op
+applications go out.
+
 1. **The thesis page needs Brandon's voice over it, and nothing else.** As of
    22 October 2026 the thesis is a different study: Vancouver's R1-1 multiplex
    reform, not Bill 44 in Surrey. It moved because Surrey's permit data could
