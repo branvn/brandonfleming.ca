@@ -27,9 +27,12 @@ programmer; he built the first version with an LLM. He *is* strong at GIS
 
 - **Home** — hero, four work cards, R1-1 Tracker rail (hidden below 1100px)
 - **Work** — 4 project pages, all written
-- **Photography** — one page, 19 photographs, filtered by subject and by medium
+- **Photography** — one page, 33 photographs, filtered by subject and by medium
 - **About**, **404**, RSS, sitemap, JSON-LD, Open Graph
-- **R1-1 Tracker** — multiplex permit counts plus headlines, fully automatic; see below
+- **R1-1 Tracker** — multiplex projects permitted plus headlines, fully automatic; see below
+- **Research** — upzoning timeline plus newest open-access papers, at `/research/`, linked
+  from the thesis page rather than the nav
+- **Tests** — `scripts/test_trackers.py`, run by the weekly Action before it fetches anything
 - **Email** — `contact@brandonfleming.ca` forwarding confirmed working. Settled.
 - **Per-page coordinates** — the header readout is Brandon's idea, built
   18 August 2026. Each page names a real place it is about; pages outside the
@@ -87,7 +90,7 @@ applications go out.
    - `content/work/*.md` — all four project pages, especially the summary lines,
      which are what show on the Work index cards.
    - `content/_index.md` — the homepage intro and hero slogan.
-   - `content/photography/_index.md` — the page intro and all 19 photo captions.
+   - `content/photography/_index.md` — the page intro and all the photo captions.
      Four have no `place` either (see item 5). Captions are the easiest win here:
      they are one sentence each and he was actually there.
    - `content/colophon.md` and `content/work/affordability-calculator.md`, both
@@ -173,8 +176,20 @@ Self-hosted, no Google Fonts request. Michroma sets **1.40× wider** than Jost,
 which is why the hero caps at 4rem with −0.005em tracking rather than 6.5rem at
 −0.035em. Squared faces fall apart when tightened.
 
-**Long-form pages** put dark text on a paper-coloured panel over the dark shell.
-Deliberate: long text on dark is tiring, and photographs need a neutral surround.
+**Every page sits on one dark panel**, `--panel` in the stylesheet, at .95
+opacity: cards, the hero box, the tracker, the research page and every work
+page. Until 15 November 2026 long-form pages used dark text on a cream "paper"
+sheet, on the reasoning that long text on dark is tiring. Brandon asked for one
+consistent surface across the site. Measured on the rendered panel: body text
+15:1, secondary 8.3:1, captions 7.1:1, links 7.7:1, all AAA. The old paper and
+ink variable names still exist and now point at the dark palette; print flips
+them back to black on white.
+
+**The hero headline has a breathing dark halo.** Layers of shadow in the
+background colour clear the contour lines from behind the letters, and the
+outer layers widen and narrow over seven seconds. A light teal glow was tried
+first and dropped: it softened the letter edges and Brandon found it read as
+blurry vision. Steady for `prefers-reduced-motion`, off in print.
 
 **Muted text** is 72% opacity, not 50%. (Correction on the record: the original
 50% measured 4.75:1, which *passes* AA — I initially claimed it failed. The
@@ -213,6 +228,27 @@ them. Journal articles only, published version free to read, title, authors,
 journal, date and link only. **A malformed OpenAlex query returns everything in
 the index instead of an error**; the script refuses any result set over 5,000,
 which is the only thing standing between the page and veterinary case reports.
+
+## Checks and tests
+
+Two scripts, two different jobs.
+
+`scripts/check_site.py` checks the site's content: photo and caption parity,
+alt text, the tracker data's control years and project-rule score, research
+data that must not store abstracts, the timeline's date order, coordinates,
+**no em dashes anywhere a visitor can read** (Brandon's standing rule; comments
+and third-party titles exempt), search descriptions over 160 characters, and
+complete fact boxes on work pages. Run it before every push.
+
+`scripts/test_trackers.py` tests the weekly scripts offline, with fixtures in
+place of the City's API and OpenAlex. Nearly every test is a mistake that was
+made or nearly made while building them; the comments say which. Checked on
+16 November 2026 by breaking the code on purpose: 10 of 10 breakages caught.
+The weekly Action runs it first and stops if it fails.
+
+**Homes per project** (`--units`) is built and tested against twelve real
+projects, but is a probe only: coverage on the live data has not been
+measured, so nothing about units is on the page yet.
 
 ## The header coordinates
 

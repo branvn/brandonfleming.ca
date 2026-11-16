@@ -214,7 +214,14 @@ spaces. Renaming the file later breaks any link anyone has saved.
 
 ### Add a photo
 
-Drop the file into `content/photography/`, then run one command:
+**The easy way:** put photos in `_incoming\` and ask Claude to sort them. Digital
+files go in `_incoming\digital\` as they are. Film goes in one folder per roll,
+named with camera, lens and stock, for example
+`roll-01  Nikon FE  28mm f2.8 AI  Fomapan 200`. The folder name matters: film
+scans carry the EXIF of whatever scanned them, so it is the only place the real
+camera and stock come from. Nothing in `_incoming` is ever uploaded.
+
+**By hand:** drop the file into `content/photography/`, then run one command:
 
 ```powershell
 python scripts/add_photo.py content/photography/D75_2313.jpg crescent-beach-lightning

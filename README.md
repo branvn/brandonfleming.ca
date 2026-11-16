@@ -106,9 +106,9 @@ Takes about four seconds. Raise `--simplify` to shrink the file; past about 3
 the coastline starts to facet visibly. If a straight line appears across the
 map, lower `--max-edge`; if a real dyke or causeway disappears, raise it.
 
-Long-form pages put dark text on a paper-coloured panel over the dark shell.
-That's deliberate — long text on a dark background is tiring, and photographs
-need a neutral surround.
+Every page sits on the same dark panel (`--panel` in the stylesheet). Long-form
+pages used to be dark text on a cream sheet; since November 2026 they match the
+rest of the site, with every text colour measured at AAA contrast on the panel.
 
 Muted text sits at 72% opacity, not 50%, so body copy clears WCAG AA. If you
 lighten it further, check the contrast ratio first.

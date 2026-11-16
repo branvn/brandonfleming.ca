@@ -182,9 +182,10 @@ project → **Deployments**.
 
 ## 9. The R1-1 Tracker
 
-`/tracker/` counts Vancouver multiplex permits and lists R1-1 headlines. It
-needs nothing from you: a GitHub Action runs every Monday, refreshes
-`data/multiplex.json`, and commits it, which rebuilds the site.
+`/tracker/` counts the multiplex projects Vancouver has permitted and lists
+R1-1 headlines. It needs nothing from you: a GitHub Action runs every Monday,
+runs the offline tests, refreshes `data/multiplex.json` and
+`data/research.json`, and commits them, which rebuilds the site.
 
 1. Generate the data once by hand, so the page is not empty before Monday:
    ```powershell
@@ -200,7 +201,7 @@ To check the news sources without writing anything:
 **Expect the occasional rejected push.** The Action commits to `main` too, so if
 it runs between your last pull and your next push you'll get "Updates were
 rejected". `git pull --rebase` then push. It only ever touches
-`data/multiplex.json`.
+`data/multiplex.json` and `data/research.json`.
 
 ---
 
