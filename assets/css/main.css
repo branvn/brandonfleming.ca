@@ -491,20 +491,21 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
      minimum size still fits a 360px phone, but a future headline with a longer
      word shouldn't be able to break the layout. */
   overflow-wrap: break-word;
-  /* A soft teal glow that slowly breathes, over a tight halo in the
-     background colour. The dark layer is last, so it sits underneath: it is
-     still what keeps the letterforms whole where lit contour bands run
-     through the hero. Seven seconds each way, so it reads as alive rather
-     than blinking. Steady for anyone who asks for reduced motion. */
-  text-shadow: 0 0 2px rgba(232, 241, 242, .48), 0 0 13px rgba(168, 236, 224, .4),
-               0 0 33px rgba(127, 212, 193, .22), 0 0 10px var(--bg);
-  animation: hero-glow 7s ease-in-out infinite alternate;
+  /* A wide halo in the background colour that slowly breathes: the clear
+     patch around the headline widens and narrows over seven seconds, so the
+     contour lines drift towards the letters and away again. The innermost
+     10px layer never changes; it is what keeps the letterforms whole where
+     lit contour bands run through the hero.
+
+     Dark, not a light glow: a teal bloom was tried on 15 November 2026 and
+     dropped because it softened the letter edges and read as blurry vision.
+     Steady for anyone who asks for reduced motion; off in print. */
+  text-shadow: 0 0 10px var(--bg), 0 0 24px var(--bg), 0 0 46px var(--bg);
+  animation: hero-halo 7s ease-in-out infinite alternate;
 }
-@keyframes hero-glow {
-  from { text-shadow: 0 0 2px rgba(232, 241, 242, .35), 0 0 10px rgba(168, 236, 224, .22),
-                      0 0 24px rgba(127, 212, 193, .1), 0 0 10px var(--bg); }
-  to   { text-shadow: 0 0 2px rgba(232, 241, 242, .6), 0 0 16px rgba(168, 236, 224, .55),
-                      0 0 42px rgba(127, 212, 193, .32), 0 0 10px var(--bg); }
+@keyframes hero-halo {
+  from { text-shadow: 0 0 10px var(--bg), 0 0 20px var(--bg), 0 0 30px var(--bg); }
+  to   { text-shadow: 0 0 10px var(--bg), 0 0 30px var(--bg), 0 0 64px var(--bg), 0 0 90px var(--bg); }
 }
 .hero-accent {
   display: block;
@@ -520,17 +521,15 @@ main { flex: 1 0 auto; padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw
   /* The glyphs here are transparent windows onto the gradient, so an inherited
      text-shadow paints INSIDE the letterforms rather than behind them. Cancel
      it and use a filter instead: drop-shadow acts on the painted result, so it
-     haloes the visible glyph the way text-shadow does on ordinary text. */
+     haloes the visible glyph the way text-shadow does on ordinary text. Same
+     breathing halo as the line above. */
   text-shadow: none;
-  filter: drop-shadow(0 0 2px rgba(232, 241, 242, .45)) drop-shadow(0 0 13px rgba(168, 236, 224, .45))
-          drop-shadow(0 0 33px rgba(127, 212, 193, .22));
-  animation: hero-glow-accent 7s ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 10px var(--bg)) drop-shadow(0 0 24px var(--bg)) drop-shadow(0 0 46px var(--bg));
+  animation: hero-halo-accent 7s ease-in-out infinite alternate;
 }
-@keyframes hero-glow-accent {
-  from { filter: drop-shadow(0 0 2px rgba(232, 241, 242, .3)) drop-shadow(0 0 10px rgba(168, 236, 224, .25))
-                 drop-shadow(0 0 24px rgba(127, 212, 193, .1)); }
-  to   { filter: drop-shadow(0 0 2px rgba(232, 241, 242, .55)) drop-shadow(0 0 16px rgba(168, 236, 224, .6))
-                 drop-shadow(0 0 42px rgba(127, 212, 193, .32)); }
+@keyframes hero-halo-accent {
+  from { filter: drop-shadow(0 0 10px var(--bg)) drop-shadow(0 0 20px var(--bg)) drop-shadow(0 0 30px var(--bg)); }
+  to   { filter: drop-shadow(0 0 10px var(--bg)) drop-shadow(0 0 30px var(--bg)) drop-shadow(0 0 64px var(--bg)); }
 }
 @media (prefers-reduced-motion: reduce) {
   .hero h1, .hero-accent { animation: none; }
