@@ -50,6 +50,13 @@
           <span class="mx-lab">multiplex projects permitted since R1-1 came into
             force, from {{ $d.total_since_in_force }} building permits</span>
         </div>
+        {{ with $d.homes_since_in_force }}
+          <div class="mx-fig">
+            <span class="mx-num">{{ lang.FormatNumber 0 . }}</span>
+            <span class="mx-lab">homes in those projects, read from the City's
+              own description of each building</span>
+          </div>
+        {{ end }}
         <div class="mx-fig">
           <span class="mx-num">{{ $lf.projects }}</span>
           <span class="mx-lab">in {{ $lf.year }}, the first full year of permits,
@@ -76,6 +83,29 @@
         {{ end }}
       </ol>
 
+      {{ with $d.homes_by_size }}
+        <h2 class="section-label">Homes per project</h2>
+        {{ $smax := 1 }}
+        {{ range . }}{{ if gt .projects $smax }}{{ $smax = .projects }}{{ end }}{{ end }}
+        <ol class="mx-years mx-sizes">
+          {{ range . }}
+            {{ $pct := div (mul .projects 100.0) $smax }}
+            <li class="mx-year">
+              <span class="mx-year-label">{{ .size }} homes</span>
+              <span class="mx-bar" style="width: {{ printf "%.1f" $pct }}%"></span>
+              <span class="mx-year-count">{{ .projects }}</span>
+            </li>
+          {{ end }}
+        </ol>
+        <p class="mx-note">
+          Projects by number of homes. R1-1 allows three to six, or up to eight
+          if every home is secured rental.
+          {{ with $d.partial_projects }}{{ . }} more show only one or two homes:
+          one building of a multiplex whose other permits have not been issued
+          yet, or could not be matched. Their homes are in the total above.{{ end }}
+        </p>
+      {{ end }}
+
       <p class="mx-note">
         R1-1 came into force on 17 October 2023.
         {{ with $d.first_permit_month }}The first multiplex permit was issued in
@@ -98,6 +128,14 @@
           and found {{ math.Round (mul .recall 100) }}% of those that belong
           together. So the count runs slightly high, never low.
         </p>
+        {{ with $d.homes_read_share }}
+        <p class="mx-note">
+          Homes come from the City's own description of each building, which
+          names a count for {{ math.Round (mul . 100) }}% of projects. One permit
+          may describe the whole project or a single building; both are read,
+          and a building described twice is counted once.
+        </p>
+        {{ end }}
       {{ end }}
     {{ else }}
       <div class="mx-figures">

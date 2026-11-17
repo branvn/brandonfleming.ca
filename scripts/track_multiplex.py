@@ -392,6 +392,22 @@ def build() -> dict:
             start[g] = d            # a project is dated by its first permit
     proj_year = Counter(d[:4] for d in start.values())
     proj_month = Counter(d[:7] for d in start.values())
+
+    # Homes per project, read from the City's own building descriptions. See
+    # project_homes(): 100% of projects read on 17 November 2026.
+    members: dict = {}
+    for r, g in zip(rows, ids):
+        members.setdefault(g, []).append(r)
+    homes = {g: project_homes(rs) for g, rs in members.items()}
+    homes_year = Counter()
+    for g, h in homes.items():
+        homes_year[start[g][:4]] += h
+    sizes = Counter(homes.values())
+    by_size = [{"size": str(n), "projects": sizes.get(n, 0)} for n in (3, 4, 5, 6)]
+    by_size.append({"size": "7\u20138", "projects": sizes.get(7, 0) + sizes.get(8, 0)})
+    partial = sum(v for k, v in sizes.items() if 1 <= k <= 2)
+    oversize = sum(v for k, v in sizes.items() if k > 8)
+    read_share = round(sum(1 for h in homes.values() if h) / len(homes), 3) if homes else 0
     rule = {"num_gap": PROJECT_NUM_GAP, "day_gap": PROJECT_DAY_GAP,
             **score_rule(rows, PROJECT_NUM_GAP, PROJECT_DAY_GAP)}
     print(f"  {len(start)} projects (rule precision {rule['precision']:.0%}, "
@@ -437,7 +453,16 @@ def build() -> dict:
                   for a, n in sorted(by_area.items(), key=lambda kv: -kv[1])],
         "projects_since_in_force": len(start),
         "projects_per_year": round(len(start) / elapsed, 1) if elapsed > 0 else None,
-        "last_full_year": {"year": full, "projects": proj_year.get(full, 0)},
+        "last_full_year": {"year": full, "projects": proj_year.get(full, 0),
+                           "homes": homes_year.get(full, 0)},
+        "homes_since_in_force": sum(homes.values()),
+        "homes_by_size": by_size,
+        # One building of a multiplex whose other permits are not issued yet,
+        # or could not be matched. Their homes are in the total; they are left
+        # out of the size breakdown because a 2-home "multiplex" is a fragment.
+        "partial_projects": partial,
+        "oversize_projects": oversize,
+        "homes_read_share": read_share,
         "project_years": years_out,
         "project_months": [{"month": m, "projects": proj_month[m]} for m in sorted(proj_month)],
         "project_rule": rule,
@@ -496,7 +521,8 @@ POS = r"(front|rear|east|west|north|south)"
 # Words that may sit between "unit" and "building": "Passive House",
 # "***PART 5***", "for the". Never "with", "and" or "having", which start the
 # next clause and would let one building's count attach to another.
-GAP = r"(?:(?!(?:with|and|having)\b)[\w*()&]+\s+){0,3}?"
+GAP = (r"(?:with\s+an?\s+attached\s+\w+\s+)?"            # "2 unit with an attached carport rear building"
+       r"(?:(?!(?:with|and|having)\b)[\w*()&]+\s+){0,3}?")
 BUILDING_RE = re.compile(
     r"\b" + UNIT_N + r"[\s-]+(?:dwelling\s+)?units?\s+" + GAP +
     r"(?:" + POS + r"\s+(?:\(\w+\)\s+)?)?(buildings?)", re.I)
@@ -563,32 +589,38 @@ def read_buildings(desc: str | None) -> tuple[dict[str, int], int]:
     return found, total
 
 
-def project_homes(descs: list[str]) -> int:
-    """Homes in one project, from all of its permits' descriptions.
+def project_homes(permits: list) -> int:
+    """Homes in one project, from all of its permits.
 
-    Two ways a project's permits can be written, and they need different
-    arithmetic:
+    `permits` are permit records (dicts with projectdescription and address)
+    or bare description strings. Three ways a project can be written up:
 
       * one permit describes the whole project ("a 3-unit front building and
-        a 1-unit rear building"). Then that description is the count, and any
-        other permit for one of those buildings must not be added on top. On
-        17 November that mistake produced two 10-home projects: a whole-project
-        permit plus a "Building 2" permit that matched neither front nor rear.
-      * each permit describes one building. Then the buildings add up, taking
-        the largest figure per position so identical repeats count once.
+        a 1-unit rear building"). That description is the count; a separate
+        permit for one of those buildings is not added on top. (17 November:
+        that produced two 10-home projects.)
+      * each permit describes one building, at its own civic number. Those
+        add up, even when two say the same thing: 4888 and 4890 Pine Crescent
+        each "a two-unit front building" are two buildings, four homes. Taking
+        the larger of the two, as the first version did, read them as two.
+      * the same building's description repeated at the same address, or with
+        no address at all: counted once.
     """
-    by_pos: dict[str, int] = {}
+    seen: dict = {}
     stated, whole = 0, 0
-    for d in descs:
-        found, total = read_buildings(d)
+    for p in permits:
+        desc = p if isinstance(p, str) else (p.get("projectdescription") or "")
+        addr = None if isinstance(p, str) else (p.get("address") or "").strip().upper() or None
+        found, total = read_buildings(desc)
         stated = max(stated, total)
-        if len(found) >= 2:                       # describes several buildings
+        if len(found) >= 2:                        # describes several buildings
             whole = max(whole, sum(found.values()))
         for pos, homes in found.items():
-            by_pos[pos] = max(by_pos.get(pos, 0), homes)
+            key = (addr or " ".join(desc.split()).lower(), pos)
+            seen[key] = max(seen.get(key, 0), homes)
     if stated or whole:
         return max(stated, whole)
-    return sum(by_pos.values())
+    return sum(seen.values())
 
 
 def units_probe() -> int:
@@ -604,8 +636,8 @@ def units_probe() -> int:
     ids = adjacency_groups(rows, PROJECT_NUM_GAP, PROJECT_DAY_GAP, use_dp=True)
     projects: dict = {}
     for r, g in zip(rows, ids):
-        projects.setdefault(g, []).append(r.get("projectdescription") or "")
-    homes = {g: project_homes(d) for g, d in projects.items()}
+        projects.setdefault(g, []).append(r)
+    homes = {g: project_homes(rs) for g, rs in projects.items()}
 
     n = len(homes)
     read = [h for h in homes.values() if h]
@@ -625,8 +657,8 @@ def units_probe() -> int:
         for g, h in homes.items():
             if test(h) and shown < limit:
                 shown += 1
-                for d in projects[g][:2]:
-                    print(f"   [{h}]  {' '.join(d.split())[:170]}")
+                for r in projects[g][:2]:
+                    print(f"   [{h}]  {' '.join((r.get('projectdescription') or '').split())[:170]}")
                 print()
     show("NOT READ, to see how else the City writes it:", lambda h: h == 0)
 
@@ -1158,9 +1190,9 @@ def main(argv: list[str]) -> int:
     DATA_FILE.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8", newline="\n")
     lf = data["last_full_year"]
     print(f"\nWrote {DATA_FILE.relative_to(ROOT)}: {data['projects_since_in_force']} projects "
-          f"from {data['total_since_in_force']} permits since R1-1; {lf['projects']} projects "
-          f"in {lf['year']} against the City's {CITY_EXPECTATION_PER_YEAR}; "
-          f"{len(data['news'])} headlines.")
+          f"({data['homes_since_in_force']} homes) from {data['total_since_in_force']} permits "
+          f"since R1-1; {lf['projects']} projects, {lf['homes']} homes in {lf['year']} against "
+          f"the City's {CITY_EXPECTATION_PER_YEAR} projects; {len(data['news'])} headlines.")
     return 0
 
 if __name__ == "__main__":

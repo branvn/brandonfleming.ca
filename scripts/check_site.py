@@ -172,6 +172,18 @@ def check_multiplex() -> None:
         if rule.get("recall", 0) < 0.75:
             fail(f"project grouping recall fell to {rule['recall']:.0%} "
                  f"(was 88% when chosen). Re-run --grouping.")
+        share = store.get("homes_read_share")
+        if share is not None and share < 0.95:
+            fail(f"homes were read for only {share:.0%} of projects (100% when added). "
+                 f"The City's wording has changed; run --units and look at the misses "
+                 f"before the homes figure is trusted.")
+        if share is not None:
+            parts = (sum(s.get("projects", 0) for s in store.get("homes_by_size") or [])
+                     + store.get("partial_projects", 0) + store.get("oversize_projects", 0))
+            unread = round((1 - share) * store.get("projects_since_in_force", 0))
+            if parts + unread != store.get("projects_since_in_force"):
+                fail(f"homes breakdown covers {parts + unread} projects, not "
+                     f"{store.get('projects_since_in_force')}")
         early = [y for y in store.get("project_years") or []
                  if y.get("year", "9999") < "2024" and y.get("projects")]
         if early:
@@ -193,7 +205,8 @@ def check_multiplex() -> None:
                 fail(f"news item missing {field!r}: {n.get('url')}")
 
     lf = store.get("last_full_year") or {}
-    print(f"  multiplex: {store.get('projects_since_in_force', '?')} projects from "
+    print(f"  multiplex: {store.get('homes_since_in_force', '?')} homes, "
+          f"{store.get('projects_since_in_force', '?')} projects from "
           f"{store.get('total_since_in_force')} permits since R1-1; {lf.get('projects', '?')} in "
           f"{lf.get('year', '?')}; {len(store.get('news') or [])} headlines")
 

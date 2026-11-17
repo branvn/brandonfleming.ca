@@ -113,7 +113,8 @@ class Build(unittest.TestCase):
         rows += [permit("100 MAIN STREET, Vancouver", f"{y0}-09-01")]
         rows += [permit("2284 E BROADWAY, Vancouver", f"{self.full}-01-10", "DP-2024-00603"),
                  permit("2286 E BROADWAY, Vancouver", f"{self.full}-03-01", "DP-2024-00603")]
-        rows += [permit(f"{a}, Vancouver", f"{self.full}-06-01") for a in ("10 A STREET", "500 B STREET", "900 C STREET")]
+        rows += [permit(f"{a}, Vancouver", f"{self.full}-06-01", text="with a 2 unit front building and a 1 unit rear building")
+                 for a in ("10 A STREET", "500 B STREET", "900 C STREET")]
         self.rows = rows
         self._fetch, self._tally = tm.fetch, tm.tally
         tm.fetch = lambda url: json.dumps(rows).encode()
@@ -143,7 +144,8 @@ class Build(unittest.TestCase):
         # Averaging from October 2023 includes eight months before the first
         # permit was issued; the comparison is a complete calendar year.
         d = tm.build()
-        self.assertEqual(d["last_full_year"], {"year": self.full, "projects": 4})
+        self.assertEqual((d["last_full_year"]["year"], d["last_full_year"]["projects"]), (self.full, 4))
+        self.assertEqual(d["last_full_year"]["homes"], 9)        # three 3-home projects; the rest unread
 
     def test_pre_policy_years_are_present_and_zero(self):
         # group_by returns no row for a zero, so the permit years went missing
@@ -155,6 +157,16 @@ class Build(unittest.TestCase):
             with self.subTest(year=y):
                 self.assertEqual(permits.get(y), 0)
                 self.assertEqual(projects.get(y), 0)
+
+    def test_homes_are_counted_per_project(self):
+        d = tm.build()
+        # every fixture permit says "Multiple Dwelling Multiplex" with no home
+        # count, so each project reads as unread (0 homes) unless described
+        self.assertIn("homes_since_in_force", d)
+        self.assertEqual(sum(s["projects"] for s in d["homes_by_size"]) + d["partial_projects"]
+                         + d["oversize_projects"] + round((1 - d["homes_read_share"]) * d["projects_since_in_force"]),
+                         d["projects_since_in_force"])
+        self.assertIn("homes", d["last_full_year"])
 
     def test_running_total_never_falls(self):
         totals = [y["running_total"] for y in tm.build()["project_years"]]
@@ -247,6 +259,21 @@ class ProjectHomes(unittest.TestCase):
          ['with two three-storey 2 dwelling units for the front buildings 1 & 2, and a two-storey 2-unit rear building',
           'Building 2 (West "multiplex") - To construct two dwelling units. Refer to BP-2025-00639 for Building 1']),
     ]
+
+    def test_two_single_buildings_at_different_addresses_add_up(self):
+        # 4888 and 4890 Pine Crescent, 17 November: two front buildings, one
+        # permit each, identical wording. Four homes, not two.
+        rows = [{"address": "4890 PINE CRESCENT, Vancouver", "projectdescription": "with a three-storey two-unit front building"},
+                {"address": "4888 PINE CRESCENT, Vancouver", "projectdescription": "with a three-storey two-unit front building"}]
+        self.assertEqual(tm.project_homes(rows), 4)
+
+    def test_same_building_repeated_at_one_address_counts_once(self):
+        rows = [{"address": "100 TEST ST", "projectdescription": "with a three-storey two-unit front building"}] * 2
+        self.assertEqual(tm.project_homes(rows), 2)
+
+    def test_attached_carport_between_unit_and_rear(self):
+        self.assertEqual(tm.project_homes(
+            ["with a 2 unit front building and a 2 unit with an attached carport rear building"]), 4)
 
     def test_real_projects(self):
         for label, want, descs in self.CASES:

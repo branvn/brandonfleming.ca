@@ -27,8 +27,9 @@
     <p class="rail-figure">
       {{ if .projects_since_in_force }}
         <strong>{{ .projects_since_in_force }}</strong> multiplex projects since
-        R1-1; {{ .last_full_year.projects }} in {{ .last_full_year.year }}
-        against the City's {{ .city_expectation_per_year }}.
+        R1-1{{ with .homes_since_in_force }}, about {{ lang.FormatNumber 0 . }} homes{{ end }};
+        {{ .last_full_year.projects }} in {{ .last_full_year.year }} against the
+        City's {{ .city_expectation_per_year }}.
       {{ else }}
         <strong>{{ .total_since_in_force }}</strong> multiplex building permits
         since R1-1.
