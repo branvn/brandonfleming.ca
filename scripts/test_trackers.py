@@ -237,6 +237,15 @@ class ProjectHomes(unittest.TestCase):
           "Building 4 - BP-2026-00304: To construct a Multiple Dwelling 'Multiplex' with three-storey one dwelling unit with an attached 2-car carport"]),
         ("'for the front buildings 1 & 2'", 4,
          ['with two three-storey 2 dwelling units for the front buildings 1 & 2']),
+        ("'containing four dwellings', no 'unit'", 4,
+         ["To construct a three storey Multiple Dwelling \u201cMultiplex\u201d containing four dwellings designed to CHBA Net Zero standards"]),
+        ("'a two-dwelling unit', hyphenated", 2,
+         ['Building 2 ("multiplex") - Rear - To construct a two-dwelling unit. Refer to BP-2024-04272 for Building 1']),
+        # 17 November: read as 10. A whole-project permit plus a separate
+        # "Building 2" permit; the second must not be added on top.
+        ("whole-project permit is not added to a per-building one", 6,
+         ['with two three-storey 2 dwelling units for the front buildings 1 & 2, and a two-storey 2-unit rear building',
+          'Building 2 (West "multiplex") - To construct two dwelling units. Refer to BP-2025-00639 for Building 1']),
     ]
 
     def test_real_projects(self):

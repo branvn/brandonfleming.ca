@@ -502,7 +502,7 @@ BUILDING_RE = re.compile(
     r"(?:" + POS + r"\s+(?:\(\w+\)\s+)?)?(buildings?)", re.I)
 # "Building 2 - To construct two dwelling units": a per-building permit that
 # never says front or rear. The building number stands in for the position.
-DWELLING_RE = re.compile(r"\b" + UNIT_N + r"\s+dwelling\s+units?\b", re.I)
+DWELLING_RE = re.compile(r"\b" + UNIT_N + r"[\s-]+dwelling\s+units?\b", re.I)
 LABEL_RE = re.compile(r"\bBuilding\s+(\d)\b", re.I)
 # How many of a plural building, read from just before it: "two, three-story
 # 2-unit front buildings". Found after the building, not as part of one
@@ -515,7 +515,8 @@ FAMILY_RE = re.compile(
     r"\b(one|two|single|1|2)[\s-]+family\s+dwelling(?:\s+building)?"
     r"(?:\s+(?:building\s+)?(?:at|in)\s+the\s+" + POS + r")?", re.I)
 CONTAINING_RE = re.compile(
-    r"building\s+containing\s+" + UNIT_N + r"[\s-]+(?:dwelling\s+|strata\s+)?units?"
+    r"(?:building|multiplex\W*)\s+containing\s+" + UNIT_N +
+    r"[\s-]+(?:(?:dwelling|strata)\s+units?|units?|dwellings)"
     r"(?:\s+(?:at|in)\s+the\s+" + POS + r")?", re.I)
 WHOLE_RE = re.compile(r"\b" + UNIT_N + r"[\s-]+units?\s+(?:multiple\s+dwelling|multiplex)", re.I)
 TOTAL_RE = re.compile(r"total\s+of\s+" + UNIT_N + r"\s+(?:dwelling\s+|strata\s+|residential\s+)?units?", re.I)
@@ -563,15 +564,31 @@ def read_buildings(desc: str | None) -> tuple[dict[str, int], int]:
 
 
 def project_homes(descs: list[str]) -> int:
-    """Homes in one project, from all of its permits' descriptions."""
+    """Homes in one project, from all of its permits' descriptions.
+
+    Two ways a project's permits can be written, and they need different
+    arithmetic:
+
+      * one permit describes the whole project ("a 3-unit front building and
+        a 1-unit rear building"). Then that description is the count, and any
+        other permit for one of those buildings must not be added on top. On
+        17 November that mistake produced two 10-home projects: a whole-project
+        permit plus a "Building 2" permit that matched neither front nor rear.
+      * each permit describes one building. Then the buildings add up, taking
+        the largest figure per position so identical repeats count once.
+    """
     by_pos: dict[str, int] = {}
-    stated = 0
+    stated, whole = 0, 0
     for d in descs:
         found, total = read_buildings(d)
         stated = max(stated, total)
+        if len(found) >= 2:                       # describes several buildings
+            whole = max(whole, sum(found.values()))
         for pos, homes in found.items():
             by_pos[pos] = max(by_pos.get(pos, 0), homes)
-    return max(stated, sum(by_pos.values()))
+    if stated or whole:
+        return max(stated, whole)
+    return sum(by_pos.values())
 
 
 def units_probe() -> int:
@@ -612,6 +629,22 @@ def units_probe() -> int:
                     print(f"   [{h}]  {' '.join(d.split())[:170]}")
                 print()
     show("NOT READ, to see how else the City writes it:", lambda h: h == 0)
+
+    # The halves: projects of 1 or 2 homes are mostly a front or rear building
+    # whose other half landed in a different project. Show where and when, so
+    # the reason the grouping missed them can be seen rather than guessed.
+    print("\nHALVES (1 or 2 homes): address, date and what each permit describes")
+    rows_by_group: dict = {}
+    for r, g in zip(rows, ids):
+        rows_by_group.setdefault(g, []).append(r)
+    shown = 0
+    for g, h in homes.items():
+        if 1 <= h <= 2 and shown < 12:
+            shown += 1
+            for r in rows_by_group[g][:2]:
+                found, _ = read_buildings(r.get("projectdescription"))
+                print(f"   [{h}]  {str(r.get('issuedate'))[:10]}  {(r.get('address') or '(no address)')[:44]:44s}  {found}")
+    print("   (addresses are printed here only; nothing is written or published)")
     show("OUTSIDE 3 TO 8, to check whether the reading or the project is odd:", lambda h: h and not 3 <= h <= 8)
     print("Send me this. Coverage decides whether homes per project goes on the page.")
     return 0
