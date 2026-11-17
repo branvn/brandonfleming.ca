@@ -1,11 +1,11 @@
 {
-  "updated": "2026-11-15",
+  "updated": "2026-11-17",
   "source": "City of Vancouver open data, issued building permits",
   "source_url": "https://opendata.vancouver.ca/explore/dataset/issued-building-permits/",
   "in_force": "2023-10-17",
   "filter": "typeofwork = 'New Building' AND search(projectdescription, \"multiplex\")",
   "total_since_in_force": 650,
-  "per_year": 211.0,
+  "per_year": 210.7,
   "city_expectation_per_year": 150,
   "first_permit_month": "2024-06",
   "years": [
@@ -235,7 +235,7 @@
     }
   ],
   "projects_since_in_force": 373,
-  "projects_per_year": 121.1,
+  "projects_per_year": 120.9,
   "last_full_year": {
     "year": "2025",
     "projects": 182
