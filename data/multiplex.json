@@ -238,8 +238,35 @@
   "projects_per_year": 120.9,
   "last_full_year": {
     "year": "2025",
-    "projects": 182
+    "projects": 182,
+    "homes": 727
   },
+  "homes_since_in_force": 1443,
+  "homes_by_size": [
+    {
+      "size": "3",
+      "projects": 124
+    },
+    {
+      "size": "4",
+      "projects": 148
+    },
+    {
+      "size": "5",
+      "projects": 27
+    },
+    {
+      "size": "6",
+      "projects": 41
+    },
+    {
+      "size": "7\u20138",
+      "projects": 6
+    }
+  ],
+  "partial_projects": 26,
+  "oversize_projects": 1,
+  "homes_read_share": 1.0,
   "project_years": [
     {
       "year": "2019",
