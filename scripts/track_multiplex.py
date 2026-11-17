@@ -493,8 +493,17 @@ NUMS = {"one": 1, "single": 1, "two": 2, "three": 3, "four": 4, "five": 5,
         "six": 6, "seven": 7, "eight": 8}
 POS = r"(front|rear|east|west|north|south)"
 
+# Words that may sit between "unit" and "building": "Passive House",
+# "***PART 5***", "for the". Never "with", "and" or "having", which start the
+# next clause and would let one building's count attach to another.
+GAP = r"(?:(?!(?:with|and|having)\b)[\w*()&]+\s+){0,3}?"
 BUILDING_RE = re.compile(
-    r"\b" + UNIT_N + r"[\s-]+units?\s+(?:" + POS + r"\s+)?(buildings?)", re.I)
+    r"\b" + UNIT_N + r"[\s-]+(?:dwelling\s+)?units?\s+" + GAP +
+    r"(?:" + POS + r"\s+(?:\(\w+\)\s+)?)?(buildings?)", re.I)
+# "Building 2 - To construct two dwelling units": a per-building permit that
+# never says front or rear. The building number stands in for the position.
+DWELLING_RE = re.compile(r"\b" + UNIT_N + r"\s+dwelling\s+units?\b", re.I)
+LABEL_RE = re.compile(r"\bBuilding\s+(\d)\b", re.I)
 # How many of a plural building, read from just before it: "two, three-story
 # 2-unit front buildings". Found after the building, not as part of one
 # pattern: when it was a single pattern, the words allowed between the count
@@ -506,7 +515,7 @@ FAMILY_RE = re.compile(
     r"\b(one|two|single|1|2)[\s-]+family\s+dwelling(?:\s+building)?"
     r"(?:\s+(?:building\s+)?(?:at|in)\s+the\s+" + POS + r")?", re.I)
 CONTAINING_RE = re.compile(
-    r"building\s+containing\s+" + UNIT_N + r"\s+(?:dwelling\s+|strata\s+)?units?"
+    r"building\s+containing\s+" + UNIT_N + r"[\s-]+(?:dwelling\s+|strata\s+)?units?"
     r"(?:\s+(?:at|in)\s+the\s+" + POS + r")?", re.I)
 WHOLE_RE = re.compile(r"\b" + UNIT_N + r"[\s-]+units?\s+(?:multiple\s+dwelling|multiplex)", re.I)
 TOTAL_RE = re.compile(r"total\s+of\s+" + UNIT_N + r"\s+(?:dwelling\s+|strata\s+|residential\s+)?units?", re.I)
@@ -538,6 +547,10 @@ def read_buildings(desc: str | None) -> tuple[dict[str, int], int]:
         put(m.group(2), _n(m.group(1)))
     for m in CONTAINING_RE.finditer(text):
         put(m.group(2), _n(m.group(1)))
+    if not found:
+        label = LABEL_RE.search(text)
+        for m in DWELLING_RE.finditer(text):
+            put(f"building {label.group(1)}" if label else None, _n(m.group(1)))
     if not found:
         for m in WHOLE_RE.finditer(text):
             put(None, _n(m.group(1)))

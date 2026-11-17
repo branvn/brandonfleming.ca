@@ -217,6 +217,26 @@ class ProjectHomes(unittest.TestCase):
           'with a two-storey one-unit rear building']),
         ("building containing N dwelling units", 2,
          ["To construct a three-storey building containing two dwelling units at the front of the site"]),
+        # From the 17 November --units run: the wordings it could not read.
+        ("'dwelling' between the number and 'unit'", 4,
+         ["with a two-storey plus basement two dwelling unit front building and a two-storey two dwelling unit rear building"]),
+        ("'Passive House' between 'unit' and 'front'", 3,
+         ["with a three-storey two-unit Passive House front building. 1. Mechanical unit proposed",
+          "with a two-storey one-unit passive house rear building with an attached carport"]),
+        ("'***PART 5***' between 'unit' and 'rear'", 3,
+         ["with a three-storey two-unit ***PART 5*** front building with three surface parking spaces",
+          "with a two-storey one-unit ***PART 5*** rear building with three surface parking spaces"]),
+        ("a bracketed direction after 'front'", 3,
+         ["with a three-storey two-unit front (east) building, with six carport and one surface parking",
+          "with a two-storey one-unit rear building (south) with six carport"]),
+        ("'containing 4-units' with a hyphen", 6,
+         ["MULTIPLEX: To construct a three-storey Multiple Dwelling building containing 4-units at the front of the site",
+          "R1-1 MULTIPLEX To construct a two-storey 2-unit rear building. BP-2024-04608: Front Building"]),
+        ("numbered buildings that never say front or rear", 3,
+         ["Building 2 - BP-2026-00772: To construct a Multiple Dwelling 'Multiplex' with two-storey two dwelling unit with an attached 3-car carport",
+          "Building 4 - BP-2026-00304: To construct a Multiple Dwelling 'Multiplex' with three-storey one dwelling unit with an attached 2-car carport"]),
+        ("'for the front buildings 1 & 2'", 4,
+         ['with two three-storey 2 dwelling units for the front buildings 1 & 2']),
     ]
 
     def test_real_projects(self):
