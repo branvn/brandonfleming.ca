@@ -131,7 +131,7 @@
         {{ with $d.homes_read_share }}
         <p class="mx-note">
           Homes come from the City's own description of each building, which
-          names a count for {{ math.Round (mul . 100) }}% of projects. One permit
+          names a count for {{ if ge . 1.0 }}every project{{ else }}{{ printf "%.1f" (mul . 100) }}% of projects{{ end }}. One permit
           may describe the whole project or a single building; both are read,
           and a building described twice is counted once.
         </p>
@@ -188,9 +188,10 @@
         multiplex described without it.
       </p>
       <p>
-        <strong>A permit is not a finished home.</strong> Nothing here says how
-        many of these were built, how many homes each contains, who lives in
-        them, or what they cost.
+        <strong>A permit is not a finished home.</strong> These are homes the
+        City has approved, not homes built, and they are gross: each multiplex
+        usually replaces a house, which this page does not subtract. Nothing here
+        says who lives in them or what they cost.
       </p>
       <p class="mx-method">
         Filter: <code>{{ $d.filter }}</code>
